@@ -1,0 +1,1447 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>VO Turf List</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
+    :root{
+      --bg:#0d0d0d;--surface:#1a1a1a;--border:#2e2e2e;
+      --accent:#e8ff00;--accent2:#00d4ff;--danger:#ff4d4d;
+      --success:#4dff91;--text:#f0f0f0;--muted:#888;
+      --font-mono:'IBM Plex Mono',monospace;--font-sans:'IBM Plex Sans',sans-serif;
+      --radius:4px;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{font-size:100%;-webkit-text-size-adjust:auto;text-size-adjust:auto}
+    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:1rem;line-height:1.6;min-height:100vh;padding:.75rem .75rem 3rem}
+
+    .view{display:none}.view.active{display:block}
+
+    /* ── Headings ── */
+    h1{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:.5rem;border-bottom:2px solid var(--accent);padding-bottom:.4rem}
+    h2{font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem}
+
+    /* ── Skip link to settings ── */
+    #skip-to-settings{
+      display:block;
+      position:absolute;left:-9999px;
+      font-family:var(--font-mono);font-size:.85rem;font-weight:700;
+      background:var(--accent);color:#000;
+      padding:.4rem .85rem;border-radius:var(--radius);
+      text-decoration:none;
+    }
+    #skip-to-settings:focus{position:static;margin-bottom:.5rem;}
+
+    /* ── Start section ── */
+    #start-section p{font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.6rem}
+    #btn-start{display:block;width:100%;font-family:var(--font-mono);font-size:1rem;font-weight:700;border:3px solid var(--accent);border-radius:var(--radius);padding:.75rem;cursor:pointer;background:var(--accent);color:#000;margin-bottom:.75rem}
+    #btn-start:focus-visible{outline:3px solid var(--accent2);outline-offset:4px}
+
+    /* ── Collapsible tips ── */
+    #tips-toggle{
+      display:flex;align-items:center;justify-content:space-between;
+      width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:600;
+      border:1px solid var(--border);border-radius:var(--radius);
+      padding:.5rem .75rem;cursor:pointer;background:var(--surface);
+      color:var(--muted);margin-bottom:.5rem;
+    }
+    #tips-toggle:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    #tips-toggle .tips-chevron{font-size:.7rem;transition:transform .2s}
+    #tips-toggle[aria-expanded="true"] .tips-chevron{transform:rotate(180deg)}
+    #tips-content{
+      background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+      padding:.75rem;margin-bottom:.75rem;
+    }
+    #tips-content[hidden]{display:none}
+    #tips-content ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
+    #tips-content li{
+      font-family:var(--font-mono);font-size:.8rem;color:var(--muted);
+      padding-left:.75rem;border-left:2px solid var(--border);line-height:1.5;
+    }
+
+    /* ── Sticky toolbar: yellow background, two columns ── */
+    #toolbar{
+      position:sticky;top:0;z-index:10;
+      background:var(--accent);
+      display:flex;gap:.4rem;
+      padding:.4rem;
+      margin-bottom:.6rem;
+      border-radius:var(--radius);
+    }
+    /* Left: Refresh — full height, black on yellow */
+    #btn-refresh{
+      flex:1;display:flex;align-items:center;justify-content:space-between;
+      gap:.4rem;font-family:var(--font-mono);font-size:.85rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.55rem .85rem;cursor:pointer;background:#000;color:var(--accent);
+      transition:background .15s,color .15s;white-space:nowrap;min-height:5.5rem;
+    }
+    #btn-refresh:hover{background:var(--accent);color:#000;border-color:#000}
+    #btn-refresh:focus-visible{outline:3px solid #000;outline-offset:3px}
+    #btn-refresh:disabled{opacity:.5;cursor:not-allowed}
+    #btn-refresh:disabled:hover{background:#000;color:var(--accent)}
+    .btn-refresh-inner{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem}
+    #btn-refresh-label{font-size:.85rem}
+    .btn-countdown-vis{font-size:.75rem;opacity:.8}
+
+    /* Right column: Filter on top, Monitor below */
+    #toolbar-right{display:flex;flex-direction:column;gap:.4rem}
+
+    /* Filter button — dark bg, yellow text */
+    #filter-wrap{position:relative}
+    #btn-filter{
+      font-family:var(--font-mono);font-size:.8rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.45rem .75rem;cursor:pointer;background:#000;color:var(--accent);
+      white-space:nowrap;width:100%;text-align:left;
+    }
+    #btn-filter:focus-visible{outline:3px solid #000;outline-offset:3px}
+    #filter-menu{
+      position:absolute;top:calc(100% + .35rem);right:0;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);list-style:none;min-width:11rem;z-index:20;overflow:hidden;
+    }
+    #filter-menu[hidden]{display:none}
+    #filter-menu li button{
+      display:block;width:100%;text-align:left;
+      font-family:var(--font-mono);font-size:.85rem;
+      padding:.55rem .85rem;border:none;background:transparent;color:var(--text);cursor:pointer;
+    }
+    #filter-menu li button:hover{background:rgba(255,255,255,.06)}
+    #filter-menu li button[aria-checked="true"]{color:var(--accent)}
+    #filter-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
+    #filter-menu li+li{border-top:1px solid var(--border)}
+
+    /* Monitor toggle — dark bg, yellow text; active = yellow bg, black text */
+    #btn-monitor{
+      font-family:var(--font-mono);font-size:.8rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.45rem .75rem;cursor:pointer;background:#000;color:var(--muted);
+      white-space:nowrap;width:100%;text-align:left;transition:background .15s,color .15s;
+    }
+    #btn-monitor.active{background:var(--accent);color:#000;border-color:#000}
+    #btn-monitor:focus-visible{outline:3px solid #000;outline-offset:3px}
+
+    /* ── Status ── */
+    #status-msg{font-size:.85rem;color:var(--muted);font-family:var(--font-mono);min-height:1.4em;margin-bottom:.6rem}
+    #status-msg.error{color:var(--danger)}#status-msg.success{color:var(--success)}#status-msg.loading{color:var(--accent2)}
+
+    /* ── Zone list ── */
+    #zone-list{list-style:none;display:flex;flex-direction:column;gap:.35rem;margin-bottom:.75rem}
+    .zone-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden}
+    .zone-btn{display:block;width:100%;background:transparent;border:none;border-radius:var(--radius);padding:.9rem 1rem .85rem;cursor:pointer;text-align:left;color:var(--text)}
+    .zone-btn:focus-visible{outline:3px solid var(--accent);outline-offset:-3px}
+    .zone-btn:hover{background:rgba(255,255,255,.03)}
+    .zv-name{font-family:var(--font-mono);font-size:1.05rem;font-weight:700;color:var(--text);margin-bottom:.45rem}
+    .zv-rank{font-size:.7rem;color:var(--muted);margin-right:.3rem}
+    .zv-arrow{float:right;font-size:.8rem;color:var(--muted);margin-top:.1rem}
+    .zv-strip{display:flex;flex-wrap:wrap;column-gap:1.4rem;row-gap:.25rem}
+    .zv-field{display:flex;flex-direction:column}
+    .zv-label{font-size:.62rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-family:var(--font-mono)}
+    .zv-value{font-family:var(--font-mono);font-size:.88rem;font-weight:600}
+    .zv-value.dist{color:var(--accent2)}.zv-value.owner{color:var(--accent2)}
+    .zv-value.unowned{color:var(--muted)}.zv-value.blocked{color:var(--danger)}
+    .zv-value.free{color:var(--success)}.zv-value.pending{color:var(--muted)}
+
+    #btn-load-more{display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:600;border:2px solid var(--border);border-radius:var(--radius);padding:.6rem 1rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.75rem;transition:border-color .15s,color .15s}
+    #btn-load-more:hover{border-color:var(--accent2);color:var(--accent2)}
+    #btn-load-more:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    #btn-load-more[hidden]{display:none}
+    #empty-state{color:var(--muted);font-family:var(--font-mono);font-size:.9rem;padding:2rem 0}
+
+    /* ── Settings section ── */
+    .settings-control{
+      display:flex;align-items:center;gap:.6rem;
+      background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:.6rem .85rem;margin-bottom:.5rem;
+    }
+    .settings-label{font-family:var(--font-mono);font-size:.8rem;color:var(--muted);flex:1}
+    .stepper-btn{
+      font-family:var(--font-mono);font-size:1rem;font-weight:700;
+      border:2px solid var(--accent);border-radius:var(--radius);
+      padding:.2rem .65rem;cursor:pointer;background:var(--accent);color:#000;
+      line-height:1;transition:opacity .15s;
+    }
+    .stepper-btn:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
+    .stepper-btn:disabled{opacity:.35;cursor:not-allowed}
+    .stepper-val{
+      font-family:var(--font-mono);font-size:.9rem;font-weight:700;
+      color:var(--text);min-width:3rem;text-align:center;
+    }
+
+    /* ── Lang bar ── */
+    #lang-bar{display:flex;gap:.4rem;padding:.3rem 0;margin-top:.25rem;align-items:center;flex-wrap:wrap}
+    .lang-btn{font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.15rem .6rem;cursor:pointer;background:transparent;color:var(--muted);transition:border-color .15s,color .15s}
+    .lang-btn[aria-pressed="true"]{border-color:var(--accent);color:var(--accent)}
+    .lang-btn:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+    .update-line{font-family:var(--font-mono);font-size:.7rem;color:var(--muted);margin-left:.25rem}
+
+    /* ── Detail list ── */
+    #detail-list li{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .85rem;font-family:var(--font-mono);font-size:.88rem;color:var(--text);line-height:1.5}
+  </style>
+</head>
+<body>
+
+  <!-- ══ LIST VIEW ══ -->
+  <div id="list-view" class="view active">
+    <h1>VO Turf List</h1>
+    <p id="app-description" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.75rem;">Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.</p>
+
+    <!-- Skip to settings — appears after navigation starts, before toolbar -->
+    <a id="skip-to-settings" href="#settings-heading" hidden>Hoppa till inställningar</a>
+
+    <!-- Start section with collapsible tips -->
+    <div id="start-section">
+      <p id="start-subtitle">Navigation från din aktuella position.</p>
+
+      <!-- Collapsible tips -->
+      <button id="tips-toggle" aria-expanded="false" aria-controls="tips-content">
+        <span id="tips-toggle-label">Tips &amp; instruktioner</span>
+        <span class="tips-chevron" aria-hidden="true">▼</span>
+      </button>
+      <div id="tips-content" hidden>
+        <ul id="tips-list">
+          <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
+          <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
+          <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.</li>
+          <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsintervall, Monitor-röstens hastighet och språk där.</li>
+          <li id="tip-5">Monitor-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Monitor-knappen i verktygsfältet.</li>
+          <li id="tip-6">Om Monitor och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
+          <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
+        </ul>
+      </div>
+
+      <button id="btn-start" aria-label="Starta navigering och ladda zoner i närheten">Starta navigering</button>
+    </div>
+
+    <!-- Sticky toolbar: yellow background, Refresh left, Filter+Monitor right -->
+    <div id="toolbar">
+      <button id="btn-refresh" aria-label="Uppdatera zoner. Automatisk uppdatering om — sekunder." disabled>
+        <div class="btn-refresh-inner" aria-hidden="true">
+          <span id="btn-refresh-label">Uppdatera nu</span>
+          <span class="btn-countdown-vis"><span id="countdown">—</span>s</span>
+        </div>
+      </button>
+
+      <div id="toolbar-right">
+        <div id="filter-wrap">
+          <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox">
+            <span id="btn-filter-label">Alla zoner</span>
+          </button>
+          <ul id="filter-menu" role="listbox" hidden>
+            <li><button role="option" data-filter="all"       aria-checked="true">Alla zoner</button></li>
+            <li><button role="option" data-filter="available" aria-checked="false">Tillgängliga</button></li>
+            <li><button role="option" data-filter="blocked"   aria-checked="false">Blockerade</button></li>
+          </ul>
+        </div>
+        <button id="btn-monitor" aria-pressed="false">Röstläge av</button>
+      </div>
+    </div>
+
+    <div id="status-msg" aria-live="polite" aria-atomic="true">Hämtar navigationsposition…</div>
+
+    <ul id="zone-list"></ul>
+    <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
+    <button id="btn-load-more" hidden>Ladda fler zoner</button>
+
+    <!-- Settings section -->
+    <h2 id="settings-heading" tabindex="-1">Inställningar</h2>
+
+    <!-- Username / Profile — first control under Settings -->
+    <div class="settings-control" id="username-control">
+      <span class="settings-label" id="lbl-username">Mitt användarnamn:</span>
+      <input
+        type="text" id="username-input"
+        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        placeholder="Användarnamn"
+        aria-label="Ditt Turf-användarnamn"
+        style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
+      />
+      <button class="stepper-btn" id="btn-add-user" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
+    </div>
+    <div id="username-status" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;" aria-live="polite"></div>
+    <!-- Profile button — shown after successful user load, hidden initially -->
+    <button id="btn-profile" hidden
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.75rem;text-align:left;">
+      —
+    </button>
+
+    <!-- Auto update interval -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-interval">Uppdatera position: </span>
+      <button class="stepper-btn" id="btn-interval-minus" aria-label="Minska uppdateringsintervall">−</button>
+      <span class="stepper-val" id="interval-val" aria-live="polite" aria-atomic="true">30s</span>
+      <button class="stepper-btn" id="btn-interval-plus"  aria-label="Öka uppdateringsintervall">+</button>
+    </div>
+
+    <!-- Voice speed -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-speed">Talhastighet: </span>
+      <button class="stepper-btn" id="btn-speed-minus" aria-label="Minska röst hastighet">−</button>
+      <span class="stepper-val" id="speed-val" aria-live="polite" aria-atomic="true">1.0</span>
+      <button class="stepper-btn" id="btn-speed-plus"  aria-label="Öka röst hastighet">+</button>
+    </div>
+
+    <!-- Language -->
+    <div id="lang-bar">
+      <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
+      <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-20 20:45</span>
+    </div>
+  </div>
+
+  <!-- ══ DETAIL VIEW ══ -->
+  <div id="detail-view" class="view">
+    <h1 id="detail-heading" tabindex="-1">—</h1>
+    <ul id="detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
+      <li id="di-block">—</li>
+      <li id="di-location">—</li>
+      <li id="di-owner">—</li>
+      <li id="di-taken">—</li>
+      <li id="di-points">—</li>
+      <li id="di-zone">—</li>
+      <li id="di-created">—</li>
+    </ul>
+    <div id="owned-section" hidden>
+      <h2 id="owned-heading">—</h2>
+      <ul id="owned-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
+  </div>
+
+  <!-- ══ PROFILE VIEW ══ -->
+  <div id="profile-view" class="view">
+    <h1 id="profile-heading" tabindex="-1">—</h1>
+    <ul id="profile-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
+      <li id="pi-rank">—</li>
+      <li id="pi-next-rank">—</li>
+      <li id="pi-points">—</li>
+      <li id="pi-pph">—</li>
+      <li id="pi-unique">—</li>
+      <li id="pi-taken">—</li>
+      <li id="pi-medals">—</li>
+      <li id="pi-zones-count">—</li>
+      <li id="pi-region">—</li>
+      <li id="pi-place">—</li>
+    </ul>
+    <div id="my-zones-section">
+      <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
+      <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
+  </div>
+  /* ════════════════════════════════════════
+     TRANSLATIONS
+  ════════════════════════════════════════ */
+  const T={
+    sv:{
+      htmlLang:'sv',
+      startSubtitle:'Navigation från din aktuella position.',
+      appDescription:'Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.',
+      startBtn:'Starta navigering',startBtnAria:'Starta navigering och ladda zoner i närheten',
+      tipsLabel:'Tips &amp; instruktioner',
+      tips:[
+        'Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.',
+        'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
+        'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.',
+        'Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsintervall, Voice-röstens hastighet och språk där.',
+        'Voice-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Voice-knappen i verktygsfältet.',
+        'Om Voice och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.',
+        'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
+      ],
+      refreshLabel:'Uppdatera',
+      refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
+      statusAcquiring:'Hämtar navigationsposition…',
+      statusLoading:'Laddar zoner i närheten…',
+      statusUpdated:(time,shown,total)=>`Uppdaterad ${time}. Visar ${shown} av ${total} zoner.`,
+      statusError:(m)=>`Fel: ${m}`,
+      emptyState:'Inga zoner hittades i närheten.',
+      emptyFiltered:'Inga zoner matchar det valda filtret.',
+      loadMore:(n)=>`Ladda ${n} fler zoner`,loadMoreAria:(n,r)=>`Ladda ${n} fler zoner. ${r} återstår.`,
+      geoErr1:'Navigering nekad. Tillåt plats i Safari-inställningar.',
+      geoErr2:'Position ej tillgänglig. Kontrollera platsinställningar.',
+      geoErr3:'Navigering tog för lång tid. Försöker igen…',
+      geoErrUnknown:'Navigeringsfel.',geoNotSupported:'Navigering stöds inte av denna webbläsare.',
+      unowned:'Ej ägd',ownedBy:(n)=>`Ägs av ${n}.`,
+      available:'Tillgänglig',neverTaken:'Aldrig tagen — tillgänglig',
+      blocked:(d)=>`Blockerad — ${d} kvar`,
+      blockedBy:(name,d)=>`Blockerad av ${name} — ${d} kvar.`,
+      checkingBlock:'Kontrollerar blocktid…',
+      takenAgo:(d)=>`Tagen ${d} sedan`,agoSuffix:'sedan',
+      unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
+      ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
+      filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
+      filterBtnAria:(f)=>`Filter: ${f}. Tryck för att ändra.`,
+      monitorOn:'Röstläge på',monitorOff:'Röstläge av',
+      monitorOnAria:'Röstläge på. Tryck för att stänga av.',
+      monitorOffAria:'Röstläge av. Tryck för att aktivera.',
+      skipToSettings:'Hoppa till inställningar',
+      settingsHeading:'Inställningar',
+      usernameLabel:'Mitt användarnamn:',
+      usernamePlaceholder:'Användarnamn',
+      usernameInputAria:'Ditt Turf-användarnamn',
+      addUserBtn:'Lägg till',
+      addUserLoading:'Hämtar profil…',
+      addUserNotFound:(n)=>`Användaren "${n}" hittades inte.`,
+      addUserError:'Kunde inte hämta profil.',
+      addUserFound:(n,r,rn)=>`${n} hittad — rank ${r} ${rn}.`,
+      profileBtn:(n)=>`${n} — profil`,
+      profileBtnAria:(n)=>`Öppna profil för ${n}`,
+      myZonesHeading:'Mina zoner',
+      myZonesEmpty:'Du äger inga zoner just nu.',
+      piRank:(r,rn)=>`Rank ${r} — ${rn}`,
+      piNextRank:(pts,rn)=>`Nästa rank: ${pts.toLocaleString('sv-SE')} poäng till ${rn}`,
+      piMaxRank:'Max rank uppnådd — Turfalicious',
+      piPoints:(p)=>`Totalt poäng: ${p.toLocaleString('sv-SE')}`,
+      piPph:(p)=>`Poäng per timme: ${p}`,
+      piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
+      piTaken:(n)=>`Totalt tagningar: ${n.toLocaleString('sv-SE')}`,
+      piMedals:(n)=>`Medaljer: ${n}`,
+      piZonesCount:(n)=>`Ägda zoner: ${n}`,
+      piRegion:(r)=>`Region: ${r}`,
+      piPlace:(p)=>`Global placering: ${p}`,
+      myZone:'Din zon',
+      intervalLabel:'Uppdatera position:',
+      intervalAria:(s)=>`Uppdateringsintervall: ${s} sekunder.`,
+      intervalMinusAria:(s)=>`Minska uppdateringsintervall till ${s} sekunder.`,
+      intervalPlusAria:(s)=>`Öka uppdateringsintervall till ${s} sekunder.`,
+      speedLabel:'Talhastighet:',
+      speedAria:(s)=>`Talhastighet: ${s}.`,
+      speedMinusAria:(s)=>`Minska talhastighet till ${s}.`,
+      speedPlusAria:(s)=>`Öka talhastighet till ${s}.`,
+      langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
+      dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',
+      dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
+      dkOwner:'Nuvarande ägare',dkLasttaken:'Senast tagen',
+      dkTotal:'Totalt tagningar',dkTp:'Tagningspoäng',dkPph:'Poäng per timme',
+      dkType:'Zontyp',dkRegion:'Region',dkCreated:'Skapad',
+      pageTitle:(n)=>`${n} — VO Turf`,
+      clock:[[15,"Klockan 12, norr"],[45,"Klockan 1, nord-nordost"],[75,"Klockan 2, nordost"],
+        [105,"Klockan 3, öst"],[135,"Klockan 4, sydost"],[165,"Klockan 5, syd-sydost"],
+        [195,"Klockan 6, söder"],[225,"Klockan 7, syd-sydväst"],[255,"Klockan 8, sydväst"],
+        [285,"Klockan 9, väst"],[315,"Klockan 10, nordväst"],[345,"Klockan 11, nord-nordväst"],
+        [360,"Klockan 12, norr"]],
+    },
+    en:{
+      htmlLang:'en',
+      startSubtitle:'Navigation from your current position.',
+      appDescription:'Your accessible Turf companion. Real-time zone info built for screen reader users.',
+      startBtn:'Start navigation',startBtnAria:'Start navigation and load nearby zones',
+      tipsLabel:'Tips &amp; instructions',
+      tips:[
+        'Each zone in the list is one swipe — name, distance, direction, owner, and block status.',
+        'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver, or swipe from the left edge in Safari.',
+        'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you.',
+        'Settings are at the bottom of the zone list under the Settings heading — adjust update interval, voice speed, and language there.',
+        'Voice mode reads the nearest zone aloud on every auto-update. Enable it with the Voice button in the toolbar.',
+        'If Voice and VoiceOver speak at the same time, pause VoiceOver speech with a three-finger double tap and resume the same way.',
+        'Remember to keep your screen unlocked and Safari open for the app to work properly.',
+      ],
+      refreshLabel:'Update',
+      refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
+      statusAcquiring:'Acquiring navigation position…',
+      statusLoading:'Loading nearby zones…',
+      statusUpdated:(time,shown,total)=>`Updated ${time}. Showing ${shown} of ${total} zones.`,
+      statusError:(m)=>`Error: ${m}`,
+      emptyState:'No zones found near your location.',
+      emptyFiltered:'No zones match the current filter.',
+      loadMore:(n)=>`Load ${n} more zones`,loadMoreAria:(n,r)=>`Load ${n} more zones. ${r} remaining.`,
+      geoErr1:'Navigation access denied. Please allow location in Safari settings.',
+      geoErr2:'Position unavailable. Check your device location settings.',
+      geoErr3:'Navigation timed out. Retrying…',
+      geoErrUnknown:'Navigation error.',geoNotSupported:'Navigation not supported by this browser.',
+      unowned:'Unowned',ownedBy:(n)=>`Owned by ${n}.`,
+      available:'Available',neverTaken:'Never taken — available',
+      blocked:(d)=>`Blocked — ${d} remaining`,
+      blockedBy:(name,d)=>`Blocked by ${name} — ${d} remaining.`,
+      checkingBlock:'Checking block time…',
+      takenAgo:(d)=>`Taken ${d} ago`,agoSuffix:'ago',
+      unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
+      ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
+      filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
+      filterBtnAria:(f)=>`Filter: ${f}. Tap to change.`,
+      monitorOn:'Monitor on',monitorOff:'Monitor off',
+      monitorOn:'Voice mode on',monitorOff:'Voice mode off',
+      monitorOnAria:'Voice mode on. Tap to turn off.',
+      monitorOffAria:'Voice mode off. Tap to activate.',
+      skipToSettings:'Skip to settings',
+      settingsHeading:'Settings',
+      usernameLabel:'My username:',
+      usernamePlaceholder:'Username',
+      usernameInputAria:'Your Turf username',
+      addUserBtn:'Add',
+      addUserLoading:'Loading profile…',
+      addUserNotFound:(n)=>`User "${n}" not found.`,
+      addUserError:'Could not load profile.',
+      addUserFound:(n,r,rn)=>`${n} found — rank ${r} ${rn}.`,
+      profileBtn:(n)=>`${n} — profile`,
+      profileBtnAria:(n)=>`Open profile for ${n}`,
+      myZonesHeading:'My zones',
+      myZonesEmpty:'You do not own any zones right now.',
+      piRank:(r,rn)=>`Rank ${r} — ${rn}`,
+      piNextRank:(pts,rn)=>`Next rank: ${pts.toLocaleString('en-GB')} points to ${rn}`,
+      piMaxRank:'Maximum rank reached — Turfalicious',
+      piPoints:(p)=>`Total points: ${p.toLocaleString('en-GB')}`,
+      piPph:(p)=>`Points per hour: ${p}`,
+      piUnique:(n)=>`Unique zones taken: ${n.toLocaleString('en-GB')}`,
+      piTaken:(n)=>`Total takeovers: ${n.toLocaleString('en-GB')}`,
+      piMedals:(n)=>`Medals: ${n}`,
+      piZonesCount:(n)=>`Owned zones: ${n}`,
+      piRegion:(r)=>`Region: ${r}`,
+      piPlace:(p)=>`Global place: ${p}`,
+      myZone:'Your zone',
+      intervalLabel:'Update position:',
+      intervalAria:(s)=>`Update interval: ${s} seconds.`,
+      intervalMinusAria:(s)=>`Decrease update interval to ${s} seconds.`,
+      intervalPlusAria:(s)=>`Increase update interval to ${s} seconds.`,
+      speedLabel:'Voice speed:',
+      speedAria:(s)=>`Voice speed: ${s}.`,
+      speedMinusAria:(s)=>`Decrease voice speed to ${s}.`,
+      speedPlusAria:(s)=>`Increase voice speed to ${s}.`,
+      langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
+      dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',
+      dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
+      dkOwner:'Current owner',dkLasttaken:'Last taken',
+      dkTotal:'Total takeovers',dkTp:'Takeover points',dkPph:'Points per hour',
+      dkType:'Zone type',dkRegion:'Region',dkCreated:'Date created',
+      pageTitle:(n)=>`${n} — VO Turf`,
+      clock:[[15,"12 o'clock, north"],[45,"1 o'clock, north-north-east"],[75,"2 o'clock, north-east"],
+        [105,"3 o'clock, east"],[135,"4 o'clock, south-east"],[165,"5 o'clock, south-south-east"],
+        [195,"6 o'clock, south"],[225,"7 o'clock, south-south-west"],[255,"8 o'clock, south-west"],
+        [285,"9 o'clock, west"],[315,"10 o'clock, north-west"],[345,"11 o'clock, north-north-west"],
+        [360,"12 o'clock, north"]],
+    }
+  };
+
+  /* ════════════════════════════════════════
+     CONFIG & STATE
+  ════════════════════════════════════════ */
+  const API_BASE='https://api.turfgame.com/v5';
+  const PAGE_SIZE=10,INITIAL_MAX=30,BBOX_DEG=0.045,GEO_TIMEOUT=10000;
+  const INTERVAL_MIN=5,INTERVAL_MAX=60,INTERVAL_STEP=5,INTERVAL_DEFAULT=30;
+  const SPEED_MIN=1.0,SPEED_MAX=2.5,SPEED_STEP=0.1,SPEED_DEFAULT=1.4;
+
+  let lang='sv',t=T.sv;
+  let userLat=null,userLon=null;
+  let compassHeading=null,compassAvailable=false;
+  let allZonesSorted=[],shownCount=INITIAL_MAX;
+  let activeFilter='all';
+  const ownerCache={};
+  let refreshInterval=INTERVAL_DEFAULT;
+  let voiceSpeed=SPEED_DEFAULT;
+  let monitorActive=false;
+  let countdownValue=INTERVAL_DEFAULT,countdownTimer=null,refreshTimer=null;
+  let isFetching=false,blockTickInterval=null,detailLiveInterval=null;
+  let activeZone=null,lastFocusedBtn=null;
+  let audioCtx=null;
+  let savedUsername=null;
+  let savedUserProfile=null;  // full API user object
+
+  /* ════════════════════════════════════════
+     RANK TABLE — from wiki.turfgame.com/en/wiki/Ranks
+     Index = rank number, value = [name, totalPointsRequired]
+  ════════════════════════════════════════ */
+  const RANKS=[
+    ['Newbie',0],['Novice Scout',195],['Experienced Scout',420],
+    ['Advanced Scout',700],['Master Scout',1200],['Scout Elder',1900],
+    ['Novice Traveller',3500],['Experienced Traveller',5500],['Advanced Traveller',8100],
+    ['Master Traveller',12000],['World Traveller',15000],['Novice Explorer',17500],
+    ['Experienced Explorer',21000],['Advanced Explorer',27500],['Master Explorer',35000],
+    ['Great Explorer',43750],['Novice Adventurer',53750],['Experienced Adventurer',65000],
+    ['Advanced Adventurer',75000],['Master Adventurer',86250],['Super Adventurer',100000],
+    ['Novice Seeker',112500],['Experienced Seeker',126250],['Advanced Seeker',141250],
+    ['Master Seeker',158750],['The Seeker',181250],['Novice Conquistador',200000],
+    ['Experienced Conquistador',220000],['Advanced Conquistador',241250],
+    ['Master Conquistador',263750],['Grand Conquistador',300000],['Novice Zoner',350000],
+    ['Experienced Zoner',410000],['Advanced Zoner',480000],['Master Zoner',560000],
+    ['Delicate Zoner',650000],['Light Turfer',750000],['Novice Turfer',860000],
+    ['Experienced Turfer',980000],['Advanced Turfer',1110000],['Turf Master',1250000],
+    ['Turf Grandmaster',1500000],['Turf Guardian',1770000],['Turf Knight',2060000],
+    ['Turf Hero',2370000],['Turf Elder',2700000],['Turf Preacher',3000000],
+    ['Turf Lord',3500000],['Turf Overlord',4000000],['Turf Count',4500000],
+    ['Turf King',5000000],['Turf Tsar',5750000],['Turf Caesar',6500000],
+    ['Amazing Turfer',7250000],['Incredible Turfer',8000000],['Holy Turfer',9500000],
+    ['Turf Angel',11000000],['Turf Archangel',13000000],['Turf God',15000000],
+    ['Turf Titan',25000000],['Turfalicious',50000000],
+  ];
+
+  function rankName(rankNum){ return RANKS[Math.min(rankNum,60)]?.[0]??'Unknown'; }
+  function nextRankInfo(rankNum,totalPoints){
+    if(rankNum>=60) return null;
+    const next=RANKS[rankNum+1];
+    return{ name:next[0], pointsNeeded:next[1]-totalPoints };
+  }
+
+  /* ════════════════════════════════════════
+     DOM REFS
+  ════════════════════════════════════════ */
+  const listView      =document.getElementById('list-view');
+  const detailView    =document.getElementById('detail-view');
+  const profileView   =document.getElementById('profile-view');
+  const startSection  =document.getElementById('start-section');
+  const statusMsg     =document.getElementById('status-msg');
+  const zoneList      =document.getElementById('zone-list');
+  const emptyState    =document.getElementById('empty-state');
+  const btnRefresh    =document.getElementById('btn-refresh');
+  const countdownVis  =document.getElementById('countdown');
+  const btnLoadMore   =document.getElementById('btn-load-more');
+  const btnStart      =document.getElementById('btn-start');
+  const btnLangSv     =document.getElementById('btn-lang-sv');
+  const btnLangEn     =document.getElementById('btn-lang-en');
+  const detailHeading =document.getElementById('detail-heading');
+  const btnFilter     =document.getElementById('btn-filter');
+  const btnFilterLabel=document.getElementById('btn-filter-label');
+  const filterMenu    =document.getElementById('filter-menu');
+  const btnMonitor    =document.getElementById('btn-monitor');
+  const tipsToggle    =document.getElementById('tips-toggle');
+  const tipsContent   =document.getElementById('tips-content');
+  const intervalVal   =document.getElementById('interval-val');
+  const btnIntervalMinus=document.getElementById('btn-interval-minus');
+  const btnIntervalPlus =document.getElementById('btn-interval-plus');
+  const speedVal      =document.getElementById('speed-val');
+  const btnSpeedMinus =document.getElementById('btn-speed-minus');
+  const btnSpeedPlus  =document.getElementById('btn-speed-plus');
+
+  /* ════════════════════════════════════════
+     LOAD SAVED PREFERENCES — before any render
+  ════════════════════════════════════════ */
+  function loadPrefs(){
+    try{
+      const savedLang=localStorage.getItem('turf-lang');
+      if(savedLang&&T[savedLang]) lang=savedLang;
+      const savedInterval=parseInt(localStorage.getItem('turf-interval'));
+      if(!isNaN(savedInterval)&&savedInterval>=INTERVAL_MIN&&savedInterval<=INTERVAL_MAX)
+        refreshInterval=savedInterval;
+      const savedSpeed=parseFloat(localStorage.getItem('turf-speed'));
+      if(!isNaN(savedSpeed)&&savedSpeed>=SPEED_MIN&&savedSpeed<=SPEED_MAX)
+        voiceSpeed=Math.round(savedSpeed*10)/10;
+      const savedMonitor=localStorage.getItem('turf-monitor');
+      if(savedMonitor==='true') monitorActive=true;
+      const sUser=localStorage.getItem('turf-username');
+      if(sUser) savedUsername=sUser;
+    }catch(e){}
+  }
+  loadPrefs();
+
+  /* ════════════════════════════════════════
+     WAKE LOCK — silent audio loop
+     Prevents iOS from locking the screen while
+     the app is active. Uses a silent oscillator
+     at zero gain — no sound, just keeps the
+     audio session alive so iOS stays awake.
+  ════════════════════════════════════════ */
+  let wakeLockSource=null;
+
+  function startWakeLock(){
+    try{
+      ensureAudioCtx();
+      const osc=audioCtx.createOscillator();
+      const gain=audioCtx.createGain();
+      gain.gain.value=0;  /* completely silent */
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start();
+      wakeLockSource=osc;
+      /* Resume audio context if it gets suspended (e.g. after a phone call) */
+      document.addEventListener('visibilitychange',()=>{
+        if(document.visibilityState==='visible'&&audioCtx.state==='suspended'){
+          audioCtx.resume();
+        }
+      });
+    }catch(e){}
+  }
+  function initCompass(){
+    if(typeof DeviceOrientationEvent==='undefined') return;
+    const req=DeviceOrientationEvent.requestPermission;
+    if(typeof req==='function'){
+      req().then(state=>{if(state==='granted') startCompassListener()}).catch(()=>{});
+    } else {
+      startCompassListener();
+    }
+  }
+  function startCompassListener(){
+    window.addEventListener('deviceorientation',e=>{
+      if(e.webkitCompassHeading!=null){compassHeading=e.webkitCompassHeading;compassAvailable=true;}
+      else if(e.alpha!=null){compassHeading=(360-e.alpha)%360;compassAvailable=true;}
+    },true);
+  }
+
+  /* ════════════════════════════════════════
+     MONITOR MODE — tone + speech synthesis
+  ════════════════════════════════════════ */
+  function ensureAudioCtx(){
+    if(!audioCtx) audioCtx=new(window.AudioContext||window.webkitAudioContext)();
+    if(audioCtx.state==='suspended') audioCtx.resume();
+  }
+
+  function playWakeTone(){
+    return new Promise(resolve=>{
+      try{
+        ensureAudioCtx();
+        const osc=audioCtx.createOscillator();
+        const gain=audioCtx.createGain();
+        osc.connect(gain);gain.connect(audioCtx.destination);
+        osc.frequency.value=440;   /* A4 — warm, not piercing */
+        osc.type='sine';
+        gain.gain.setValueAtTime(0,audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.25,audioCtx.currentTime+0.01);
+        gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.15);
+        osc.start(audioCtx.currentTime);
+        osc.stop(audioCtx.currentTime+0.15);
+        setTimeout(resolve,350); /* 150ms tone + 200ms silence before speech */
+      }catch(e){resolve();}
+    });
+  }
+
+  /* ════════════════════════════════════════
+     SPEECH — iOS Safari compatible
+     Voices on iOS load asynchronously and are
+     often empty on first call. We wait for them,
+     pick the best match, and fall back gracefully.
+  ════════════════════════════════════════ */
+  function getVoice(langCode){
+    const voices=window.speechSynthesis.getVoices();
+    if(!voices.length) return null;
+    /* Try exact match first, then language prefix */
+    return voices.find(v=>v.lang===langCode)
+      || voices.find(v=>v.lang.startsWith(langCode.split('-')[0]))
+      || voices[0];
+  }
+
+  function waitForVoices(){
+    return new Promise(resolve=>{
+      const voices=window.speechSynthesis.getVoices();
+      if(voices.length){resolve();return;}
+      window.speechSynthesis.onvoiceschanged=()=>{resolve();};
+      /* Timeout fallback — proceed after 2s even if voices never fire */
+      setTimeout(resolve,2000);
+    });
+  }
+
+  async function announceZone(zone){
+    if(!monitorActive||!zone) return;
+    if(!window.speechSynthesis) return;
+
+    /* Play wake tone first */
+    await playWakeTone();
+
+    /* Wait for voices to be available */
+    await waitForVoices();
+
+    const ds=distStr(zone._dist??0);
+    const clock=directionToZone(zone.latitude,zone.longitude);
+    const block=getBlockStatus(zone);
+    const owner=zone.currentOwner?.name??null;
+    const isUnowned=!owner;
+    let msg='';
+
+    if(block.blocked===true&&owner){
+      const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+      msg=lang==='sv'
+        ?`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBy(owner,dur)}`
+        :`${zone.name}. ${ds} away. ${clock}. ${t.blockedBy(owner,dur)}`;
+    } else if(block.label===t.neverTaken){
+      const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+      msg=lang==='sv'
+        ?`${zone.name}. ${ds} bort. ${clock}. ${ownerPart} ${t.neverTaken}.`
+        :`${zone.name}. ${ds} away. ${clock}. ${ownerPart} ${t.neverTaken}.`;
+    } else {
+      const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+      msg=lang==='sv'
+        ?`${zone.name}. ${ds} bort. ${clock}. ${ownerPart}`
+        :`${zone.name}. ${ds} away. ${clock}. ${ownerPart}`;
+    }
+
+    const langCode=lang==='sv'?'sv-SE':'en-GB';
+
+    /* Cancel any ongoing speech */
+    window.speechSynthesis.cancel();
+
+    const utt=new SpeechSynthesisUtterance(msg);
+    utt.lang=langCode;
+    utt.rate=voiceSpeed;
+
+    /* Assign best available voice */
+    const voice=getVoice(langCode);
+    if(voice) utt.voice=voice;
+
+    /* iOS Safari sometimes needs a tiny delay after cancel() before speak() */
+    setTimeout(()=>{
+      window.speechSynthesis.speak(utt);
+    },100);
+  }
+
+  /* ════════════════════════════════════════
+     HISTORY / VIEW SWITCHING
+  ════════════════════════════════════════ */
+  function showList(fromPopState=false){
+    clearInterval(detailLiveInterval);activeZone=null;
+    detailView.classList.remove('active');
+    profileView.classList.remove('active');
+    listView.classList.add('active');
+    document.title='VO Turf List';
+    if(lastFocusedBtn){lastFocusedBtn.focus();lastFocusedBtn=null;}
+    if(!fromPopState) history.replaceState({view:'list'},'',location.pathname);
+  }
+  function showDetail(zone,fromPopState=false){
+    clearInterval(detailLiveInterval);activeZone=zone;
+    document.getElementById('owned-section').hidden=true;
+    document.getElementById('owned-list').innerHTML='';
+    listView.classList.remove('active');
+    profileView.classList.remove('active');
+    detailView.classList.add('active');
+    document.title=t.pageTitle(zone.name);
+    renderDetail();detailHeading.focus();
+    if(!fromPopState) history.pushState({view:'detail',zoneId:zone.id},'',`#zone-${zone.id}`);
+    detailLiveInterval=setInterval(renderDetailLive,1000);
+    const ownerId=zone.currentOwner?.id;
+    if(ownerId){const entry=ownerCache[ownerId];if(entry?.zones?.length) fetchAndRenderOwnedZones(zone.currentOwner,entry.zones);}
+  }
+  function showProfile(fromPopState=false){
+    clearInterval(detailLiveInterval);
+    listView.classList.remove('active');
+    detailView.classList.remove('active');
+    profileView.classList.add('active');
+    document.title=`${savedUsername} — VO Turf`;
+    renderProfile();
+    document.getElementById('profile-heading').focus();
+    if(!fromPopState) history.pushState({view:'profile'},'',`#profile`);
+  }
+  window.addEventListener('popstate',e=>{
+    if(e.state?.view==='detail'){const z=allZonesSorted.find(z=>z.id===e.state.zoneId);if(z){showDetail(z,true);return;}}
+    if(e.state?.view==='profile'){showProfile(true);return;}
+    showList(true);
+  });
+  history.replaceState({view:'list'},'',location.pathname);
+
+  /* ════════════════════════════════════════
+     LANGUAGE
+  ════════════════════════════════════════ */
+  function switchLang(newLang){
+    lang=newLang;t=T[lang];
+    document.documentElement.lang=t.htmlLang;
+    btnLangSv.setAttribute('aria-pressed',lang==='sv'?'true':'false');
+    btnLangEn.setAttribute('aria-pressed',lang==='en'?'true':'false');
+    btnLangSv.setAttribute('aria-label',t.langBtnSvAria);
+    btnLangEn.setAttribute('aria-label',t.langBtnEnAria);
+    document.getElementById('start-subtitle').textContent=t.startSubtitle;
+    document.getElementById('app-description').textContent=t.appDescription;
+    btnStart.textContent=t.startBtn;btnStart.setAttribute('aria-label',t.startBtnAria);
+    tipsToggle.querySelector('#tips-toggle-label').innerHTML=t.tipsLabel;
+    /* Update tips text */
+    const tipEls=document.querySelectorAll('#tips-list li');
+    t.tips.forEach((tip,i)=>{if(tipEls[i]) tipEls[i].textContent=tip;});
+    document.getElementById('btn-refresh-label').textContent=t.refreshLabel;
+    setRefreshLabel(countdownValue);
+    document.getElementById('settings-heading').textContent=t.settingsHeading;
+    document.getElementById('lbl-interval').textContent=t.intervalLabel;
+    document.getElementById('lbl-speed').textContent=t.speedLabel;
+    document.getElementById('lbl-username').textContent=t.usernameLabel;
+    usernameInput.placeholder=t.usernamePlaceholder;
+    usernameInput.setAttribute('aria-label',t.usernameInputAria);
+    btnAddUser.textContent=t.addUserBtn;
+    if(savedUsername){
+      btnProfile.textContent=t.profileBtn(savedUsername);
+      btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
+    }
+    document.getElementById('my-zones-heading').textContent=t.myZonesHeading;
+    /* Filter options */
+    const opts=filterMenu.querySelectorAll('button[data-filter]');
+    opts[0].textContent=t.filterAll;opts[1].textContent=t.filterAvailable;opts[2].textContent=t.filterBlocked;
+    updateFilterLabel();
+    updateMonitorBtn();
+    updateIntervalUI();
+    updateSpeedUI();
+    const skipLink=document.getElementById('skip-to-settings');
+    if(!skipLink.hidden) skipLink.textContent=t.skipToSettings;
+    try{localStorage.setItem('turf-lang',lang)}catch(e){}
+    refreshAllBlockLabels();
+    if(activeZone) renderDetail();
+  }
+  btnLangSv.addEventListener('click',()=>switchLang('sv'));
+  btnLangEn.addEventListener('click',()=>switchLang('en'));
+
+  /* ════════════════════════════════════════
+     USERNAME & PROFILE
+  ════════════════════════════════════════ */
+  const usernameInput =document.getElementById('username-input');
+  const btnAddUser    =document.getElementById('btn-add-user');
+  const usernameStatus=document.getElementById('username-status');
+  const btnProfile    =document.getElementById('btn-profile');
+
+  function applyUsernameUI(){
+    /* If a username is saved, hide the input row and show the profile button */
+    if(savedUsername){
+      document.getElementById('username-control').hidden=true;
+      usernameStatus.textContent='';
+      btnProfile.hidden=false;
+      btnProfile.textContent=t.profileBtn(savedUsername);
+      btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
+    } else {
+      document.getElementById('username-control').hidden=false;
+      btnProfile.hidden=true;
+    }
+  }
+
+  async function loadUser(){
+    const name=usernameInput.value.trim();
+    if(!name) return;
+    usernameStatus.textContent=t.addUserLoading;
+    btnAddUser.disabled=true;
+    try{
+      const r=await fetch(`${API_BASE}/users`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify([{name}])
+      });
+      if(!r.ok) throw new Error();
+      const data=await r.json();
+      if(!data.length){
+        usernameStatus.textContent=t.addUserNotFound(name);
+        return;
+      }
+      const user=data[0];
+      savedUsername=user.name;
+      savedUserProfile=user;
+      try{localStorage.setItem('turf-username',user.name)}catch(e){}
+      usernameStatus.textContent=t.addUserFound(user.name,user.rank,rankName(user.rank));
+      applyUsernameUI();
+      /* Refresh zone list labels so own zones get simplified label */
+      refreshAllBlockLabels();
+    }catch(e){
+      usernameStatus.textContent=t.addUserError;
+    }finally{
+      btnAddUser.disabled=false;
+    }
+  }
+
+  btnAddUser.addEventListener('click',loadUser);
+  usernameInput.addEventListener('keydown',e=>{if(e.key==='Enter') loadUser();});
+  btnProfile.addEventListener('click',()=>{
+    lastFocusedBtn=btnProfile;
+    /* If we have a cached profile use it, otherwise fetch fresh */
+    if(savedUserProfile) showProfile();
+    else fetchAndShowProfile();
+  });
+
+  async function fetchAndShowProfile(){
+    if(!savedUsername) return;
+    try{
+      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
+      if(!r.ok) throw new Error();
+      const data=await r.json();
+      if(data.length){ savedUserProfile=data[0]; showProfile(); }
+    }catch(e){}
+  }
+
+  /* ════════════════════════════════════════
+     RENDER PROFILE
+  ════════════════════════════════════════ */
+  function renderProfile(){
+    const u=savedUserProfile; if(!u) return;
+    const rn=rankName(u.rank);
+    const next=nextRankInfo(u.rank,u.totalPoints);
+    const totalMedals=(u.medals||[]).reduce((a,b)=>a+b,0);
+
+    document.getElementById('profile-heading').textContent=u.name;
+    document.getElementById('pi-rank').textContent=t.piRank(u.rank,rn);
+    document.getElementById('pi-next-rank').textContent=next
+      ?t.piNextRank(next.pointsNeeded,next.name)
+      :t.piMaxRank;
+    document.getElementById('pi-points').textContent=t.piPoints(u.totalPoints);
+    document.getElementById('pi-pph').textContent=t.piPph(u.pointsPerHour??0);
+    document.getElementById('pi-unique').textContent=t.piUnique(u.uniqueZonesTaken??0);
+    document.getElementById('pi-taken').textContent=t.piTaken(u.taken??0);
+    document.getElementById('pi-medals').textContent=t.piMedals(totalMedals);
+    document.getElementById('pi-zones-count').textContent=t.piZonesCount((u.zones||[]).length);
+    document.getElementById('pi-region').textContent=t.piRegion(u.region?.name??t.unknown);
+    document.getElementById('pi-place').textContent=t.piPlace(u.place??'—');
+    document.getElementById('my-zones-heading').textContent=t.myZonesHeading;
+
+    /* Fetch and render owned zones */
+    fetchAndRenderMyZones(u.zones||[]);
+  }
+
+  async function fetchAndRenderMyZones(zoneIds){
+    const ul=document.getElementById('my-zones-list');
+    ul.innerHTML='';
+    if(!zoneIds.length){
+      ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">${t.myZonesEmpty}</li>`;
+      return;
+    }
+    try{
+      const r=await fetch(`${API_BASE}/zones`,{
+        method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},
+        body:JSON.stringify(zoneIds.map(id=>({id})))
+      });
+      if(!r.ok) throw new Error();
+      const zones=await r.json();
+      if(userLat!==null){
+        zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});
+        zones.sort((a,b)=>a._dist-b._dist);
+      } else { zones.sort((a,b)=>a.name.localeCompare(b.name)); }
+      const frag=document.createDocumentFragment();
+      zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,false,true)));
+      ul.appendChild(frag);
+    }catch(e){
+      ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
+    }
+  }
+
+  /* ════════════════════════════════════════
+     FILTER
+  ════════════════════════════════════════ */
+  function filterLabel(){return activeFilter==='available'?t.filterAvailable:activeFilter==='blocked'?t.filterBlocked:t.filterAll}
+  function updateFilterLabel(){
+    btnFilterLabel.textContent=filterLabel();
+    btnFilter.setAttribute('aria-label',t.filterBtnAria(filterLabel()));
+    filterMenu.querySelectorAll('button[data-filter]').forEach(b=>{b.setAttribute('aria-checked',b.dataset.filter===activeFilter?'true':'false')});
+  }
+  btnFilter.addEventListener('click',()=>{
+    const open=!filterMenu.hidden;filterMenu.hidden=open;btnFilter.setAttribute('aria-expanded',String(!open));
+    if(!open) filterMenu.querySelector(`button[data-filter="${activeFilter}"]`)?.focus();
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('#filter-wrap')){filterMenu.hidden=true;btnFilter.setAttribute('aria-expanded','false');}});
+  filterMenu.querySelectorAll('button[data-filter]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      activeFilter=btn.dataset.filter;filterMenu.hidden=true;
+      btnFilter.setAttribute('aria-expanded','false');btnFilter.focus();
+      updateFilterLabel();shownCount=INITIAL_MAX;renderZoneSlice();
+    });
+  });
+  function getFilteredZones(){
+    if(activeFilter==='available') return allZonesSorted.filter(z=>getBlockStatus(z).blocked===false);
+    if(activeFilter==='blocked')   return allZonesSorted.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
+    return allZonesSorted;
+  }
+
+  /* ════════════════════════════════════════
+     MONITOR TOGGLE
+  ════════════════════════════════════════ */
+  function updateMonitorBtn(){
+    if(monitorActive){
+      btnMonitor.textContent=t.monitorOn;
+      btnMonitor.setAttribute('aria-pressed','true');
+      btnMonitor.setAttribute('aria-label',t.monitorOnAria);
+      btnMonitor.classList.add('active');
+    } else {
+      btnMonitor.textContent=t.monitorOff;
+      btnMonitor.setAttribute('aria-pressed','false');
+      btnMonitor.setAttribute('aria-label',t.monitorOffAria);
+      btnMonitor.classList.remove('active');
+    }
+  }
+  btnMonitor.addEventListener('click',()=>{
+    monitorActive=!monitorActive;
+    updateMonitorBtn();
+    try{localStorage.setItem('turf-monitor',String(monitorActive))}catch(e){}
+  });
+
+  /* ════════════════════════════════════════
+     INTERVAL CONTROL
+  ════════════════════════════════════════ */
+  function updateIntervalUI(){
+    intervalVal.textContent=`${refreshInterval}s`;
+    intervalVal.setAttribute('aria-label',t.intervalAria(refreshInterval));
+    const prevStep=refreshInterval-INTERVAL_STEP;
+    const nextStep=refreshInterval+INTERVAL_STEP;
+    btnIntervalMinus.disabled=refreshInterval<=INTERVAL_MIN;
+    btnIntervalPlus.disabled=refreshInterval>=INTERVAL_MAX;
+    btnIntervalMinus.setAttribute('aria-label',t.intervalMinusAria(Math.max(INTERVAL_MIN,prevStep)));
+    btnIntervalPlus.setAttribute('aria-label',t.intervalPlusAria(Math.min(INTERVAL_MAX,nextStep)));
+  }
+  btnIntervalMinus.addEventListener('click',()=>{
+    if(refreshInterval>INTERVAL_MIN){
+      refreshInterval=Math.max(INTERVAL_MIN,refreshInterval-INTERVAL_STEP);
+      updateIntervalUI();
+      try{localStorage.setItem('turf-interval',refreshInterval)}catch(e){}
+      restartCountdown();
+    }
+  });
+  btnIntervalPlus.addEventListener('click',()=>{
+    if(refreshInterval<INTERVAL_MAX){
+      refreshInterval=Math.min(INTERVAL_MAX,refreshInterval+INTERVAL_STEP);
+      updateIntervalUI();
+      try{localStorage.setItem('turf-interval',refreshInterval)}catch(e){}
+      restartCountdown();
+    }
+  });
+
+  /* ════════════════════════════════════════
+     SPEED CONTROL
+  ════════════════════════════════════════ */
+  function updateSpeedUI(){
+    speedVal.textContent=voiceSpeed.toFixed(1);
+    speedVal.setAttribute('aria-label',t.speedAria(voiceSpeed.toFixed(1)));
+    btnSpeedMinus.disabled=voiceSpeed<=SPEED_MIN;
+    btnSpeedPlus.disabled=voiceSpeed>=SPEED_MAX;
+    btnSpeedMinus.setAttribute('aria-label',t.speedMinusAria(Math.max(SPEED_MIN,voiceSpeed-SPEED_STEP).toFixed(1)));
+    btnSpeedPlus.setAttribute('aria-label',t.speedPlusAria(Math.min(SPEED_MAX,voiceSpeed+SPEED_STEP).toFixed(1)));
+  }
+  btnSpeedMinus.addEventListener('click',()=>{
+    if(voiceSpeed>SPEED_MIN){
+      voiceSpeed=Math.round((voiceSpeed-SPEED_STEP)*10)/10;
+      updateSpeedUI();
+      try{localStorage.setItem('turf-speed',voiceSpeed)}catch(e){}
+    }
+  });
+  btnSpeedPlus.addEventListener('click',()=>{
+    if(voiceSpeed<SPEED_MAX){
+      voiceSpeed=Math.round((voiceSpeed+SPEED_STEP)*10)/10;
+      updateSpeedUI();
+      try{localStorage.setItem('turf-speed',voiceSpeed)}catch(e){}
+    }
+  });
+
+  /* ════════════════════════════════════════
+     TIPS TOGGLE
+  ════════════════════════════════════════ */
+  tipsToggle.addEventListener('click',()=>{
+    const open=tipsContent.hidden===false;
+    tipsContent.hidden=open;
+    tipsToggle.setAttribute('aria-expanded',String(!open));
+  });
+
+  /* ════════════════════════════════════════
+     HELPERS
+  ════════════════════════════════════════ */
+  function setStatus(msg,type=''){statusMsg.textContent=msg;statusMsg.className=type}
+  function setRefreshLabel(sec){btnRefresh.setAttribute('aria-label',t.refreshAria(sec===null?'—':sec))}
+
+  function haversineKm(lat1,lon1,lat2,lon2){
+    const R=6371,dLat=(lat2-lat1)*Math.PI/180,dLon=(lon2-lon1)*Math.PI/180;
+    const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
+  function distStr(km){const m=Math.round(km*1000);return m<1000?`${m} m`:`${(m/1000).toFixed(2)} km`}
+  function bearingDeg(lat1,lon1,lat2,lon2){
+    const φ1=lat1*Math.PI/180,φ2=lat2*Math.PI/180,Δλ=(lon2-lon1)*Math.PI/180;
+    const y=Math.sin(Δλ)*Math.cos(φ2),x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
+    return(Math.atan2(y,x)*180/Math.PI+360)%360;
+  }
+  function relativeBearing(abs){if(!compassAvailable||compassHeading===null) return abs;return(abs-compassHeading+360)%360;}
+  function clockDir(deg){return t.clock.find(d=>deg<d[0])?.[1]??t.clock[0][1]}
+  function directionToZone(zoneLat,zoneLon){return clockDir(relativeBearing(bearingDeg(userLat,userLon,zoneLat,zoneLon)))}
+  function elapsedSec(iso){if(!iso)return null;return Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/1000))}
+  function formatDuration(sec){
+    if(sec===null||sec===undefined)return'?';
+    if(sec>=3600)return`${Math.floor(sec/3600)}h ${Math.floor((sec%3600)/60)}m`;
+    if(sec>=60)return`${Math.floor(sec/60)}m ${(sec%60).toString().padStart(2,'0')}s`;
+    return`${sec}s`;
+  }
+  function formatDate(iso){
+    if(!iso)return t.unknown;
+    return new Date(iso).toLocaleString(lang==='sv'?'sv-SE':'en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+  }
+  function escHtml(s){const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML}
+  function escAttr(s){return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}
+
+  /* ════════════════════════════════════════
+     BLOCK STATUS
+  ════════════════════════════════════════ */
+  function getBlockStatus(zone){
+    if(!zone.dateLastTaken)return{blocked:false,label:t.neverTaken,css:'free'};
+    const elapsed=elapsedSec(zone.dateLastTaken);
+    const ownerId=zone.currentOwner?.id;
+    if(!ownerId)return{blocked:false,label:t.available,css:'free'};
+    const entry=ownerCache[ownerId];
+    if(entry===undefined)return{blocked:null,label:t.checkingBlock,css:'pending'};
+    if(entry===null)return{blocked:null,label:t.takenAgo(formatDuration(elapsed)),css:'pending'};
+    const remaining=entry.blocktime-elapsed;
+    if(remaining<=0)return{blocked:false,label:t.available,css:'free'};
+    return{blocked:true,label:t.blocked(formatDuration(remaining)),css:'blocked'};
+  }
+
+  /* ════════════════════════════════════════
+     FETCH OWNER BLOCKTIMES
+  ════════════════════════════════════════ */
+  async function fetchOwnerBlocktimes(zones){
+    const needed=zones.filter(z=>z.currentOwner?.id&&ownerCache[z.currentOwner.id]===undefined);
+    if(!needed.length)return;
+    const unique=[...new Map(needed.map(z=>[z.currentOwner.id,{id:z.currentOwner.id}])).values()];
+    unique.forEach(({id})=>{ownerCache[id]=undefined});
+    try{
+      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(unique)});
+      if(!r.ok)throw new Error();
+      const users=await r.json();
+      users.forEach(u=>{ownerCache[u.id]={blocktime:u.blocktime,rank:u.rank,zones:u.zones||[]}});
+      unique.forEach(({id})=>{if(ownerCache[id]===undefined)ownerCache[id]=null});
+    }catch{unique.forEach(({id})=>{ownerCache[id]=null})}
+    refreshAllBlockLabels();
+    if(activeZone) renderDetailLive();
+    if(activeZone?.currentOwner?.id){
+      const entry=ownerCache[activeZone.currentOwner.id];
+      if(entry?.zones?.length) fetchAndRenderOwnedZones(activeZone.currentOwner,entry.zones);
+    }
+  }
+
+  /* ════════════════════════════════════════
+     BUILD ZONE ITEM
+  ════════════════════════════════════════ */
+  function buildZoneItem(zone,rank,skipOwner=false,isMyZone=false){
+    /* Auto-detect own zone if username is saved */
+    if(!isMyZone&&savedUsername&&zone.currentOwner?.name===savedUsername) isMyZone=true;
+    const ds=distStr(zone._dist??0);
+    const clock=directionToZone(zone.latitude,zone.longitude);
+    const owner=zone.currentOwner?.name??null;
+    const isUnowned=!owner;
+    const ownerDisplay=isUnowned?t.unowned:owner;
+    const ownerClass=isUnowned?'unowned':'owner';
+    const block=getBlockStatus(zone);
+
+    function buildLabel(b){
+      if(isMyZone) return`${zone.name}. ${ds} bort. ${clock}. ${t.myZone}.`;
+      if(skipOwner){
+        if(b.blocked===true){
+          const dur=b.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+          return`${zone.name}. ${ds} bort. ${clock}. ${t.blocked(dur)}.`;
+        }
+        if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${clock}. ${t.neverTaken}.`;
+        return`${zone.name}. ${ds} bort. ${clock}.`;
+      }
+      const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+      if(b.blocked===true&&owner){
+        const dur=b.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+        return`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBy(owner,dur)}`;
+      }
+      if(b.label===t.neverTaken){
+        return`${zone.name}. ${ds} bort. ${clock}. ${ownerPart} ${t.neverTaken}.`;
+      }
+      return`${zone.name}. ${ds} bort. ${clock}. ${ownerPart}`;
+    }
+
+    const ownerField=(skipOwner||isMyZone)?'':
+      `<div class="zv-field"><span class="zv-label">${t.dkOwner}</span><span class="zv-value ${ownerClass}">${escHtml(ownerDisplay)}</span></div>`;
+    const nameColor=isMyZone?'color:var(--accent)':'';
+    const blockDisplay=isMyZone?t.myZone:block.label;
+    const blockCss=isMyZone?'free':block.css;
+
+    const li=document.createElement('li');
+    li.className='zone-card';
+    li.innerHTML=`
+      <button class="zone-btn" aria-label="${escAttr(buildLabel(block))}">
+        <div aria-hidden="true">
+          <div class="zv-name" style="${nameColor}"><span class="zv-rank">#${rank}</span>${escHtml(zone.name)}<span class="zv-arrow">&#8594;</span></div>
+          <div class="zv-strip">
+            <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
+            <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock.split(',')[0]}</span></div>
+            ${ownerField}
+            <div class="zv-field"><span class="zv-label">${t.dkStatus}</span><span class="zv-value ${blockCss} js-block-val">${escHtml(blockDisplay)}</span></div>
+          </div>
+        </div>
+      </button>`;
+    const btn=li.querySelector('.zone-btn');
+    btn.addEventListener('click',()=>{lastFocusedBtn=btn;showDetail(zone)});
+    li._zone=zone;li._buildLabel=buildLabel;
+    return li;
+  }
+
+  /* ════════════════════════════════════════
+     RENDER LIST
+  ════════════════════════════════════════ */
+  function renderZoneSlice(){
+    zoneList.innerHTML='';emptyState.hidden=true;
+    const filtered=getFilteredZones();
+    const visible=filtered.slice(0,shownCount);
+    if(!filtered.length){
+      emptyState.textContent=allZonesSorted.length?t.emptyFiltered:t.emptyState;
+      emptyState.hidden=false;btnLoadMore.hidden=true;return;
+    }
+    const frag=document.createDocumentFragment();
+    visible.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1)));
+    zoneList.appendChild(frag);
+    btnLoadMore.hidden=shownCount>=filtered.length;
+    if(!btnLoadMore.hidden){
+      const r=filtered.length-shownCount,n=Math.min(PAGE_SIZE,r);
+      btnLoadMore.textContent=t.loadMore(n);
+      btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
+    }
+    fetchOwnerBlocktimes(visible);startBlockTicker();
+  }
+
+  function loadMore(){
+    const filtered=getFilteredZones();
+    const prev=shownCount;
+    shownCount=Math.min(shownCount+PAGE_SIZE,filtered.length);
+    if(shownCount===prev)return;
+    const slice=filtered.slice(prev,shownCount);
+    const frag=document.createDocumentFragment();
+    slice.forEach((z,i)=>frag.appendChild(buildZoneItem(z,prev+i+1)));
+    zoneList.appendChild(frag);
+    btnLoadMore.hidden=shownCount>=filtered.length;
+    if(!btnLoadMore.hidden){
+      const r=filtered.length-shownCount,n=Math.min(PAGE_SIZE,r);
+      btnLoadMore.textContent=t.loadMore(n);btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
+    }
+    fetchOwnerBlocktimes(slice);
+    zoneList.querySelectorAll('.zone-card')[prev]?.querySelector('.zone-btn')?.focus();
+  }
+  btnLoadMore.addEventListener('click',loadMore);
+
+  function startBlockTicker(){
+    clearInterval(blockTickInterval);
+    blockTickInterval=setInterval(refreshAllBlockLabels,1000);
+  }
+  function refreshAllBlockLabels(){
+    zoneList.querySelectorAll('.zone-card').forEach(card=>{
+      if(!card._zone)return;
+      const block=getBlockStatus(card._zone);
+      const span=card.querySelector('.js-block-val');
+      const btn=card.querySelector('.zone-btn');
+      if(span){span.textContent=block.label;span.className=`zv-value ${block.css} js-block-val`}
+      if(btn&&card._buildLabel) btn.setAttribute('aria-label',escAttr(card._buildLabel(block)));
+    });
+  }
+
+  /* ════════════════════════════════════════
+     DETAIL RENDER
+  ════════════════════════════════════════ */
+  function di(id){return document.getElementById(id)}
+  function renderDetail(){
+    const z=activeZone;if(!z)return;
+    const km=haversineKm(userLat,userLon,z.latitude,z.longitude);
+    const clock=directionToZone(z.latitude,z.longitude);
+    detailHeading.textContent=z.name;
+    di('di-location').textContent=`${distStr(km)} — ${clock}`;
+    di('di-points').textContent=`${t.dkTp} ${z.takeoverPoints??z.takeoverpoints??'?'}, ${t.dkPph} ${z.pointsPerHour??0}`;
+    di('di-zone').textContent=`${t.dkType} ${z.type?.name??t.unknown}, ${t.dkRegion} ${z.region?.name??t.unknown}`;
+    di('di-created').textContent=`${t.dkCreated} ${formatDate(z.dateCreated)}, ${t.dkTotal} ${(z.totalTakeovers??0).toLocaleString()}`;
+    renderDetailLive();
+  }
+  function renderDetailLive(){
+    const z=activeZone;if(!z)return;
+    const block=getBlockStatus(z);
+    const elapsed=elapsedSec(z.dateLastTaken);
+    const ownerId=z.currentOwner?.id;
+    const entry=ownerId?ownerCache[ownerId]:null;
+    const ownerName=z.currentOwner?.name??t.unownedLabel;
+    const rankStr=entry?.rank!=null?` rank ${entry.rank}`:'';
+    const btStr=entry?.blocktime!=null?`, ${t.dkOwnerBt} ${formatDuration(entry.blocktime)}`:'';
+    di('di-block').textContent=block.label;
+    di('di-owner').textContent=`${t.dkOwner} ${ownerName}${rankStr}${btStr}`;
+    di('di-taken').textContent=`${t.dkLasttaken} ${formatDate(z.dateLastTaken)}, ${t.dkElapsed} ${elapsed!==null?`${formatDuration(elapsed)} ${t.agoSuffix}`:t.unknown}`;
+  }
+
+  /* ════════════════════════════════════════
+     OWNED ZONES
+  ════════════════════════════════════════ */
+  async function fetchAndRenderOwnedZones(owner,zoneIds){
+    const sec=document.getElementById('owned-section');
+    const hd=document.getElementById('owned-heading');
+    const ul=document.getElementById('owned-list');
+    hd.textContent=t.ownsZonesLoading;sec.hidden=false;ul.innerHTML='';
+    try{
+      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body:JSON.stringify(zoneIds.map(id=>({id})))});
+      if(!r.ok)throw new Error(`HTTP ${r.status}`);
+      const zones=await r.json();
+      if(userLat!==null){zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});zones.sort((a,b)=>a._dist-b._dist);}
+      else{zones.sort((a,b)=>a.name.localeCompare(b.name))}
+      hd.textContent=t.ownsZones(owner.name,zones.length);
+      if(!zones.length){ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">—</li>`;return}
+      const frag=document.createDocumentFragment();
+      zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,true)));
+      ul.appendChild(frag);
+    }catch{
+      hd.textContent=owner.name;
+      ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
+    }
+  }
+
+  /* ════════════════════════════════════════
+     FETCH ZONES
+  ════════════════════════════════════════ */
+  async function fetchNearbyZones(isAuto=false){
+    if(isFetching||userLat===null)return;
+    isFetching=true;btnRefresh.disabled=true;
+    setStatus(t.statusLoading,'loading');
+    const half=BBOX_DEG/2;
+    const body=JSON.stringify([{northEast:{latitude:userLat+half,longitude:userLon+half},southWest:{latitude:userLat-half,longitude:userLon-half}}]);
+    try{
+      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
+      if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.errorMessage||`HTTP ${r.status}`)}
+      const zones=await r.json();
+      zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});
+      zones.sort((a,b)=>a._dist-b._dist);
+      allZonesSorted=zones;
+      const filtered=getFilteredZones();
+      shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
+      renderZoneSlice();
+      setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
+      /* Monitor announcement — only on auto-refresh */
+      if(isAuto&&monitorActive&&allZonesSorted.length){
+        announceZone(allZonesSorted[0]);
+      }
+    }catch(e){setStatus(t.statusError(e.message),'error')}
+    finally{isFetching=false;btnRefresh.disabled=false;startCountdown()}
+  }
+
+  /* ════════════════════════════════════════
+     COUNTDOWN
+  ════════════════════════════════════════ */
+  function startCountdown(){
+    clearInterval(countdownTimer);clearTimeout(refreshTimer);
+    countdownValue=refreshInterval;countdownVis.textContent=countdownValue;setRefreshLabel(countdownValue);
+    countdownTimer=setInterval(()=>{
+      countdownValue--;countdownVis.textContent=countdownValue;setRefreshLabel(countdownValue);
+      if(countdownValue<=0)clearInterval(countdownTimer);
+    },1000);
+    refreshTimer=setTimeout(()=>fetchNearbyZones(true),refreshInterval*1000);
+  }
+  function restartCountdown(){
+    if(refreshTimer) startCountdown();
+  }
+
+  /* ════════════════════════════════════════
+     GEOLOCATION
+  ════════════════════════════════════════ */
+  function initGeo(){
+    if(!navigator.geolocation){setStatus(t.geoNotSupported,'error');return}
+    setStatus(t.statusAcquiring,'loading');
+    navigator.geolocation.watchPosition(
+      pos=>{const first=userLat===null;userLat=pos.coords.latitude;userLon=pos.coords.longitude;
+        if(first){btnRefresh.disabled=false;fetchNearbyZones(false)}},
+      err=>{const msgs={1:t.geoErr1,2:t.geoErr2,3:t.geoErr3};setStatus(msgs[err.code]||t.geoErrUnknown,'error')},
+      {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:5000}
+    );
+  }
+
+  /* ════════════════════════════════════════
+     INIT
+  ════════════════════════════════════════ */
+  btnStart.addEventListener('click',()=>{
+    startSection.hidden=true;
+    /* Show skip link now that settings are reachable */
+    const skipLink=document.getElementById('skip-to-settings');
+    skipLink.hidden=false;
+    skipLink.textContent=t.skipToSettings;
+    /* AudioContext must be created inside a user gesture */
+    ensureAudioCtx();
+    /* Silent audio loop to prevent screen lock on iOS */
+    startWakeLock();
+    /* Pre-warm voices */
+    if(window.speechSynthesis){
+      window.speechSynthesis.getVoices();
+      const primer=new SpeechSynthesisUtterance('');
+      primer.volume=0;
+      window.speechSynthesis.speak(primer);
+      window.speechSynthesis.cancel();
+    }
+    initCompass();
+    initGeo();
+  });
+  btnRefresh.addEventListener('click',()=>{
+    clearInterval(countdownTimer);clearTimeout(refreshTimer);
+    fetchNearbyZones(false); /* manual — no monitor announcement */
+  });
+
+  /* Apply saved preferences and language */
+  t=T[lang];
+  switchLang(lang);
+  updateMonitorBtn();
+  updateIntervalUI();
+  updateSpeedUI();
+  applyUsernameUI();
+  /* If username was saved, fetch fresh profile in background */
+  if(savedUsername) fetchAndShowProfile().then(()=>{}).catch(()=>{});
+  </script>
+</body>
+</html>
