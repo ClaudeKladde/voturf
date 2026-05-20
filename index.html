@@ -308,20 +308,30 @@
       <button class="stepper-btn" id="btn-speed-plus"  aria-label="Öka röst hastighet">+</button>
     </div>
 
-    <!-- Duplicate tips toggle at the bottom for easy access after navigation starts -->
-    <div id="filter-wrap-bottom" style="margin-bottom:.5rem">
-      <button id="tips-toggle-bottom" aria-expanded="false" aria-controls="tips-content"
+    <!-- Independent tips panel at the bottom — separate from the start screen one -->
+    <div style="margin-bottom:.5rem">
+      <button id="tips-toggle-bottom" aria-expanded="false"
         style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem;cursor:pointer;background:var(--surface);color:var(--muted);">
         <span id="tips-toggle-bottom-label">Tips &amp; instruktioner</span>
         <span class="tips-chevron" aria-hidden="true">▼</span>
       </button>
+      <div id="tips-content-bottom" hidden
+        style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;margin-top:.35rem;">
+        <button id="tips-close-bottom"
+          style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-bottom:.65rem;">
+          &#x2715; <span id="lbl-tips-close">Stäng</span>
+        </button>
+        <ul id="tips-list-bottom" style="list-style:none;display:flex;flex-direction:column;gap:.5rem">
+          <!-- Populated by JS from same tips array -->
+        </ul>
+      </div>
     </div>
 
     <!-- Language -->
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-21 10:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-21 11:30</span>
     </div>
   </div>
 
@@ -418,6 +428,8 @@
       backToList:'Tillbaka till zonlistan',
       backToListProfile:'Tillbaka till listan',
       tipsLabelBottom:'Tips &amp; instruktioner',
+      tipsClose:'Stäng',
+      tipsCloseAria:'Stäng tips och instruktioner',
       settingsHeading:'Inställningar',
       usernameLabel:'Mitt användarnamn:',
       usernamePlaceholder:'Användarnamn',
@@ -504,7 +516,6 @@
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
       filterBtnAria:(f)=>`Filter: ${f}. Tap to change.`,
-      monitorOn:'Monitor on',monitorOff:'Monitor off',
       monitorOn:'Voice mode on',monitorOff:'Voice mode off',
       monitorOnAria:'Voice mode on. Tap to turn off.',
       monitorOffAria:'Voice mode off. Tap to activate.',
@@ -512,6 +523,8 @@
       backToList:'Back to zone list',
       backToListProfile:'Back to list',
       tipsLabelBottom:'Tips &amp; instructions',
+      tipsClose:'Close',
+      tipsCloseAria:'Close tips and instructions',
       settingsHeading:'Settings',
       usernameLabel:'My username:',
       usernamePlaceholder:'Username',
@@ -897,13 +910,30 @@
     }
     document.getElementById('my-zones-heading').textContent=t.myZonesHeading;
     /* Back buttons */
-    document.getElementById('lbl-back-detail')?.textContent && (document.getElementById('lbl-back-detail').textContent=t.backToList);
-    document.getElementById('lbl-back-profile')?.textContent && (document.getElementById('lbl-back-profile').textContent=t.backToListProfile);
+    const lblBD=document.getElementById('lbl-back-detail');
+    const lblBP=document.getElementById('lbl-back-profile');
+    if(lblBD) lblBD.textContent=t.backToList;
+    if(lblBP) lblBP.textContent=t.backToListProfile;
     document.getElementById('btn-back-detail')?.setAttribute('aria-label',t.backToList);
     document.getElementById('btn-back-profile')?.setAttribute('aria-label',t.backToListProfile);
-    /* Bottom tips toggle label */
+    /* Bottom tips toggle label and close button */
     const bottomLabel=document.getElementById('tips-toggle-bottom-label');
     if(bottomLabel) bottomLabel.innerHTML=t.tipsLabelBottom;
+    const lblClose=document.getElementById('lbl-tips-close');
+    if(lblClose) lblClose.textContent=t.tipsClose;
+    const btnCloseBottom=document.getElementById('tips-close-bottom');
+    if(btnCloseBottom) btnCloseBottom.setAttribute('aria-label',t.tipsCloseAria);
+    /* Populate bottom tips list with same content */
+    const bottomTipsList=document.getElementById('tips-list-bottom');
+    if(bottomTipsList){
+      bottomTipsList.innerHTML='';
+      t.tips.forEach(tip=>{
+        const li=document.createElement('li');
+        li.textContent=tip;
+        li.style.cssText='font-family:var(--font-mono);font-size:.8rem;color:var(--muted);padding-left:.75rem;border-left:2px solid var(--border);line-height:1.5';
+        bottomTipsList.appendChild(li);
+      });
+    }
     const opts=filterMenu.querySelectorAll('button[data-filter]');
     opts[0].textContent=t.filterAll;opts[1].textContent=t.filterAvailable;opts[2].textContent=t.filterBlocked;
     updateFilterLabel();
@@ -1499,15 +1529,26 @@
   document.getElementById('btn-back-detail').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile').addEventListener('click',()=>showList());
 
-  /* Duplicate tips toggle at bottom — controls same panel as top toggle */
-  const tipsToggleBottom=document.getElementById('tips-toggle-bottom');
+  /* Bottom tips — independent panel, own open/close, focus management */
+  const tipsToggleBottom   = document.getElementById('tips-toggle-bottom');
+  const tipsContentBottom  = document.getElementById('tips-content-bottom');
+  const tipsCloseBottom    = document.getElementById('tips-close-bottom');
+
   tipsToggleBottom.addEventListener('click',()=>{
-    const open=tipsContent.hidden===false;
-    tipsContent.hidden=open;
-    tipsToggle.setAttribute('aria-expanded',String(!open));
-    tipsToggleBottom.setAttribute('aria-expanded',String(!open));
-    /* Scroll tips into view if opening from bottom button */
-    if(!open) tipsContent.scrollIntoView({behavior:'smooth',block:'nearest'});
+    const open = tipsContentBottom.hidden === false;
+    tipsContentBottom.hidden = open;
+    tipsToggleBottom.setAttribute('aria-expanded', String(!open));
+    if(!open){
+      /* Move focus to close button so VoiceOver starts reading from there */
+      tipsCloseBottom.focus();
+    }
+  });
+
+  tipsCloseBottom.addEventListener('click',()=>{
+    tipsContentBottom.hidden = true;
+    tipsToggleBottom.setAttribute('aria-expanded','false');
+    /* Return focus to the toggle button */
+    tipsToggleBottom.focus();
   });
 
   /* Apply saved preferences and language */
