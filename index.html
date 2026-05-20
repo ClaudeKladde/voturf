@@ -2,7 +2,12 @@
 <html lang="sv">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <!-- Standalone web app (home screen) meta tags -->
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="VO Turf"/>
+  <meta name="theme-color" content="#0d0d0d"/>
   <title>VO Turf List</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600;700&family=IBM+Plex+Sans:wght@400;500;700&display=swap');
@@ -15,13 +20,30 @@
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
     html{font-size:100%;-webkit-text-size-adjust:auto;text-size-adjust:auto}
-    body{background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:1rem;line-height:1.6;min-height:100vh;padding:.75rem .75rem 3rem}
+    body{
+      background:var(--bg);color:var(--text);font-family:var(--font-sans);font-size:1rem;
+      line-height:1.6;min-height:100vh;
+      /* Safe area insets for notch/Dynamic Island in standalone mode */
+      padding:calc(.75rem + env(safe-area-inset-top)) .75rem calc(3rem + env(safe-area-inset-bottom));
+    }
 
     .view{display:none}.view.active{display:block}
 
     /* ── Headings ── */
     h1{font-family:var(--font-mono);font-size:1.1rem;font-weight:700;color:var(--accent);margin-bottom:.5rem;border-bottom:2px solid var(--accent);padding-bottom:.4rem}
     h2{font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem}
+
+    /* ── Back button (detail + profile pages) ── */
+    .btn-back{
+      display:inline-flex;align-items:center;gap:.4rem;
+      font-family:var(--font-mono);font-size:.875rem;font-weight:600;
+      border:2px solid var(--muted);border-radius:var(--radius);
+      padding:.4rem .9rem;cursor:pointer;background:transparent;
+      color:var(--muted);margin-bottom:1rem;
+      transition:border-color .15s,color .15s;
+    }
+    .btn-back:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 
     /* ── Skip link to settings ── */
     #skip-to-settings{
@@ -210,6 +232,8 @@
           <li id="tip-6">Om Monitor och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
           <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
           <li id="tip-8">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
+          <li id="tip-9">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
+          <li id="tip-10">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
         </ul>
       </div>
 
@@ -284,16 +308,26 @@
       <button class="stepper-btn" id="btn-speed-plus"  aria-label="Öka röst hastighet">+</button>
     </div>
 
+    <!-- Duplicate tips toggle at the bottom for easy access after navigation starts -->
+    <div id="filter-wrap-bottom" style="margin-bottom:.5rem">
+      <button id="tips-toggle-bottom" aria-expanded="false" aria-controls="tips-content"
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem;cursor:pointer;background:var(--surface);color:var(--muted);">
+        <span id="tips-toggle-bottom-label">Tips &amp; instruktioner</span>
+        <span class="tips-chevron" aria-hidden="true">▼</span>
+      </button>
+    </div>
+
     <!-- Language -->
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-20 21:15</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-21 10:00</span>
     </div>
   </div>
 
   <!-- ══ DETAIL VIEW ══ -->
   <div id="detail-view" class="view">
+    <button id="btn-back-detail" class="btn-back" aria-label="Tillbaka till zonlistan">&#8592; <span id="lbl-back-detail">Tillbaka till zonlistan</span></button>
     <h1 id="detail-heading" tabindex="-1">—</h1>
     <ul id="detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="di-block">—</li>
@@ -312,6 +346,7 @@
 
   <!-- ══ PROFILE VIEW ══ -->
   <div id="profile-view" class="view">
+    <button id="btn-back-profile" class="btn-back" aria-label="Tillbaka till listan">&#8592; <span id="lbl-back-profile">Tillbaka till listan</span></button>
     <h1 id="profile-heading" tabindex="-1">—</h1>
     <ul id="profile-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pi-rank">—</li>
@@ -350,6 +385,8 @@
         'Om Voice och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.',
+        'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
+        'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
       ],
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
@@ -378,6 +415,9 @@
       monitorOnAria:'Röstläge på. Tryck för att stänga av.',
       monitorOffAria:'Röstläge av. Tryck för att aktivera.',
       skipToSettings:'Hoppa till inställningar',
+      backToList:'Tillbaka till zonlistan',
+      backToListProfile:'Tillbaka till listan',
+      tipsLabelBottom:'Tips &amp; instruktioner',
       settingsHeading:'Inställningar',
       usernameLabel:'Mitt användarnamn:',
       usernamePlaceholder:'Användarnamn',
@@ -438,6 +478,8 @@
         'If Voice and VoiceOver speak at the same time, pause VoiceOver speech with a three-finger double tap and resume the same way.',
         'Remember to keep your screen unlocked and Safari open for the app to work properly.',
         'Add your username under Settings to see your profile, stats and owned zones. Your zones are highlighted in yellow in the list.',
+        'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
+        'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
       ],
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
@@ -467,6 +509,9 @@
       monitorOnAria:'Voice mode on. Tap to turn off.',
       monitorOffAria:'Voice mode off. Tap to activate.',
       skipToSettings:'Skip to settings',
+      backToList:'Back to zone list',
+      backToListProfile:'Back to list',
+      tipsLabelBottom:'Tips &amp; instructions',
       settingsHeading:'Settings',
       usernameLabel:'My username:',
       usernamePlaceholder:'Username',
@@ -846,7 +891,14 @@
       btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
     }
     document.getElementById('my-zones-heading').textContent=t.myZonesHeading;
-    /* Filter options */
+    /* Back buttons */
+    document.getElementById('lbl-back-detail')?.textContent && (document.getElementById('lbl-back-detail').textContent=t.backToList);
+    document.getElementById('lbl-back-profile')?.textContent && (document.getElementById('lbl-back-profile').textContent=t.backToListProfile);
+    document.getElementById('btn-back-detail')?.setAttribute('aria-label',t.backToList);
+    document.getElementById('btn-back-profile')?.setAttribute('aria-label',t.backToListProfile);
+    /* Bottom tips toggle label */
+    const bottomLabel=document.getElementById('tips-toggle-bottom-label');
+    if(bottomLabel) bottomLabel.innerHTML=t.tipsLabelBottom;
     const opts=filterMenu.querySelectorAll('button[data-filter]');
     opts[0].textContent=t.filterAll;opts[1].textContent=t.filterAvailable;opts[2].textContent=t.filterBlocked;
     updateFilterLabel();
@@ -871,17 +923,19 @@
   const btnProfile    =document.getElementById('btn-profile');
 
   function applyUsernameUI(){
+    const control=document.getElementById('username-control');
     if(savedUsername){
-      document.getElementById('username-control').hidden=true;
-      usernameStatus.hidden=true;
+      control.style.display='none';
+      usernameStatus.style.display='none';
       btnProfile.hidden=false;
       btnProfile.style.display='block';
       btnProfile.textContent=t.profileBtn(savedUsername);
       btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
     } else {
-      document.getElementById('username-control').hidden=false;
-      usernameStatus.hidden=false;
+      control.style.display='';
+      usernameStatus.style.display='';
       btnProfile.hidden=true;
+      btnProfile.style.display='none';
     }
   }
 
@@ -1433,7 +1487,22 @@
   });
   btnRefresh.addEventListener('click',()=>{
     clearInterval(countdownTimer);clearTimeout(refreshTimer);
-    fetchNearbyZones(false); /* manual — no monitor announcement */
+    fetchNearbyZones(false);
+  });
+
+  /* Back buttons — work in both Safari and standalone home screen mode */
+  document.getElementById('btn-back-detail').addEventListener('click',()=>showList());
+  document.getElementById('btn-back-profile').addEventListener('click',()=>showList());
+
+  /* Duplicate tips toggle at bottom — controls same panel as top toggle */
+  const tipsToggleBottom=document.getElementById('tips-toggle-bottom');
+  tipsToggleBottom.addEventListener('click',()=>{
+    const open=tipsContent.hidden===false;
+    tipsContent.hidden=open;
+    tipsToggle.setAttribute('aria-expanded',String(!open));
+    tipsToggleBottom.setAttribute('aria-expanded',String(!open));
+    /* Scroll tips into view if opening from bottom button */
+    if(!open) tipsContent.scrollIntoView({behavior:'smooth',block:'nearest'});
   });
 
   /* Apply saved preferences and language */
@@ -1445,6 +1514,12 @@
   applyUsernameUI();
   /* If username was saved, fetch fresh profile in background */
   if(savedUsername) fetchAndShowProfile().then(()=>{}).catch(()=>{});
+
+  /* Focus on h1 on load — ensures VoiceOver starts at the top
+     both in Safari and when launched from home screen */
+  window.addEventListener('load',()=>{
+    document.querySelector('h1')?.focus();
+  });
   </script>
 </body>
 </html>
