@@ -194,7 +194,6 @@
 
     <!-- Start section with collapsible tips -->
     <div id="start-section">
-      <p id="start-subtitle">Navigation från din aktuella position.</p>
 
       <!-- Collapsible tips -->
       <button id="tips-toggle" aria-expanded="false" aria-controls="tips-content">
@@ -210,6 +209,7 @@
           <li id="tip-5">Monitor-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Monitor-knappen i verktygsfältet.</li>
           <li id="tip-6">Om Monitor och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
           <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
+          <li id="tip-8">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
         </ul>
       </div>
 
@@ -288,7 +288,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-20 20:45</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-20 21:15</span>
     </div>
   </div>
 
@@ -338,7 +338,6 @@
   const T={
     sv:{
       htmlLang:'sv',
-      startSubtitle:'Navigation från din aktuella position.',
       appDescription:'Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.',
       startBtn:'Starta navigering',startBtnAria:'Starta navigering och ladda zoner i närheten',
       tipsLabel:'Tips &amp; instruktioner',
@@ -350,6 +349,7 @@
         'Voice-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Voice-knappen i verktygsfältet.',
         'Om Voice och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
+        'Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.',
       ],
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
@@ -426,7 +426,6 @@
     },
     en:{
       htmlLang:'en',
-      startSubtitle:'Navigation from your current position.',
       appDescription:'Your accessible Turf companion. Real-time zone info built for screen reader users.',
       startBtn:'Start navigation',startBtnAria:'Start navigation and load nearby zones',
       tipsLabel:'Tips &amp; instructions',
@@ -438,6 +437,7 @@
         'Voice mode reads the nearest zone aloud on every auto-update. Enable it with the Voice button in the toolbar.',
         'If Voice and VoiceOver speak at the same time, pause VoiceOver speech with a three-finger double tap and resume the same way.',
         'Remember to keep your screen unlocked and Safari open for the app to work properly.',
+        'Add your username under Settings to see your profile, stats and owned zones. Your zones are highlighted in yellow in the list.',
       ],
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
@@ -826,7 +826,6 @@
     btnLangEn.setAttribute('aria-pressed',lang==='en'?'true':'false');
     btnLangSv.setAttribute('aria-label',t.langBtnSvAria);
     btnLangEn.setAttribute('aria-label',t.langBtnEnAria);
-    document.getElementById('start-subtitle').textContent=t.startSubtitle;
     document.getElementById('app-description').textContent=t.appDescription;
     btnStart.textContent=t.startBtn;btnStart.setAttribute('aria-label',t.startBtnAria);
     tipsToggle.querySelector('#tips-toggle-label').innerHTML=t.tipsLabel;
@@ -872,15 +871,16 @@
   const btnProfile    =document.getElementById('btn-profile');
 
   function applyUsernameUI(){
-    /* If a username is saved, hide the input row and show the profile button */
     if(savedUsername){
       document.getElementById('username-control').hidden=true;
-      usernameStatus.textContent='';
+      usernameStatus.hidden=true;
       btnProfile.hidden=false;
+      btnProfile.style.display='block';
       btnProfile.textContent=t.profileBtn(savedUsername);
       btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
     } else {
       document.getElementById('username-control').hidden=false;
+      usernameStatus.hidden=false;
       btnProfile.hidden=true;
     }
   }
@@ -1411,6 +1411,7 @@
   ════════════════════════════════════════ */
   btnStart.addEventListener('click',()=>{
     startSection.hidden=true;
+    document.getElementById('app-description').hidden=true;
     /* Show skip link now that settings are reachable */
     const skipLink=document.getElementById('skip-to-settings');
     skipLink.hidden=false;
