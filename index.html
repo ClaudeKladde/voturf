@@ -216,28 +216,28 @@
 
     <!-- Start section with collapsible tips -->
     <div id="start-section">
-
-      <!-- Collapsible tips -->
+      <!-- Collapsible tips toggle button -->
       <button id="tips-toggle" aria-expanded="false" aria-controls="tips-content">
         <span id="tips-toggle-label">Tips &amp; instruktioner</span>
         <span class="tips-chevron" aria-hidden="true">▼</span>
       </button>
-      <div id="tips-content" hidden>
-        <ul id="tips-list">
-          <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
-          <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
-          <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.</li>
-          <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsintervall, Monitor-röstens hastighet och språk där.</li>
-          <li id="tip-5">Monitor-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Monitor-knappen i verktygsfältet.</li>
-          <li id="tip-6">Om Monitor och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
-          <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
-          <li id="tip-8">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
-          <li id="tip-9">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
-          <li id="tip-10">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
-        </ul>
-      </div>
-
       <button id="btn-start" aria-label="Starta navigering och ladda zoner i närheten">Starta navigering</button>
+    </div>
+
+    <!-- Tips content lives OUTSIDE start-section so it stays accessible after Start is tapped -->
+    <div id="tips-content" hidden>
+      <ul id="tips-list">
+        <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
+        <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
+        <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.</li>
+        <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsintervall, Voice-röstens hastighet och språk där.</li>
+        <li id="tip-5">Voice-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Voice-knappen i verktygsfältet.</li>
+        <li id="tip-6">Om Voice och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
+        <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
+        <li id="tip-8">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
+        <li id="tip-9">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
+        <li id="tip-10">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
+      </ul>
     </div>
 
     <!-- Sticky toolbar: yellow background, Refresh left, Filter+Monitor right -->
@@ -264,7 +264,7 @@
       </div>
     </div>
 
-    <div id="status-msg" aria-live="polite" aria-atomic="true">Hämtar navigationsposition…</div>
+    <div id="status-msg">Hämtar navigationsposition…</div>
 
     <ul id="zone-list"></ul>
     <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
@@ -780,9 +780,14 @@
     const block=getBlockStatus(zone);
     const owner=zone.currentOwner?.name??null;
     const isUnowned=!owner;
+    const isMyZone=!!(savedUsername&&owner&&owner===savedUsername);
     let msg='';
 
-    if(block.blocked===true&&owner){
+    if(isMyZone){
+      msg=lang==='sv'
+        ?`${zone.name}. ${ds} bort. ${clock}. ${t.myZone}.`
+        :`${zone.name}. ${ds} away. ${clock}. ${t.myZone}.`;
+    } else if(block.blocked===true&&owner){
       const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
       msg=lang==='sv'
         ?`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBy(owner,dur)}`
@@ -996,7 +1001,7 @@
     const u=savedUserProfile; if(!u) return;
     const rn=rankName(u.rank);
     const next=nextRankInfo(u.rank,u.totalPoints);
-    const totalMedals=(u.medals||[]).reduce((a,b)=>a+b,0);
+    const totalMedals=(u.medals||[]).filter(m=>m>0).length;
 
     document.getElementById('profile-heading').textContent=u.name;
     document.getElementById('pi-rank').textContent=t.piRank(u.rank,rn);
