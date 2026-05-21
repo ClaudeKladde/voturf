@@ -209,7 +209,8 @@
   <!-- ══ LIST VIEW ══ -->
   <div id="list-view" class="view active">
     <h1>VO Turf List</h1>
-    <p id="app-description" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.75rem;">Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.</p>
+    <p id="app-description" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.4rem;">Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.</p>
+    <p id="gps-reminder" style="font-family:var(--font-mono);font-size:.82rem;color:var(--muted);margin-bottom:.75rem;">Se till att tillåta GPS och kompass för att appen ska fungera korrekt.</p>
 
     <!-- Skip to settings — appears after navigation starts, before toolbar -->
     <a id="skip-to-settings" href="#settings-heading" hidden>Hoppa till inställningar</a>
@@ -230,14 +231,18 @@
         <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
         <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
         <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.</li>
-        <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsintervall, Voice-röstens hastighet och språk där.</li>
-        <li id="tip-5">Voice-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Voice-knappen i verktygsfältet.</li>
-        <li id="tip-6">Om Voice och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
+        <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsfrekvens, talhastighet och språk där.</li>
+        <li id="tip-5">Röstläget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Röstläge-knappen i verktygsfältet.</li>
+        <li id="tip-6">Om Röstläge och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
         <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
         <li id="tip-8">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
         <li id="tip-9">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
         <li id="tip-10">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
       </ul>
+      <button id="tips-close-top"
+        style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
+        &#x2715; <span id="lbl-tips-close-top">Stäng</span>
+      </button>
     </div>
 
     <!-- Sticky toolbar: yellow background, Refresh left, Filter+Monitor right -->
@@ -294,7 +299,7 @@
 
     <!-- Auto update interval -->
     <div class="settings-control">
-      <span class="settings-label" id="lbl-interval">Uppdatera position: </span>
+      <span class="settings-label" id="lbl-interval">Uppdateringsfrekvens: </span>
       <button class="stepper-btn" id="btn-interval-minus" aria-label="Minska uppdateringsintervall">−</button>
       <span class="stepper-val" id="interval-val" aria-live="polite" aria-atomic="true">30s</span>
       <button class="stepper-btn" id="btn-interval-plus"  aria-label="Öka uppdateringsintervall">+</button>
@@ -306,6 +311,15 @@
       <button class="stepper-btn" id="btn-speed-minus" aria-label="Minska röst hastighet">−</button>
       <span class="stepper-val" id="speed-val" aria-live="polite" aria-atomic="true">1.0</span>
       <button class="stepper-btn" id="btn-speed-plus"  aria-label="Öka röst hastighet">+</button>
+    </div>
+
+    <!-- Compass toggle -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-compass">Kompass:</span>
+      <button id="btn-compass" aria-pressed="true"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:var(--accent);color:#000;transition:background .15s,color .15s,border-color .15s;">
+        På
+      </button>
     </div>
 
     <!-- Independent tips panel at the bottom — separate from the start screen one -->
@@ -331,7 +345,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-21 11:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-21 14:45</span>
     </div>
   </div>
 
@@ -352,6 +366,7 @@
       <h2 id="owned-heading">—</h2>
       <ul id="owned-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
+    <button id="btn-back-detail-bottom" class="btn-back" aria-label="Tillbaka till zonlistan" style="margin-top:1rem;">&#8592; <span id="lbl-back-detail-bottom">Tillbaka till zonlistan</span></button>
   </div>
 
   <!-- ══ PROFILE VIEW ══ -->
@@ -390,9 +405,9 @@
         'Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.',
-        'Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsintervall, Voice-röstens hastighet och språk där.',
-        'Voice-läget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Voice-knappen i verktygsfältet.',
-        'Om Voice och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.',
+        'Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsfrekvens, talhastighet och språk där.',
+        'Röstläget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Röstläge-knappen i verktygsfältet.',
+        'Om Röstläge och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
@@ -420,10 +435,13 @@
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
       ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
       filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
-      filterBtnAria:(f)=>`Filter: ${f}. Tryck för att ändra.`,
+      filterBtnAria:(f)=>`Filter: ${f}`,
       monitorOn:'Röstläge på',monitorOff:'Röstläge av',
-      monitorOnAria:'Röstläge på. Tryck för att stänga av.',
-      monitorOffAria:'Röstläge av. Tryck för att aktivera.',
+      monitorOnAria:'Röstläge på',
+      monitorOffAria:'Röstläge av',
+      compassOn:'Kompass på',compassOff:'Kompass av',
+      compassLabel:'Kompass:',
+      gpsReminder:'Se till att tillåta GPS och kompass för att appen ska fungera korrekt.',
       skipToSettings:'Hoppa till inställningar',
       backToList:'Tillbaka till zonlistan',
       backToListProfile:'Tillbaka till listan',
@@ -449,20 +467,21 @@
       piPoints:(p)=>`Totalt poäng: ${p.toLocaleString('sv-SE')}`,
       piPph:(p)=>`Poäng per timme: ${p}`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
-      piTaken:(n)=>`Totalt tagningar: ${n.toLocaleString('sv-SE')}`,
+      piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
       piMedals:(n)=>`Medaljer: ${n}`,
       piZonesCount:(n)=>`Ägda zoner: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global placering: ${p}`,
       myZone:'Din zon',
-      intervalLabel:'Uppdatera position:',
-      intervalAria:(s)=>`Uppdateringsintervall: ${s} sekunder.`,
-      intervalMinusAria:(s)=>`Minska uppdateringsintervall till ${s} sekunder.`,
-      intervalPlusAria:(s)=>`Öka uppdateringsintervall till ${s} sekunder.`,
+      intervalLabel:'Uppdateringsfrekvens:',
+      intervalAria:(s)=>`Uppdateringsfrekvens: ${s} sekunder.`,
+      intervalMinusAria:(s)=>`Minska uppdateringsfrekvens till ${s} sekunder.`,
+      intervalPlusAria:(s)=>`Öka uppdateringsfrekvens till ${s} sekunder.`,
       speedLabel:'Talhastighet:',
       speedAria:(s)=>`Talhastighet: ${s}.`,
       speedMinusAria:(s)=>`Minska talhastighet till ${s}.`,
       speedPlusAria:(s)=>`Öka talhastighet till ${s}.`,
+      tipsCloseTop:'Stäng',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
       dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',
       dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
@@ -515,10 +534,13 @@
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
-      filterBtnAria:(f)=>`Filter: ${f}. Tap to change.`,
+      filterBtnAria:(f)=>`Filter: ${f}`,
       monitorOn:'Voice mode on',monitorOff:'Voice mode off',
-      monitorOnAria:'Voice mode on. Tap to turn off.',
-      monitorOffAria:'Voice mode off. Tap to activate.',
+      monitorOnAria:'Voice mode on',
+      monitorOffAria:'Voice mode off',
+      compassOn:'Compass on',compassOff:'Compass off',
+      compassLabel:'Compass:',
+      gpsReminder:'Be sure to allow GPS and compass to work properly.',
       skipToSettings:'Skip to settings',
       backToList:'Back to zone list',
       backToListProfile:'Back to list',
@@ -550,14 +572,15 @@
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global place: ${p}`,
       myZone:'Your zone',
-      intervalLabel:'Update position:',
-      intervalAria:(s)=>`Update interval: ${s} seconds.`,
-      intervalMinusAria:(s)=>`Decrease update interval to ${s} seconds.`,
-      intervalPlusAria:(s)=>`Increase update interval to ${s} seconds.`,
-      speedLabel:'Voice speed:',
-      speedAria:(s)=>`Voice speed: ${s}.`,
-      speedMinusAria:(s)=>`Decrease voice speed to ${s}.`,
-      speedPlusAria:(s)=>`Increase voice speed to ${s}.`,
+      intervalLabel:'Update frequency:',
+      intervalAria:(s)=>`Update frequency: ${s} seconds.`,
+      intervalMinusAria:(s)=>`Decrease update frequency to ${s} seconds.`,
+      intervalPlusAria:(s)=>`Increase update frequency to ${s} seconds.`,
+      speedLabel:'Voice rate:',
+      speedAria:(s)=>`Voice rate: ${s}.`,
+      speedMinusAria:(s)=>`Decrease voice rate to ${s}.`,
+      speedPlusAria:(s)=>`Increase voice rate to ${s}.`,
+      tipsCloseTop:'Close',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
       dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',
       dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
@@ -584,6 +607,7 @@
   let lang='sv',t=T.sv;
   let userLat=null,userLon=null;
   let compassHeading=null,compassAvailable=false;
+  let compassEnabled=true;   /* toggled by compass settings button */
   let allZonesSorted=[],shownCount=INITIAL_MAX;
   let activeFilter='all';
   const ownerCache={};
@@ -677,6 +701,8 @@
         voiceSpeed=Math.round(savedSpeed*10)/10;
       const savedMonitor=localStorage.getItem('turf-monitor');
       if(savedMonitor==='true') monitorActive=true;
+      const savedCompass=localStorage.getItem('turf-compass');
+      if(savedCompass==='false') compassEnabled=false;
       const sUser=localStorage.getItem('turf-username');
       if(sUser) savedUsername=sUser;
     }catch(e){}
@@ -714,7 +740,14 @@
     if(typeof DeviceOrientationEvent==='undefined') return;
     const req=DeviceOrientationEvent.requestPermission;
     if(typeof req==='function'){
-      req().then(state=>{if(state==='granted') startCompassListener()}).catch(()=>{});
+      req().then(state=>{
+        if(state==='granted') startCompassListener();
+        else {
+          compassEnabled=false;
+          updateCompassBtn();
+          try{localStorage.setItem('turf-compass','false')}catch(e){}
+        }
+      }).catch(()=>{});
     } else {
       startCompassListener();
     }
@@ -900,6 +933,14 @@
     document.getElementById('settings-heading').textContent=t.settingsHeading;
     document.getElementById('lbl-interval').textContent=t.intervalLabel;
     document.getElementById('lbl-speed').textContent=t.speedLabel;
+    document.getElementById('lbl-compass').textContent=t.compassLabel;
+    document.getElementById('gps-reminder').textContent=t.gpsReminder;
+    const lblCloseTop=document.getElementById('lbl-tips-close-top');
+    if(lblCloseTop) lblCloseTop.textContent=t.tipsCloseTop;
+    const lblBackDetBot=document.getElementById('lbl-back-detail-bottom');
+    if(lblBackDetBot) lblBackDetBot.textContent=t.backToList;
+    document.getElementById('btn-back-detail-bottom')?.setAttribute('aria-label',t.backToList);
+    updateCompassBtn();
     document.getElementById('lbl-username').textContent=t.usernameLabel;
     usernameInput.placeholder=t.usernamePlaceholder;
     usernameInput.setAttribute('aria-label',t.usernameInputAria);
@@ -1184,6 +1225,33 @@
   });
 
   /* ════════════════════════════════════════
+     COMPASS TOGGLE
+  ════════════════════════════════════════ */
+  const btnCompass=document.getElementById('btn-compass');
+
+  function updateCompassBtn(){
+    btnCompass.textContent=compassEnabled?t.compassOn:t.compassOff;
+    btnCompass.setAttribute('aria-pressed',compassEnabled?'true':'false');
+    if(compassEnabled){
+      btnCompass.style.background='var(--accent)';
+      btnCompass.style.color='#000';
+      btnCompass.style.borderColor='var(--accent)';
+    } else {
+      btnCompass.style.background='transparent';
+      btnCompass.style.color='var(--muted)';
+      btnCompass.style.borderColor='var(--border)';
+    }
+  }
+
+  btnCompass.addEventListener('click',()=>{
+    compassEnabled=!compassEnabled;
+    updateCompassBtn();
+    try{localStorage.setItem('turf-compass',String(compassEnabled))}catch(e){}
+    /* Re-render list labels with/without directions */
+    if(allZonesSorted.length) renderZoneSlice();
+  });
+
+  /* ════════════════════════════════════════
      TIPS TOGGLE
   ════════════════════════════════════════ */
   tipsToggle.addEventListener('click',()=>{
@@ -1211,7 +1279,10 @@
   }
   function relativeBearing(abs){if(!compassAvailable||compassHeading===null) return abs;return(abs-compassHeading+360)%360;}
   function clockDir(deg){return t.clock.find(d=>deg<d[0])?.[1]??t.clock[0][1]}
-  function directionToZone(zoneLat,zoneLon){return clockDir(relativeBearing(bearingDeg(userLat,userLon,zoneLat,zoneLon)))}
+  function directionToZone(zoneLat,zoneLon){
+    if(!compassEnabled) return '';
+    return clockDir(relativeBearing(bearingDeg(userLat,userLon,zoneLat,zoneLon)));
+  }
   function elapsedSec(iso){if(!iso)return null;return Math.max(0,Math.floor((Date.now()-new Date(iso).getTime())/1000))}
   function formatDuration(sec){
     if(sec===null||sec===undefined)return'?';
@@ -1280,24 +1351,25 @@
     const block=getBlockStatus(zone);
 
     function buildLabel(b){
-      if(isMyZone) return`${zone.name}. ${ds} bort. ${clock}. ${t.myZone}.`;
+      const dirPart=clock?`${clock}. `:'';
+      if(isMyZone) return`${zone.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
       if(skipOwner){
         if(b.blocked===true){
           const dur=b.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
-          return`${zone.name}. ${ds} bort. ${clock}. ${t.blocked(dur)}.`;
+          return`${zone.name}. ${ds} bort. ${dirPart}${t.blocked(dur)}.`;
         }
-        if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${clock}. ${t.neverTaken}.`;
-        return`${zone.name}. ${ds} bort. ${clock}.`;
+        if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${dirPart}${t.neverTaken}.`;
+        return`${zone.name}. ${ds} bort. ${dirPart}`.trimEnd().replace(/\.$/, '')+'.';
       }
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
       if(b.blocked===true&&owner){
         const dur=b.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
-        return`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBy(owner,dur)}`;
+        return`${zone.name}. ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
       }
       if(b.label===t.neverTaken){
-        return`${zone.name}. ${ds} bort. ${clock}. ${ownerPart} ${t.neverTaken}.`;
+        return`${zone.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
       }
-      return`${zone.name}. ${ds} bort. ${clock}. ${ownerPart}`;
+      return`${zone.name}. ${ds} bort. ${dirPart}${ownerPart}`;
     }
 
     const ownerField=(skipOwner||isMyZone)?'':
@@ -1525,6 +1597,16 @@
     fetchNearbyZones(false);
   });
 
+  /* Top tips close button */
+  const tipsCloseTop=document.getElementById('tips-close-top');
+  tipsCloseTop.addEventListener('click',()=>{
+    tipsContent.hidden=true;
+    tipsToggle.setAttribute('aria-expanded','false');
+    tipsToggle.focus();
+  });
+
+  /* Bottom detail back button */
+  document.getElementById('btn-back-detail-bottom').addEventListener('click',()=>showList());
   /* Back buttons — work in both Safari and standalone home screen mode */
   document.getElementById('btn-back-detail').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile').addEventListener('click',()=>showList());
@@ -1557,9 +1639,19 @@
   updateMonitorBtn();
   updateIntervalUI();
   updateSpeedUI();
+  updateCompassBtn();
   applyUsernameUI();
-  /* If username was saved, fetch fresh profile in background */
-  if(savedUsername) fetchAndShowProfile().then(()=>{}).catch(()=>{});
+  /* If username was saved, fetch fresh profile silently in background — do NOT navigate */
+  if(savedUsername){
+    (async()=>{
+      try{
+        const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
+        if(!r.ok)return;
+        const data=await r.json();
+        if(data.length) savedUserProfile=data[0];
+      }catch(e){}
+    })();
+  }
 
   /* Focus on h1 on load — ensures VoiceOver starts at the top
      both in Safari and when launched from home screen */
