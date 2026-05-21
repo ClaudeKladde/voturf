@@ -241,7 +241,7 @@
       </ul>
       <button id="tips-close-top"
         style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
-        &#x2715; <span id="lbl-tips-close-top">Stäng</span>
+        &#x2715; <span id="lbl-tips-close-top">Stäng instruktioner</span>
       </button>
     </div>
 
@@ -333,7 +333,7 @@
         style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;margin-top:.35rem;">
         <button id="tips-close-bottom"
           style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-bottom:.65rem;">
-          &#x2715; <span id="lbl-tips-close">Stäng</span>
+          &#x2715; <span id="lbl-tips-close">Stäng instruktioner</span>
         </button>
         <ul id="tips-list-bottom" style="list-style:none;display:flex;flex-direction:column;gap:.5rem">
           <!-- Populated by JS from same tips array -->
@@ -389,6 +389,7 @@
       <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
+    <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
   </div>
 
   <script>
@@ -446,7 +447,7 @@
       backToList:'Tillbaka till zonlistan',
       backToListProfile:'Tillbaka till listan',
       tipsLabelBottom:'Tips &amp; instruktioner',
-      tipsClose:'Stäng',
+      tipsClose:'Stäng instruktioner',
       tipsCloseAria:'Stäng tips och instruktioner',
       settingsHeading:'Inställningar',
       usernameLabel:'Mitt användarnamn:',
@@ -481,7 +482,7 @@
       speedAria:(s)=>`Talhastighet: ${s}.`,
       speedMinusAria:(s)=>`Minska talhastighet till ${s}.`,
       speedPlusAria:(s)=>`Öka talhastighet till ${s}.`,
-      tipsCloseTop:'Stäng',
+      tipsCloseTop:'Stäng instruktioner',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
       dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',
       dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
@@ -545,7 +546,7 @@
       backToList:'Back to zone list',
       backToListProfile:'Back to list',
       tipsLabelBottom:'Tips &amp; instructions',
-      tipsClose:'Close',
+      tipsClose:'Close instructions',
       tipsCloseAria:'Close tips and instructions',
       settingsHeading:'Settings',
       usernameLabel:'My username:',
@@ -580,7 +581,7 @@
       speedAria:(s)=>`Voice rate: ${s}.`,
       speedMinusAria:(s)=>`Decrease voice rate to ${s}.`,
       speedPlusAria:(s)=>`Increase voice rate to ${s}.`,
-      tipsCloseTop:'Close',
+      tipsCloseTop:'Close instructions',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
       dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',
       dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
@@ -940,6 +941,9 @@
     const lblBackDetBot=document.getElementById('lbl-back-detail-bottom');
     if(lblBackDetBot) lblBackDetBot.textContent=t.backToList;
     document.getElementById('btn-back-detail-bottom')?.setAttribute('aria-label',t.backToList);
+    const lblBackProfBot=document.getElementById('lbl-back-profile-bottom');
+    if(lblBackProfBot) lblBackProfBot.textContent=t.backToListProfile;
+    document.getElementById('btn-back-profile-bottom')?.setAttribute('aria-label',t.backToListProfile);
     updateCompassBtn();
     document.getElementById('lbl-username').textContent=t.usernameLabel;
     usernameInput.placeholder=t.usernamePlaceholder;
@@ -1573,6 +1577,7 @@
   btnStart.addEventListener('click',()=>{
     startSection.hidden=true;
     document.getElementById('app-description').hidden=true;
+    document.getElementById('gps-reminder').hidden=true;
     /* Show skip link now that settings are reachable */
     const skipLink=document.getElementById('skip-to-settings');
     skipLink.hidden=false;
@@ -1609,7 +1614,9 @@
   document.getElementById('btn-back-detail-bottom').addEventListener('click',()=>showList());
   /* Back buttons — work in both Safari and standalone home screen mode */
   document.getElementById('btn-back-detail').addEventListener('click',()=>showList());
+  document.getElementById('btn-back-detail-bottom').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile').addEventListener('click',()=>showList());
+  document.getElementById('btn-back-profile-bottom').addEventListener('click',()=>showList());
 
   /* Bottom tips — independent panel, own open/close, focus management */
   const tipsToggleBottom   = document.getElementById('tips-toggle-bottom');
