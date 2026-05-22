@@ -308,9 +308,17 @@
     <!-- Voice speed -->
     <div class="settings-control">
       <span class="settings-label" id="lbl-speed">Talhastighet: </span>
-      <button class="stepper-btn" id="btn-speed-minus" aria-label="Minska röst hastighet">−</button>
-      <span class="stepper-val" id="speed-val" aria-live="polite" aria-atomic="true">1.0</span>
-      <button class="stepper-btn" id="btn-speed-plus"  aria-label="Öka röst hastighet">+</button>
+      <button class="stepper-btn" id="btn-speed-minus" aria-label="Minska talhastighet">−</button>
+      <span class="stepper-val" id="speed-val" aria-live="polite" aria-atomic="true">1.4</span>
+      <button class="stepper-btn" id="btn-speed-plus" aria-label="Öka talhastighet">+</button>
+    </div>
+
+    <!-- Voice volume -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-volume">Röstvolym: </span>
+      <button class="stepper-btn" id="btn-volume-minus" aria-label="Minska röstvolym">−</button>
+      <span class="stepper-val" id="volume-val" aria-live="polite" aria-atomic="true">0.8</span>
+      <button class="stepper-btn" id="btn-volume-plus" aria-label="Öka röstvolym">+</button>
     </div>
 
     <!-- Compass toggle -->
@@ -322,6 +330,16 @@
       </button>
     </div>
 
+    <!-- Location permission button -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-location-perm">Plats:</span>
+      <button id="btn-request-location"
+        style="font-family:var(--font-mono);font-size:.78rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .65rem;cursor:pointer;background:transparent;color:var(--muted);flex:1;text-align:left;">
+        Begär platstillstånd
+      </button>
+    </div>
+    <div id="location-perm-msg" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;display:none;" aria-live="polite"></div>
+
     <!-- Independent tips panel at the bottom — separate from the start screen one -->
     <div style="margin-bottom:.5rem">
       <button id="tips-toggle-bottom" aria-expanded="false"
@@ -331,13 +349,13 @@
       </button>
       <div id="tips-content-bottom" hidden
         style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.75rem;margin-top:.35rem;">
-        <button id="tips-close-bottom"
-          style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-bottom:.65rem;">
-          &#x2715; <span id="lbl-tips-close">Stäng instruktioner</span>
-        </button>
         <ul id="tips-list-bottom" style="list-style:none;display:flex;flex-direction:column;gap:.5rem">
           <!-- Populated by JS from same tips array -->
         </ul>
+        <button id="tips-close-bottom"
+          style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
+          &#x2715; <span id="lbl-tips-close">Stäng instruktioner</span>
+        </button>
       </div>
     </div>
 
@@ -345,7 +363,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-21 14:45</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-22 20:56</span>
     </div>
   </div>
 
@@ -443,6 +461,14 @@
       compassOn:'Kompass på',compassOff:'Kompass av',
       compassLabel:'Kompass:',
       gpsReminder:'Se till att tillåta GPS och kompass för att appen ska fungera korrekt.',
+      volumeLabel:'Röstvolym:',
+      volumeAria:(v)=>`Röstvolym: ${v}.`,
+      volumeMinusAria:(v)=>`Minska röstvolym till ${v}.`,
+      volumePlusAria:(v)=>`Öka röstvolym till ${v}.`,
+      locationPermLabel:'Plats:',
+      locationPermBtn:'Begär platstillstånd',
+      locationPermSuccess:'Platsåtkomst beviljad.',
+      locationPermDenied:'Platsåtkomst nekad. Gå till Sidmeny → Mer → Webbplatsinställningar → Plats → Tillåt.',
       skipToSettings:'Hoppa till inställningar',
       backToList:'Tillbaka till zonlistan',
       backToListProfile:'Tillbaka till listan',
@@ -542,6 +568,14 @@
       compassOn:'Compass on',compassOff:'Compass off',
       compassLabel:'Compass:',
       gpsReminder:'Be sure to allow GPS and compass to work properly.',
+      volumeLabel:'Voice volume:',
+      volumeAria:(v)=>`Voice volume: ${v}.`,
+      volumeMinusAria:(v)=>`Decrease voice volume to ${v}.`,
+      volumePlusAria:(v)=>`Increase voice volume to ${v}.`,
+      locationPermLabel:'Location:',
+      locationPermBtn:'Request location permission',
+      locationPermSuccess:'Location access granted.',
+      locationPermDenied:'Location access denied. Go to Page menu → More → Website Settings → Location → Allow.',
       skipToSettings:'Skip to settings',
       backToList:'Back to zone list',
       backToListProfile:'Back to list',
@@ -614,6 +648,8 @@
   const ownerCache={};
   let refreshInterval=INTERVAL_DEFAULT;
   let voiceSpeed=SPEED_DEFAULT;
+  const VOLUME_MIN=0.1,VOLUME_MAX=1.0,VOLUME_STEP=0.1,VOLUME_DEFAULT=0.8;
+  let voiceVolume=VOLUME_DEFAULT;
   let monitorActive=false;
   let countdownValue=INTERVAL_DEFAULT,countdownTimer=null,refreshTimer=null;
   let isFetching=false,blockTickInterval=null,detailLiveInterval=null;
@@ -700,6 +736,9 @@
       const savedSpeed=parseFloat(localStorage.getItem('turf-speed'));
       if(!isNaN(savedSpeed)&&savedSpeed>=SPEED_MIN&&savedSpeed<=SPEED_MAX)
         voiceSpeed=Math.round(savedSpeed*10)/10;
+      const savedVolume=parseFloat(localStorage.getItem('turf-volume'));
+      if(!isNaN(savedVolume)&&savedVolume>=VOLUME_MIN&&savedVolume<=VOLUME_MAX)
+        voiceVolume=Math.round(savedVolume*10)/10;
       const savedMonitor=localStorage.getItem('turf-monitor');
       if(savedMonitor==='true') monitorActive=true;
       const savedCompass=localStorage.getItem('turf-compass');
@@ -859,6 +898,7 @@
     const utt=new SpeechSynthesisUtterance(msg);
     utt.lang=langCode;
     utt.rate=voiceSpeed;
+    utt.volume=voiceVolume;
 
     /* Assign best available voice */
     const voice=getVoice(langCode);
@@ -936,6 +976,12 @@
     document.getElementById('lbl-speed').textContent=t.speedLabel;
     document.getElementById('lbl-compass').textContent=t.compassLabel;
     document.getElementById('gps-reminder').textContent=t.gpsReminder;
+    const lblVol=document.getElementById('lbl-volume');
+    if(lblVol) lblVol.textContent=t.volumeLabel;
+    const lblLocPerm=document.getElementById('lbl-location-perm');
+    if(lblLocPerm) lblLocPerm.textContent=t.locationPermLabel;
+    const btnLocPerm=document.getElementById('btn-request-location');
+    if(btnLocPerm) btnLocPerm.textContent=t.locationPermBtn;
     const lblCloseTop=document.getElementById('lbl-tips-close-top');
     if(lblCloseTop) lblCloseTop.textContent=t.tipsCloseTop;
     const lblBackDetBot=document.getElementById('lbl-back-detail-bottom');
@@ -1226,6 +1272,68 @@
       updateSpeedUI();
       try{localStorage.setItem('turf-speed',voiceSpeed)}catch(e){}
     }
+  });
+
+  /* ════════════════════════════════════════
+     VOICE VOLUME
+  ════════════════════════════════════════ */
+  const volumeVal    =document.getElementById('volume-val');
+  const btnVolumeMinus=document.getElementById('btn-volume-minus');
+  const btnVolumePlus =document.getElementById('btn-volume-plus');
+
+  function updateVolumeUI(){
+    volumeVal.textContent=voiceVolume.toFixed(1);
+    volumeVal.setAttribute('aria-label',t.volumeAria(voiceVolume.toFixed(1)));
+    btnVolumeMinus.disabled=voiceVolume<=VOLUME_MIN;
+    btnVolumePlus.disabled=voiceVolume>=VOLUME_MAX;
+    btnVolumeMinus.setAttribute('aria-label',t.volumeMinusAria(Math.max(VOLUME_MIN,voiceVolume-VOLUME_STEP).toFixed(1)));
+    btnVolumePlus.setAttribute('aria-label',t.volumePlusAria(Math.min(VOLUME_MAX,voiceVolume+VOLUME_STEP).toFixed(1)));
+  }
+  btnVolumeMinus.addEventListener('click',()=>{
+    if(voiceVolume>VOLUME_MIN){
+      voiceVolume=Math.round((voiceVolume-VOLUME_STEP)*10)/10;
+      updateVolumeUI();
+      try{localStorage.setItem('turf-volume',voiceVolume)}catch(e){}
+    }
+  });
+  btnVolumePlus.addEventListener('click',()=>{
+    if(voiceVolume<VOLUME_MAX){
+      voiceVolume=Math.round((voiceVolume+VOLUME_STEP)*10)/10;
+      updateVolumeUI();
+      try{localStorage.setItem('turf-volume',voiceVolume)}catch(e){}
+    }
+  });
+
+  /* ════════════════════════════════════════
+     LOCATION PERMISSION BUTTON
+  ════════════════════════════════════════ */
+  const btnRequestLocation=document.getElementById('btn-request-location');
+  const locationPermMsg   =document.getElementById('location-perm-msg');
+
+  btnRequestLocation.addEventListener('click',()=>{
+    locationPermMsg.style.display='block';
+    locationPermMsg.textContent='…';
+    if(!navigator.geolocation){
+      locationPermMsg.textContent=t.locationPermDenied;
+      locationPermMsg.style.color='var(--danger)';
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        /* Success — update position and show confirmation */
+        userLat=pos.coords.latitude;
+        userLon=pos.coords.longitude;
+        locationPermMsg.textContent=t.locationPermSuccess;
+        locationPermMsg.style.color='var(--success)';
+        /* If navigation not yet started, enable refresh */
+        if(btnRefresh.disabled) btnRefresh.disabled=false;
+      },
+      err=>{
+        locationPermMsg.textContent=t.locationPermDenied;
+        locationPermMsg.style.color='var(--danger)';
+      },
+      {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:0}
+    );
   });
 
   /* ════════════════════════════════════════
@@ -1646,6 +1754,7 @@
   updateMonitorBtn();
   updateIntervalUI();
   updateSpeedUI();
+  updateVolumeUI();
   updateCompassBtn();
   applyUsernameUI();
   /* If username was saved, fetch fresh profile silently in background — do NOT navigate */
