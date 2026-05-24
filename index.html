@@ -111,13 +111,26 @@
     /* Right column: Filter on top, Monitor below */
     #toolbar-right{display:flex;flex-direction:column;gap:.4rem}
 
-    /* Filter button — dark bg, yellow text */
-    #filter-wrap{position:relative}
-    #btn-filter{
+    /* Middle column: VO alerts top, Voice mode bottom */
+    #toolbar-middle{display:flex;flex-direction:column;gap:.4rem}
+
+    /* VO alerts button — same style as monitor */
+    #btn-vo-alerts-toolbar{
       font-family:var(--font-mono);font-size:.8rem;font-weight:700;
       border:2px solid #000;border-radius:var(--radius);
-      padding:.45rem .75rem;cursor:pointer;background:#000;color:var(--accent);
-      white-space:nowrap;width:100%;text-align:left;
+      padding:.45rem .75rem;cursor:pointer;background:#000;color:var(--muted);
+      white-space:nowrap;width:100%;text-align:left;transition:background .15s,color .15s;
+    }
+    #btn-vo-alerts-toolbar.active{background:var(--accent);color:#000;border-color:#000}
+    #btn-vo-alerts-toolbar:focus-visible{outline:3px solid #000;outline-offset:3px}
+
+    /* Filter button — compact, dark bg, yellow text, right column */
+    #filter-wrap{position:relative}
+    #btn-filter{
+      font-family:var(--font-mono);font-size:.75rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.35rem .6rem;cursor:pointer;background:#000;color:var(--accent);
+      white-space:nowrap;width:100%;text-align:center;
     }
     #btn-filter:focus-visible{outline:3px solid #000;outline-offset:3px}
     #filter-menu{
@@ -254,10 +267,17 @@
         </div>
       </button>
 
+      <!-- Middle column: VO alerts top (most used), Voice mode bottom -->
+      <div id="toolbar-middle">
+        <button id="btn-vo-alerts-toolbar" aria-pressed="false">VO-aviseringar av</button>
+        <button id="btn-monitor" aria-pressed="false">Röstläge av</button>
+      </div>
+
+      <!-- Right column: Filter — compact -->
       <div id="toolbar-right">
         <div id="filter-wrap">
           <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox">
-            <span id="btn-filter-label">Alla zoner</span>
+            <span id="btn-filter-label">Filter</span>
           </button>
           <ul id="filter-menu" role="listbox" hidden>
             <li><button role="option" data-filter="all"       aria-checked="true">Alla zoner</button></li>
@@ -265,7 +285,6 @@
             <li><button role="option" data-filter="blocked"   aria-checked="false">Blockerade</button></li>
           </ul>
         </div>
-        <button id="btn-monitor" aria-pressed="false">Röstläge av</button>
       </div>
     </div>
 
@@ -811,7 +830,23 @@
         }catch(e){}
       },20000);
 
-      /* Resume immediately when app comes back to foreground */
+      /* Layer 2 — silent HTML audio element on loop.
+         iOS treats <audio> differently from AudioContext and
+         is less likely to suspend it. Create a silent blob URL. */
+      try{
+        const silentWav=new Uint8Array([
+          82,73,70,70,36,0,0,0,87,65,86,69,102,109,116,32,
+          16,0,0,0,1,0,1,0,68,172,0,0,136,88,1,0,2,0,16,0,
+          100,97,116,97,4,0,0,0,0,0,0,0
+        ]);
+        const blob=new Blob([silentWav],{type:'audio/wav'});
+        const url=URL.createObjectURL(blob);
+        const audio=document.createElement('audio');
+        audio.src=url;audio.loop=true;audio.volume=0.001;
+        document.body.appendChild(audio);
+        audio.play().catch(()=>{});
+        wakeLockSource._audio=audio;
+      }catch(e){}
       document.addEventListener('visibilitychange',()=>{
         if(document.visibilityState==='visible'){
           try{if(audioCtx.state==='suspended') audioCtx.resume();}catch(e){}
