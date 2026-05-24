@@ -781,19 +781,48 @@
   function startWakeLock(){
     try{
       ensureAudioCtx();
+
+      /* Silent oscillator — base layer */
       const osc=audioCtx.createOscillator();
       const gain=audioCtx.createGain();
-      gain.gain.value=0;  /* completely silent */
+      gain.gain.value=0;
       osc.connect(gain);
       gain.connect(audioCtx.destination);
       osc.start();
       wakeLockSource=osc;
-      /* Resume audio context if it gets suspended (e.g. after a phone call) */
+
+      /* Periodic keep-alive ping every 20 seconds.
+         iOS suspends AudioContext after ~30s of silence.
+         We play an inaudible 10ms burst to keep the session alive.
+         This is more reliable than relying on the oscillator alone. */
+      setInterval(()=>{
+        try{
+          if(!audioCtx) return;
+          /* Resume if suspended */
+          if(audioCtx.state==='suspended') audioCtx.resume();
+          /* Inaudible 10ms burst — just enough to signal activity to iOS */
+          const pingOsc=audioCtx.createOscillator();
+          const pingGain=audioCtx.createGain();
+          pingGain.gain.value=0.00001; /* essentially silent but not zero */
+          pingOsc.connect(pingGain);
+          pingGain.connect(audioCtx.destination);
+          pingOsc.start(audioCtx.currentTime);
+          pingOsc.stop(audioCtx.currentTime+0.01);
+        }catch(e){}
+      },20000);
+
+      /* Resume immediately when app comes back to foreground */
       document.addEventListener('visibilitychange',()=>{
-        if(document.visibilityState==='visible'&&audioCtx.state==='suspended'){
-          audioCtx.resume();
+        if(document.visibilityState==='visible'){
+          try{if(audioCtx.state==='suspended') audioCtx.resume();}catch(e){}
         }
       });
+
+      /* Also resume on any touch — catches cases where iOS suspends mid-session */
+      document.addEventListener('touchstart',()=>{
+        try{if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();}catch(e){}
+      },{passive:true});
+
     }catch(e){}
   }
   function initCompass(){
@@ -838,10 +867,10 @@
         osc.type='sine';
         gain.gain.setValueAtTime(0,audioCtx.currentTime);
         gain.gain.linearRampToValueAtTime(0.25,audioCtx.currentTime+0.01);
-        gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.15);
+        gain.gain.linearRampToValueAtTime(0,audioCtx.currentTime+0.20);
         osc.start(audioCtx.currentTime);
-        osc.stop(audioCtx.currentTime+0.15);
-        setTimeout(resolve,350); /* 150ms tone + 200ms silence before speech */
+        osc.stop(audioCtx.currentTime+0.20);
+        setTimeout(resolve,400); /* 200ms tone + 200ms silence before speech */
       }catch(e){resolve();}
     });
   }
@@ -874,6 +903,8 @@
   async function announceZone(zone){
     if(!monitorActive||!zone) return;
     if(!window.speechSynthesis) return;
+    /* Resume audio context if suspended after inactivity */
+    try{if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();}catch(e){}
 
     /* Play wake tone first */
     await playWakeTone();
@@ -1691,23 +1722,41 @@
       shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
       renderZoneSlice();
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
-      /* Monitor announcement — only on auto-refresh */
+      /* Announcements — only on auto-refresh */
       if(isAuto&&allZonesSorted.length){
-        if(monitorActive) announceZone(allZonesSorted[0]);
-        if(voAlertsActive){
-          /* Small delay so the list has rendered before aria-live fires */
+        const z=allZonesSorted[0];
+        /* Build the label directly here — no dependency on DOM elements */
+        const ds=distStr(z._dist??0);
+        const clock=directionToZone(z.latitude,z.longitude);
+        const dirPart=clock?`${clock}. `:'';
+        const owner=z.currentOwner?.name??null;
+        const isUnowned=!owner;
+        const isMyZone=!!(savedUsername&&owner&&owner===savedUsername);
+        const block=getBlockStatus(z);
+        let announcementText='';
+        const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
+        if(isMyZone){
+          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
+        } else if(block.blocked===true&&owner){
+          const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
+        } else if(block.label===t.neverTaken){
+          const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
+        } else {
+          const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart}`;
+        }
+        /* Voice Mode — Speech Synthesis */
+        if(monitorActive) announceZone(z);
+        /* VO alerts — aria-live region, delay to let list render first */
+        if(voAlertsActive&&announcementText){
           setTimeout(()=>{
-            const z=allZonesSorted[0];
-            if(z&&z._buildLabel){
-              /* Use the existing label builder for the first zone */
-              const firstCard=zoneList.querySelector('.zone-card');
-              const btn=firstCard?.querySelector('.zone-btn');
-              const label=btn?.getAttribute('aria-label')||'';
-              voAlertRegion.textContent='';
-              /* Force re-announcement by clearing then setting */
-              requestAnimationFrame(()=>{voAlertRegion.textContent=label;});
-            }
-          },600);
+            voAlertRegion.textContent='';
+            requestAnimationFrame(()=>{
+              voAlertRegion.textContent=announcementText;
+            });
+          },800);
         }
       }
     }catch(e){setStatus(t.statusError(e.message),'error')}
