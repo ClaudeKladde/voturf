@@ -293,9 +293,22 @@
     <div id="username-status" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;" aria-live="polite"></div>
     <!-- Profile button — shown after successful user load, hidden initially -->
     <button id="btn-profile" hidden
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.75rem;text-align:left;">
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
       —
     </button>
+
+    <!-- VO alerts toggle — off by default -->
+    <button id="btn-vo-alerts" aria-pressed="false"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.75rem;text-align:left;transition:border-color .15s,color .15s,background .15s;">
+      VO-aviseringar av
+    </button>
+
+    <!-- Hidden aria-live region — updated on auto-refresh when VO alerts is on -->
+    <div id="vo-alert-region"
+      aria-live="polite"
+      aria-atomic="true"
+      style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+    </div>
 
     <!-- Auto update interval -->
     <div class="settings-control">
@@ -468,7 +481,9 @@
       locationPermLabel:'Plats:',
       locationPermBtn:'Begär platstillstånd',
       locationPermSuccess:'Platsåtkomst beviljad.',
-      locationPermDenied:'Platsåtkomst nekad. Gå till Sidmeny → Mer → Webbplatsinställningar → Plats → Tillåt.',
+      voAlertsOn:'VO-aviseringar på',voAlertsOff:'VO-aviseringar av',
+      voAlertsOnAria:'VO-aviseringar på',voAlertsOffAria:'VO-aviseringar av',
+      locationPermDenied:'Platsåtkomst nekad. Gå till Inställningar → Integritet och säkerhet → Platstjänster → Safari webbplatser → Fråga nästa gång.',
       skipToSettings:'Hoppa till inställningar',
       backToList:'Tillbaka till zonlistan',
       backToListProfile:'Tillbaka till listan',
@@ -575,7 +590,9 @@
       locationPermLabel:'Location:',
       locationPermBtn:'Request location permission',
       locationPermSuccess:'Location access granted.',
-      locationPermDenied:'Location access denied. Go to Page menu → More → Website Settings → Location → Allow.',
+      voAlertsOn:'VO alerts on',voAlertsOff:'VO alerts off',
+      voAlertsOnAria:'VO alerts on',voAlertsOffAria:'VO alerts off',
+      locationPermDenied:'Location access denied. Go to Settings → Privacy & Security → Location Services → Safari Websites → Ask Next Time.',
       skipToSettings:'Skip to settings',
       backToList:'Back to zone list',
       backToListProfile:'Back to list',
@@ -650,7 +667,8 @@
   let voiceSpeed=SPEED_DEFAULT;
   const VOLUME_MIN=0.1,VOLUME_MAX=1.0,VOLUME_STEP=0.1,VOLUME_DEFAULT=0.8;
   let voiceVolume=VOLUME_DEFAULT;
-  let monitorActive=false;
+  let monitorActive=false;     /* Voice Mode — off by default */
+  let voAlertsActive=false;    /* VO alerts — off by default */
   let countdownValue=INTERVAL_DEFAULT,countdownTimer=null,refreshTimer=null;
   let isFetching=false,blockTickInterval=null,detailLiveInterval=null;
   let activeZone=null,lastFocusedBtn=null;
@@ -741,6 +759,8 @@
         voiceVolume=Math.round(savedVolume*10)/10;
       const savedMonitor=localStorage.getItem('turf-monitor');
       if(savedMonitor==='true') monitorActive=true;
+      const savedVoAlerts=localStorage.getItem('turf-vo-alerts');
+      if(savedVoAlerts==='true') voAlertsActive=true;
       const savedCompass=localStorage.getItem('turf-compass');
       if(savedCompass==='false') compassEnabled=false;
       const sUser=localStorage.getItem('turf-username');
@@ -1219,6 +1239,36 @@
   });
 
   /* ════════════════════════════════════════
+     VO ALERTS TOGGLE
+  ════════════════════════════════════════ */
+  const btnVoAlerts=document.getElementById('btn-vo-alerts');
+  const voAlertRegion=document.getElementById('vo-alert-region');
+
+  function updateVoAlertsBtn(){
+    if(voAlertsActive){
+      btnVoAlerts.textContent=t.voAlertsOn;
+      btnVoAlerts.setAttribute('aria-pressed','true');
+      btnVoAlerts.setAttribute('aria-label',t.voAlertsOnAria);
+      btnVoAlerts.style.background='var(--accent)';
+      btnVoAlerts.style.color='#000';
+      btnVoAlerts.style.borderColor='var(--accent)';
+    } else {
+      btnVoAlerts.textContent=t.voAlertsOff;
+      btnVoAlerts.setAttribute('aria-pressed','false');
+      btnVoAlerts.setAttribute('aria-label',t.voAlertsOffAria);
+      btnVoAlerts.style.background='transparent';
+      btnVoAlerts.style.color='var(--muted)';
+      btnVoAlerts.style.borderColor='var(--border)';
+    }
+  }
+
+  btnVoAlerts.addEventListener('click',()=>{
+    voAlertsActive=!voAlertsActive;
+    updateVoAlertsBtn();
+    try{localStorage.setItem('turf-vo-alerts',String(voAlertsActive))}catch(e){}
+  });
+
+  /* ════════════════════════════════════════
      INTERVAL CONTROL
   ════════════════════════════════════════ */
   function updateIntervalUI(){
@@ -1642,8 +1692,23 @@
       renderZoneSlice();
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
       /* Monitor announcement — only on auto-refresh */
-      if(isAuto&&monitorActive&&allZonesSorted.length){
-        announceZone(allZonesSorted[0]);
+      if(isAuto&&allZonesSorted.length){
+        if(monitorActive) announceZone(allZonesSorted[0]);
+        if(voAlertsActive){
+          /* Small delay so the list has rendered before aria-live fires */
+          setTimeout(()=>{
+            const z=allZonesSorted[0];
+            if(z&&z._buildLabel){
+              /* Use the existing label builder for the first zone */
+              const firstCard=zoneList.querySelector('.zone-card');
+              const btn=firstCard?.querySelector('.zone-btn');
+              const label=btn?.getAttribute('aria-label')||'';
+              voAlertRegion.textContent='';
+              /* Force re-announcement by clearing then setting */
+              requestAnimationFrame(()=>{voAlertRegion.textContent=label;});
+            }
+          },600);
+        }
       }
     }catch(e){setStatus(t.statusError(e.message),'error')}
     finally{isFetching=false;btnRefresh.disabled=false;startCountdown()}
@@ -1752,6 +1817,7 @@
   t=T[lang];
   switchLang(lang);
   updateMonitorBtn();
+  updateVoAlertsBtn();
   updateIntervalUI();
   updateSpeedUI();
   updateVolumeUI();
