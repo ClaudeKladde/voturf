@@ -316,12 +316,6 @@
       —
     </button>
 
-    <!-- VO alerts toggle — off by default -->
-    <button id="btn-vo-alerts" aria-pressed="false"
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.75rem;text-align:left;transition:border-color .15s,color .15s,background .15s;">
-      VO-aviseringar av
-    </button>
-
     <!-- Hidden aria-live region — updated on auto-refresh when VO alerts is on -->
     <div id="vo-alert-region"
       aria-live="polite"
@@ -1307,7 +1301,7 @@
   /* ════════════════════════════════════════
      VO ALERTS TOGGLE
   ════════════════════════════════════════ */
-  const btnVoAlerts=document.getElementById('btn-vo-alerts');
+  const btnVoAlerts=document.getElementById('btn-vo-alerts-toolbar');
   const voAlertRegion=document.getElementById('vo-alert-region');
 
   function updateVoAlertsBtn(){
@@ -1315,16 +1309,12 @@
       btnVoAlerts.textContent=t.voAlertsOn;
       btnVoAlerts.setAttribute('aria-pressed','true');
       btnVoAlerts.setAttribute('aria-label',t.voAlertsOnAria);
-      btnVoAlerts.style.background='var(--accent)';
-      btnVoAlerts.style.color='#000';
-      btnVoAlerts.style.borderColor='var(--accent)';
+      btnVoAlerts.classList.add('active');
     } else {
       btnVoAlerts.textContent=t.voAlertsOff;
       btnVoAlerts.setAttribute('aria-pressed','false');
       btnVoAlerts.setAttribute('aria-label',t.voAlertsOffAria);
-      btnVoAlerts.style.background='transparent';
-      btnVoAlerts.style.color='var(--muted)';
-      btnVoAlerts.style.borderColor='var(--border)';
+      btnVoAlerts.classList.remove('active');
     }
   }
 
