@@ -159,6 +159,16 @@
     #btn-monitor.active{background:var(--accent);color:#000;border-color:#000}
     #btn-monitor:focus-visible{outline:3px solid #000;outline-offset:3px}
 
+    /* Hide taken button in toolbar — matches monitor/vo-alerts style */
+    #btn-hide-taken{
+      font-family:var(--font-mono);font-size:.75rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.35rem .6rem;cursor:pointer;background:#000;color:var(--muted);
+      white-space:nowrap;width:100%;text-align:center;transition:background .15s,color .15s;
+    }
+    #btn-hide-taken.active{background:var(--accent);color:#000;border-color:#000}
+    #btn-hide-taken:focus-visible{outline:3px solid #000;outline-offset:3px}
+
     /* ── Status ── */
     #status-msg{font-size:.85rem;color:var(--muted);font-family:var(--font-mono);min-height:1.4em;margin-bottom:.6rem}
     #status-msg.error{color:var(--danger)}#status-msg.success{color:var(--success)}#status-msg.loading{color:var(--accent2)}
@@ -274,7 +284,7 @@
         <button id="btn-monitor" aria-pressed="false">Röstläge av</button>
       </div>
 
-      <!-- Right column: Filter — compact -->
+      <!-- Right column: Filter top, Hide taken bottom -->
       <div id="toolbar-right">
         <div id="filter-wrap">
           <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox">
@@ -286,6 +296,7 @@
             <li><button role="option" data-filter="blocked"   aria-checked="false">Blockerade</button></li>
           </ul>
         </div>
+        <button id="btn-hide-taken" aria-pressed="false">Dölj tagna</button>
       </div>
     </div>
 
@@ -316,16 +327,6 @@
       style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
       —
     </button>
-
-    <!-- Hide taken zones toggle — always visible -->
-    <button id="btn-hide-taken" aria-pressed="false"
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.35rem;text-align:left;transition:border-color .15s,color .15s,background .15s;">
-      Dölj tagna zoner
-    </button>
-    <div id="hide-taken-msg"
-      aria-live="polite" aria-atomic="true"
-      style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;display:none;">
-    </div>
 
     <!-- Auto update interval -->
     <div class="settings-control">
@@ -471,7 +472,7 @@
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
       ],
-      hideTakenOn:'Dölj tagna zoner på',hideTakenOff:'Dölj tagna zoner',
+      hideTakenOn:'Dölj tagna på',hideTakenOff:'Dölj tagna',
       hideTakenNoUser:'Lägg till ditt användarnamn under Inställningar för att aktivera denna funktion.',
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
@@ -583,7 +584,7 @@
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
       ],
-      hideTakenOn:'Hide my zones on',hideTakenOff:'Hide my zones',
+      hideTakenOn:'Hide taken on',hideTakenOff:'Hide taken',
       hideTakenNoUser:'Add your username under Settings to use this function.',
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
@@ -1370,32 +1371,25 @@
      HIDE TAKEN ZONES TOGGLE
   ════════════════════════════════════════ */
   const btnHideTaken=document.getElementById('btn-hide-taken');
-  const hideTakenMsg=document.getElementById('hide-taken-msg');
 
   function updateHideTakenBtn(){
     if(hideTakenActive){
       btnHideTaken.textContent=t.hideTakenOn;
       btnHideTaken.setAttribute('aria-pressed','true');
-      btnHideTaken.style.background='var(--accent)';
-      btnHideTaken.style.color='#000';
-      btnHideTaken.style.borderColor='var(--accent)';
+      btnHideTaken.classList.add('active');
     } else {
       btnHideTaken.textContent=t.hideTakenOff;
       btnHideTaken.setAttribute('aria-pressed','false');
-      btnHideTaken.style.background='transparent';
-      btnHideTaken.style.color='var(--muted)';
-      btnHideTaken.style.borderColor='var(--border)';
+      btnHideTaken.classList.remove('active');
     }
   }
 
   btnHideTaken.addEventListener('click',()=>{
     if(!savedUsername){
-      hideTakenMsg.textContent=t.hideTakenNoUser;
-      hideTakenMsg.style.display='block';
-      hideTakenMsg.style.color='var(--muted)';
+      /* Show message in status area — aria-live will announce it */
+      setStatus(t.hideTakenNoUser,'');
       return;
     }
-    hideTakenMsg.style.display='none';
     hideTakenActive=!hideTakenActive;
     updateHideTakenBtn();
     try{localStorage.setItem('turf-hide-taken',String(hideTakenActive))}catch(e){}
