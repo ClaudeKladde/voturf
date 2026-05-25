@@ -1826,41 +1826,41 @@
       shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
       renderZoneSlice();
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
-      /* Announcements — only on auto-refresh */
-      if(isAuto&&allZonesSorted.length){
-        const z=allZonesSorted[0];
-        /* Build the label directly here — no dependency on DOM elements */
-        const ds=distStr(z._dist??0);
-        const clock=directionToZone(z.latitude,z.longitude);
-        const dirPart=clock?`${clock}. `:'';
-        const owner=z.currentOwner?.name??null;
-        const isUnowned=!owner;
-        const isMyZone=!!(savedUsername&&owner&&owner===savedUsername);
-        const block=getBlockStatus(z);
-        let announcementText='';
-        const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
-        if(isMyZone){
-          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
-        } else if(block.blocked===true&&owner){
-          const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
-          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
-        } else if(block.label===t.neverTaken){
-          const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
-        } else {
-          const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-          announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart}`;
-        }
-        /* Voice Mode — Speech Synthesis */
-        if(monitorActive) announceZone(z);
-        /* VO alerts — aria-live region, delay to let list render first */
-        if(voAlertsActive&&announcementText){
-          setTimeout(()=>{
-            voAlertRegion.textContent='';
-            requestAnimationFrame(()=>{
-              voAlertRegion.textContent=announcementText;
-            });
-          },800);
+      /* Announcements — only on auto-refresh, use filtered list so it matches what is shown */
+      if(isAuto){
+        const filteredFirst=getFilteredZones()[0];
+        if(filteredFirst){
+          const z=filteredFirst;
+          const ds=distStr(z._dist??0);
+          const clock=directionToZone(z.latitude,z.longitude);
+          const dirPart=clock?`${clock}. `:'';
+          const owner=z.currentOwner?.name??null;
+          const isUnowned=!owner;
+          const isMyZone=!!(savedUsername&&owner&&owner===savedUsername);
+          const block=getBlockStatus(z);
+          let announcementText='';
+          const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
+          if(isMyZone){
+            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
+          } else if(block.blocked===true&&owner){
+            const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
+          } else if(block.label===t.neverTaken){
+            const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
+          } else {
+            const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
+            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart}`;
+          }
+          /* Voice Mode — Speech Synthesis */
+          if(monitorActive) announceZone(z);
+          /* VO alerts — aria-live region, delay to let list render first */
+          if(voAlertsActive&&announcementText){
+            setTimeout(()=>{
+              voAlertRegion.textContent='';
+              requestAnimationFrame(()=>{voAlertRegion.textContent=announcementText;});
+            },800);
+          }
         }
       }
     }catch(e){setStatus(t.statusError(e.message),'error')}
