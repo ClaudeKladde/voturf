@@ -245,12 +245,13 @@
         <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
         <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.</li>
         <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsfrekvens, talhastighet och språk där.</li>
-        <li id="tip-5">Röstläget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Röstläge-knappen i verktygsfältet.</li>
-        <li id="tip-6">Om Röstläge och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.</li>
-        <li id="tip-7">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
-        <li id="tip-8">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
-        <li id="tip-9">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
-        <li id="tip-10">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
+        <li id="tip-5">Röstläge och VO-aviseringar läser båda upp närmaste zon vid varje automatisk uppdatering. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal och du kan justera talhastighet och röstvolym under Inställningar. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Aktivera önskat läge med knapparna i verktygsfältet.</li>
+        <li id="tip-6">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
+        <li id="tip-7">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
+        <li id="tip-8">Dölj tagna zoner tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn under Inställningar.</li>
+        <li id="tip-9">Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.</li>
+        <li id="tip-10">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
+        <li id="tip-11">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
       </ul>
       <button id="tips-close-top"
         style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
@@ -316,11 +317,14 @@
       —
     </button>
 
-    <!-- Hidden aria-live region — updated on auto-refresh when VO alerts is on -->
-    <div id="vo-alert-region"
-      aria-live="polite"
-      aria-atomic="true"
-      style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+    <!-- Hide taken zones toggle — always visible -->
+    <button id="btn-hide-taken" aria-pressed="false"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.35rem;text-align:left;transition:border-color .15s,color .15s,background .15s;">
+      Dölj tagna zoner
+    </button>
+    <div id="hide-taken-msg"
+      aria-live="polite" aria-atomic="true"
+      style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;display:none;">
     </div>
 
     <!-- Auto update interval -->
@@ -364,7 +368,7 @@
         Begär platstillstånd
       </button>
     </div>
-    <div id="location-perm-msg" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;display:none;" aria-live="polite"></div>
+    <div id="location-perm-msg" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;display:none;"></div>
 
     <!-- Independent tips panel at the bottom — separate from the start screen one -->
     <div style="margin-bottom:.5rem">
@@ -389,7 +393,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-22 20:56</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-25 19:32</span>
     </div>
   </div>
 
@@ -436,6 +440,14 @@
     <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
   </div>
 
+  <!-- VO alert live region — outside all views so VoiceOver never swipes to it normally -->
+  <div id="vo-alert-region"
+    aria-live="polite"
+    aria-atomic="true"
+    aria-hidden="false"
+    style="position:fixed;bottom:0;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+  </div>
+
   <script>
   /* ════════════════════════════════════════
      TRANSLATIONS
@@ -451,13 +463,16 @@
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.',
         'Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsfrekvens, talhastighet och språk där.',
-        'Röstläget läser upp närmaste zon högt vid varje automatisk uppdatering. Aktivera det med Röstläge-knappen i verktygsfältet.',
-        'Om Röstläge och VoiceOver talar samtidigt, pausa VoiceOver-talet med ett trefingers dubbelknack och återuppta på samma sätt.',
+        'Röstläge och VO-aviseringar läser båda upp närmaste zon vid varje automatisk uppdatering. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal och du kan justera talhastighet och röstvolym under Inställningar. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Aktivera önskat läge med knapparna i verktygsfältet.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.',
+        'Dölj tagna zoner tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn under Inställningar.',
+        'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
       ],
+      hideTakenOn:'Dölj tagna zoner på',hideTakenOff:'Dölj tagna zoner',
+      hideTakenNoUser:'Lägg till ditt användarnamn under Inställningar för att aktivera denna funktion.',
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -559,14 +574,17 @@
         'Each zone in the list is one swipe — name, distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver, or swipe from the left edge in Safari.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you.',
-        'Settings are at the bottom of the zone list under the Settings heading — adjust update interval, voice speed, and language there.',
-        'Voice mode reads the nearest zone aloud on every auto-update. Enable it with the Voice button in the toolbar.',
-        'If Voice and VoiceOver speak at the same time, pause VoiceOver speech with a three-finger double tap and resume the same way.',
+        'Settings are at the bottom of the zone list under the Settings heading — adjust update frequency, voice rate, and language there.',
+        'Voice mode and VO alerts both read the nearest zone on every auto-update. Voice mode uses a separate synthetic voice with a beep as signal and you can adjust speech rate and volume under Settings. VO alerts uses your own VoiceOver voice and speed. Enable your preferred mode with the buttons in the toolbar.',
         'Remember to keep your screen unlocked and Safari open for the app to work properly.',
         'Add your username under Settings to see your profile, stats and owned zones. Your zones are highlighted in yellow in the list.',
+        'Hide my zones removes your own zones from the list so the next available zone appears at the top. Requires your username to be added under Settings.',
+        'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
       ],
+      hideTakenOn:'Hide my zones on',hideTakenOff:'Hide my zones',
+      hideTakenNoUser:'Add your username under Settings to use this function.',
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -682,6 +700,7 @@
   let voiceVolume=VOLUME_DEFAULT;
   let monitorActive=false;     /* Voice Mode — off by default */
   let voAlertsActive=false;    /* VO alerts — off by default */
+  let hideTakenActive=false;   /* Hide my zones — off by default */
   let countdownValue=INTERVAL_DEFAULT,countdownTimer=null,refreshTimer=null;
   let isFetching=false,blockTickInterval=null,detailLiveInterval=null;
   let activeZone=null,lastFocusedBtn=null;
@@ -774,6 +793,8 @@
       if(savedMonitor==='true') monitorActive=true;
       const savedVoAlerts=localStorage.getItem('turf-vo-alerts');
       if(savedVoAlerts==='true') voAlertsActive=true;
+      const savedHideTaken=localStorage.getItem('turf-hide-taken');
+      if(savedHideTaken==='true') hideTakenActive=true;
       const savedCompass=localStorage.getItem('turf-compass');
       if(savedCompass==='false') compassEnabled=false;
       const sUser=localStorage.getItem('turf-username');
@@ -851,6 +872,20 @@
       document.addEventListener('touchstart',()=>{
         try{if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();}catch(e){}
       },{passive:true});
+
+      /* Layer 3 — silent looping video.
+         iOS is very reluctant to suspend active video playback.
+         Opacity 0.01 rather than 0 to avoid iOS optimising it away. */
+      try{
+        const video=document.createElement('video');
+        video.setAttribute('playsinline','');
+        video.setAttribute('muted','');
+        video.loop=true;video.volume=0;
+        video.src='data:video/webm;base64,GkXfowEAAAAAAAAfQoaBAUL3gQFC8oEEQvOBCEKChHdlYm1CEwebQoaBAkK7gQJChIEEGkHjQ4ECQAAAAAAF+AAAAAAAAABZAAAAAAAAAAAAZAAAAAAAAAAAAABAAAAAAAAAAAB1AAAAAAAAAAAAAAAAAAAMUAAAAAAAAAAAAAAAAAAAABVSuZpkAAAAAAAAAAAAAAAAAAABVSuZpkAAAAAAAAAAAAAAAAAAABVSuZpkA==';
+        video.style.cssText='position:fixed;width:1px;height:1px;opacity:0.01;top:-1px;left:-1px;pointer-events:none;';
+        document.body.appendChild(video);
+        video.play().catch(()=>{});
+      }catch(e){}
 
     }catch(e){}
   }
@@ -1111,6 +1146,7 @@
     updateMonitorBtn();
     updateIntervalUI();
     updateSpeedUI();
+    if(typeof updateHideTakenBtn==='function') updateHideTakenBtn();
     const skipLink=document.getElementById('skip-to-settings');
     if(!skipLink.hidden) skipLink.textContent=t.skipToSettings;
     try{localStorage.setItem('turf-lang',lang)}catch(e){}
@@ -1271,9 +1307,15 @@
     });
   });
   function getFilteredZones(){
-    if(activeFilter==='available') return allZonesSorted.filter(z=>getBlockStatus(z).blocked===false);
-    if(activeFilter==='blocked')   return allZonesSorted.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
-    return allZonesSorted;
+    let zones=allZonesSorted;
+    /* Hide my zones filter */
+    if(hideTakenActive&&savedUsername){
+      zones=zones.filter(z=>z.currentOwner?.name!==savedUsername);
+    }
+    /* Active filter */
+    if(activeFilter==='available') return zones.filter(z=>getBlockStatus(z).blocked===false);
+    if(activeFilter==='blocked')   return zones.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
+    return zones;
   }
 
   /* ════════════════════════════════════════
@@ -1322,6 +1364,43 @@
     voAlertsActive=!voAlertsActive;
     updateVoAlertsBtn();
     try{localStorage.setItem('turf-vo-alerts',String(voAlertsActive))}catch(e){}
+  });
+
+  /* ════════════════════════════════════════
+     HIDE TAKEN ZONES TOGGLE
+  ════════════════════════════════════════ */
+  const btnHideTaken=document.getElementById('btn-hide-taken');
+  const hideTakenMsg=document.getElementById('hide-taken-msg');
+
+  function updateHideTakenBtn(){
+    if(hideTakenActive){
+      btnHideTaken.textContent=t.hideTakenOn;
+      btnHideTaken.setAttribute('aria-pressed','true');
+      btnHideTaken.style.background='var(--accent)';
+      btnHideTaken.style.color='#000';
+      btnHideTaken.style.borderColor='var(--accent)';
+    } else {
+      btnHideTaken.textContent=t.hideTakenOff;
+      btnHideTaken.setAttribute('aria-pressed','false');
+      btnHideTaken.style.background='transparent';
+      btnHideTaken.style.color='var(--muted)';
+      btnHideTaken.style.borderColor='var(--border)';
+    }
+  }
+
+  btnHideTaken.addEventListener('click',()=>{
+    if(!savedUsername){
+      hideTakenMsg.textContent=t.hideTakenNoUser;
+      hideTakenMsg.style.display='block';
+      hideTakenMsg.style.color='var(--muted)';
+      return;
+    }
+    hideTakenMsg.style.display='none';
+    hideTakenActive=!hideTakenActive;
+    updateHideTakenBtn();
+    try{localStorage.setItem('turf-hide-taken',String(hideTakenActive))}catch(e){}
+    shownCount=30;
+    renderZoneSlice();
   });
 
   /* ════════════════════════════════════════
@@ -1892,6 +1971,7 @@
   switchLang(lang);
   updateMonitorBtn();
   updateVoAlertsBtn();
+  updateHideTakenBtn();
   updateIntervalUI();
   updateSpeedUI();
   updateVolumeUI();
