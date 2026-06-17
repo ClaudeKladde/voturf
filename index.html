@@ -262,6 +262,7 @@
         <li id="tip-9">Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.</li>
         <li id="tip-10">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
         <li id="tip-11">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
+        <li id="tip-12">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera VO-avisering spelare eller Röstläge spelare under Inställningar för att höra när någon kommer inom avståndet. Justera uppdateringsfrekvens och avstånd under samma rubrik.</li>
       </ul>
       <button id="tips-close-top"
         style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
@@ -305,6 +306,12 @@
     <ul id="zone-list"></ul>
     <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
     <button id="btn-load-more" hidden>Ladda fler zoner</button>
+
+    <!-- Nearby players — real h2 heading so it appears in VoiceOver's heading rotor -->
+    <h2 id="nearby-players-heading" tabindex="-1">Spelare i närheten</h2>
+    <ul id="nearby-players-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem;margin-bottom:1rem">
+      <li id="nearby-players-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga spelare i närheten.</li>
+    </ul>
 
     <!-- Settings section -->
     <h2 id="settings-heading" tabindex="-1">Inställningar</h2>
@@ -361,6 +368,39 @@
       </button>
     </div>
 
+    <!-- Nearby players settings group -->
+    <h3 id="nearby-players-settings-heading" style="font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--accent);margin:1rem 0 .5rem;">Spelare i närheten</h3>
+
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-player-vo">VO-avisering spelare:</span>
+      <button id="btn-player-vo-alerts" aria-pressed="false"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;">
+        Av
+      </button>
+    </div>
+
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-player-voice">Röstläge spelare:</span>
+      <button id="btn-player-voice-mode" aria-pressed="false"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;">
+        Av
+      </button>
+    </div>
+
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-player-freq">Uppdateringsfrekvens spelare: </span>
+      <button class="stepper-btn" id="btn-player-freq-minus" aria-label="Minska uppdateringsfrekvens">−</button>
+      <span class="stepper-val" id="player-freq-val" aria-live="polite" aria-atomic="true">60</span>
+      <button class="stepper-btn" id="btn-player-freq-plus" aria-label="Öka uppdateringsfrekvens">+</button>
+    </div>
+
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-player-radius">Avstånd spelare: </span>
+      <button class="stepper-btn" id="btn-player-radius-minus" aria-label="Minska avstånd">−</button>
+      <span class="stepper-val" id="player-radius-val" aria-live="polite" aria-atomic="true">500</span>
+      <button class="stepper-btn" id="btn-player-radius-plus" aria-label="Öka avstånd">+</button>
+    </div>
+
     <!-- Location permission button -->
     <div class="settings-control">
       <span class="settings-label" id="lbl-location-perm">Plats:</span>
@@ -394,7 +434,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-25 19:32</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-25 21:30</span>
     </div>
   </div>
 
@@ -449,6 +489,14 @@
     style="position:fixed;bottom:0;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
   </div>
 
+  <!-- Player alert live region — separate from zone VO alerts -->
+  <div id="player-alert-region"
+    aria-live="polite"
+    aria-atomic="true"
+    aria-hidden="false"
+    style="position:fixed;bottom:0;left:-9999px;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;">
+  </div>
+
   <script>
   /* ════════════════════════════════════════
      TRANSLATIONS
@@ -471,9 +519,32 @@
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
+        'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera VO-avisering spelare eller Röstläge spelare under Inställningar för att höra när någon kommer inom avståndet. Justera uppdateringsfrekvens och avstånd under samma rubrik.',
       ],
       hideTakenOn:'Dölj tagna på',hideTakenOff:'Dölj tagna',
       hideTakenNoUser:'Lägg till ditt användarnamn under Inställningar för att aktivera denna funktion.',
+      nearbyPlayersHeading:'Spelare i närheten',
+      nearbyPlayersSettingsHeading:'Spelare i närheten',
+      noPlayersNearby:'Inga spelare i närheten.',
+      playerVoLabel:'VO-avisering spelare:',
+      playerVoiceLabel:'Röstläge spelare:',
+      playerFreqLabel:'Uppdateringsfrekvens spelare: ',
+      playerRadiusLabel:'Avstånd spelare: ',
+      playerOn:'På',playerOff:'Av',
+      playerVoOnAria:'VO-avisering spelare på',
+      playerVoOffAria:'VO-avisering spelare av',
+      playerVoiceOnAria:'Röstläge spelare på',
+      playerVoiceOffAria:'Röstläge spelare av',
+      playerFreqAria:(s)=>`Uppdateringsfrekvens spelare: ${s} sekunder.`,
+      playerFreqMinusAria:(s)=>`Minska uppdateringsfrekvens till ${s} sekunder.`,
+      playerFreqPlusAria:(s)=>`Öka uppdateringsfrekvens till ${s} sekunder.`,
+      playerRadiusAria:(m)=>`Avstånd spelare: ${m} meter.`,
+      playerRadiusMinusAria:(m)=>`Minska avstånd till ${m} meter.`,
+      playerRadiusPlusAria:(m)=>`Öka avstånd till ${m} meter.`,
+      playerNearbyPrefix:'Spelare i närheten. ',
+      newPlayerNearbyPrefix:'Ny spelare i närheten. ',
+      playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
+      playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -583,9 +654,32 @@
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
+        'Nearby players appear as their own list after the zone list, updated every 30–120 seconds based on your setting. Enable Player VO alerts or Player voice mode under Settings to hear when someone comes within range. Adjust update frequency and distance under the same heading.',
       ],
       hideTakenOn:'Hide taken on',hideTakenOff:'Hide taken',
       hideTakenNoUser:'Add your username under Settings to use this function.',
+      nearbyPlayersHeading:'Nearby players',
+      nearbyPlayersSettingsHeading:'Nearby players',
+      noPlayersNearby:'No players nearby.',
+      playerVoLabel:'Player VO alerts:',
+      playerVoiceLabel:'Player voice mode:',
+      playerFreqLabel:'Update frequency (players): ',
+      playerRadiusLabel:'Distance (players): ',
+      playerOn:'On',playerOff:'Off',
+      playerVoOnAria:'Player VO alerts on',
+      playerVoOffAria:'Player VO alerts off',
+      playerVoiceOnAria:'Player voice mode on',
+      playerVoiceOffAria:'Player voice mode off',
+      playerFreqAria:(s)=>`Update frequency players: ${s} seconds.`,
+      playerFreqMinusAria:(s)=>`Decrease update frequency to ${s} seconds.`,
+      playerFreqPlusAria:(s)=>`Increase update frequency to ${s} seconds.`,
+      playerRadiusAria:(m)=>`Distance players: ${m} meters.`,
+      playerRadiusMinusAria:(m)=>`Decrease distance to ${m} meters.`,
+      playerRadiusPlusAria:(m)=>`Increase distance to ${m} meters.`,
+      playerNearbyPrefix:'Player nearby. ',
+      newPlayerNearbyPrefix:'New player nearby. ',
+      playerDistDir:(name,dist,dir)=>`${name}. ${dist} meters away. ${dir}.`,
+      playerTotalCount:(n)=>` Total of ${n} players nearby.`,
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -702,6 +796,17 @@
   let monitorActive=false;     /* Voice Mode — off by default */
   let voAlertsActive=false;    /* VO alerts — off by default */
   let hideTakenActive=false;   /* Hide my zones — off by default */
+
+  /* ═══ Nearby players state ═══ */
+  const PLAYER_LOCATION_API='https://api.turfgame.com/v4/users/location';
+  const PLAYER_FREQ_MIN=30,PLAYER_FREQ_MAX=120,PLAYER_FREQ_STEP=5,PLAYER_FREQ_DEFAULT=60;
+  const PLAYER_RADIUS_MIN=50,PLAYER_RADIUS_MAX=1000,PLAYER_RADIUS_STEP=50,PLAYER_RADIUS_DEFAULT=500;
+  let playerVoActive=false;
+  let playerVoiceActive=false;
+  let playerUpdateFreq=PLAYER_FREQ_DEFAULT;
+  let playerRadius=PLAYER_RADIUS_DEFAULT;
+  let previousNearbyPlayerIds=new Set();
+  let playerMonitorTimer=null;
   let countdownValue=INTERVAL_DEFAULT,countdownTimer=null,refreshTimer=null;
   let isFetching=false,blockTickInterval=null,detailLiveInterval=null;
   let activeZone=null,lastFocusedBtn=null;
@@ -796,6 +901,16 @@
       if(savedVoAlerts==='true') voAlertsActive=true;
       const savedHideTaken=localStorage.getItem('turf-hide-taken');
       if(savedHideTaken==='true') hideTakenActive=true;
+      const savedPlayerVo=localStorage.getItem('turf-player-vo');
+      if(savedPlayerVo==='true') playerVoActive=true;
+      const savedPlayerVoice=localStorage.getItem('turf-player-voice');
+      if(savedPlayerVoice==='true') playerVoiceActive=true;
+      const savedPlayerFreq=parseInt(localStorage.getItem('turf-player-freq'),10);
+      if(!isNaN(savedPlayerFreq)&&savedPlayerFreq>=PLAYER_FREQ_MIN&&savedPlayerFreq<=PLAYER_FREQ_MAX)
+        playerUpdateFreq=savedPlayerFreq;
+      const savedPlayerRadius=parseInt(localStorage.getItem('turf-player-radius'),10);
+      if(!isNaN(savedPlayerRadius)&&savedPlayerRadius>=PLAYER_RADIUS_MIN&&savedPlayerRadius<=PLAYER_RADIUS_MAX)
+        playerRadius=savedPlayerRadius;
       const savedCompass=localStorage.getItem('turf-compass');
       if(savedCompass==='false') compassEnabled=false;
       const sUser=localStorage.getItem('turf-username');
@@ -1092,6 +1207,26 @@
     document.getElementById('lbl-speed').textContent=t.speedLabel;
     document.getElementById('lbl-compass').textContent=t.compassLabel;
     document.getElementById('gps-reminder').textContent=t.gpsReminder;
+    /* Nearby players */
+    const nphHeading=document.getElementById('nearby-players-heading');
+    if(nphHeading) nphHeading.textContent=t.nearbyPlayersHeading;
+    const nphSettingsHeading=document.getElementById('nearby-players-settings-heading');
+    if(nphSettingsHeading) nphSettingsHeading.textContent=t.nearbyPlayersSettingsHeading;
+    const lblPlayerVo=document.getElementById('lbl-player-vo');
+    if(lblPlayerVo) lblPlayerVo.textContent=t.playerVoLabel;
+    const lblPlayerVoice=document.getElementById('lbl-player-voice');
+    if(lblPlayerVoice) lblPlayerVoice.textContent=t.playerVoiceLabel;
+    const lblPlayerFreq=document.getElementById('lbl-player-freq');
+    if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
+    const lblPlayerRadius=document.getElementById('lbl-player-radius');
+    if(lblPlayerRadius) lblPlayerRadius.textContent=t.playerRadiusLabel;
+    if(typeof updatePlayerVoBtn==='function'){
+      updatePlayerVoBtn();updatePlayerVoiceBtn();updatePlayerFreqUI();updatePlayerRadiusUI();
+      /* Re-render current nearby players list (mainly to refresh empty-state text) */
+      if(nearbyPlayersList && nearbyPlayersList.children.length===1 && nearbyPlayersList.children[0].id==='nearby-players-empty'){
+        nearbyPlayersList.children[0].textContent=t.noPlayersNearby;
+      }
+    }
     const lblVol=document.getElementById('lbl-volume');
     if(lblVol) lblVol.textContent=t.volumeLabel;
     const lblLocPerm=document.getElementById('lbl-location-perm');
@@ -1396,6 +1531,203 @@
     shownCount=30;
     renderZoneSlice();
   });
+
+  /* ════════════════════════════════════════
+     NEARBY PLAYERS FEATURE
+     Uses an undocumented Turf endpoint that mirrors
+     the official app's live player visibility map.
+     Wrapped in try/catch throughout — if it ever goes
+     away, the feature fails silently and shows "no players".
+  ════════════════════════════════════════ */
+  const btnPlayerVo       =document.getElementById('btn-player-vo-alerts');
+  const btnPlayerVoice    =document.getElementById('btn-player-voice-mode');
+  const playerFreqVal     =document.getElementById('player-freq-val');
+  const btnPlayerFreqMinus=document.getElementById('btn-player-freq-minus');
+  const btnPlayerFreqPlus =document.getElementById('btn-player-freq-plus');
+  const playerRadiusVal   =document.getElementById('player-radius-val');
+  const btnPlayerRadiusMinus=document.getElementById('btn-player-radius-minus');
+  const btnPlayerRadiusPlus =document.getElementById('btn-player-radius-plus');
+  const nearbyPlayersList =document.getElementById('nearby-players-list');
+  const playerAlertRegion =document.getElementById('player-alert-region');
+
+  function updatePlayerVoBtn(){
+    btnPlayerVo.textContent=playerVoActive?t.playerOn:t.playerOff;
+    btnPlayerVo.setAttribute('aria-pressed',playerVoActive?'true':'false');
+    btnPlayerVo.setAttribute('aria-label',playerVoActive?t.playerVoOnAria:t.playerVoOffAria);
+    btnPlayerVo.style.background=playerVoActive?'var(--accent)':'transparent';
+    btnPlayerVo.style.color=playerVoActive?'#000':'var(--muted)';
+    btnPlayerVo.style.borderColor=playerVoActive?'var(--accent)':'var(--border)';
+  }
+  function updatePlayerVoiceBtn(){
+    btnPlayerVoice.textContent=playerVoiceActive?t.playerOn:t.playerOff;
+    btnPlayerVoice.setAttribute('aria-pressed',playerVoiceActive?'true':'false');
+    btnPlayerVoice.setAttribute('aria-label',playerVoiceActive?t.playerVoiceOnAria:t.playerVoiceOffAria);
+    btnPlayerVoice.style.background=playerVoiceActive?'var(--accent)':'transparent';
+    btnPlayerVoice.style.color=playerVoiceActive?'#000':'var(--muted)';
+    btnPlayerVoice.style.borderColor=playerVoiceActive?'var(--accent)':'var(--border)';
+  }
+  function updatePlayerFreqUI(){
+    playerFreqVal.textContent=`${playerUpdateFreq}s`;
+    playerFreqVal.setAttribute('aria-label',t.playerFreqAria(playerUpdateFreq));
+    btnPlayerFreqMinus.disabled=playerUpdateFreq<=PLAYER_FREQ_MIN;
+    btnPlayerFreqPlus.disabled=playerUpdateFreq>=PLAYER_FREQ_MAX;
+    btnPlayerFreqMinus.setAttribute('aria-label',t.playerFreqMinusAria(Math.max(PLAYER_FREQ_MIN,playerUpdateFreq-PLAYER_FREQ_STEP)));
+    btnPlayerFreqPlus.setAttribute('aria-label',t.playerFreqPlusAria(Math.min(PLAYER_FREQ_MAX,playerUpdateFreq+PLAYER_FREQ_STEP)));
+  }
+  function updatePlayerRadiusUI(){
+    playerRadiusVal.textContent=`${playerRadius}m`;
+    playerRadiusVal.setAttribute('aria-label',t.playerRadiusAria(playerRadius));
+    btnPlayerRadiusMinus.disabled=playerRadius<=PLAYER_RADIUS_MIN;
+    btnPlayerRadiusPlus.disabled=playerRadius>=PLAYER_RADIUS_MAX;
+    btnPlayerRadiusMinus.setAttribute('aria-label',t.playerRadiusMinusAria(Math.max(PLAYER_RADIUS_MIN,playerRadius-PLAYER_RADIUS_STEP)));
+    btnPlayerRadiusPlus.setAttribute('aria-label',t.playerRadiusPlusAria(Math.min(PLAYER_RADIUS_MAX,playerRadius+PLAYER_RADIUS_STEP)));
+  }
+
+  btnPlayerVo.addEventListener('click',()=>{
+    playerVoActive=!playerVoActive;
+    updatePlayerVoBtn();
+    try{localStorage.setItem('turf-player-vo',String(playerVoActive))}catch(e){}
+  });
+  btnPlayerVoice.addEventListener('click',()=>{
+    playerVoiceActive=!playerVoiceActive;
+    updatePlayerVoiceBtn();
+    try{localStorage.setItem('turf-player-voice',String(playerVoiceActive))}catch(e){}
+  });
+  btnPlayerFreqMinus.addEventListener('click',()=>{
+    if(playerUpdateFreq>PLAYER_FREQ_MIN){
+      playerUpdateFreq-=PLAYER_FREQ_STEP;
+      updatePlayerFreqUI();
+      try{localStorage.setItem('turf-player-freq',playerUpdateFreq)}catch(e){}
+      restartPlayerMonitor();
+    }
+  });
+  btnPlayerFreqPlus.addEventListener('click',()=>{
+    if(playerUpdateFreq<PLAYER_FREQ_MAX){
+      playerUpdateFreq+=PLAYER_FREQ_STEP;
+      updatePlayerFreqUI();
+      try{localStorage.setItem('turf-player-freq',playerUpdateFreq)}catch(e){}
+      restartPlayerMonitor();
+    }
+  });
+  btnPlayerRadiusMinus.addEventListener('click',()=>{
+    if(playerRadius>PLAYER_RADIUS_MIN){
+      playerRadius-=PLAYER_RADIUS_STEP;
+      updatePlayerRadiusUI();
+      try{localStorage.setItem('turf-player-radius',playerRadius)}catch(e){}
+      fetchNearbyPlayers();  /* re-filter immediately with new radius */
+    }
+  });
+  btnPlayerRadiusPlus.addEventListener('click',()=>{
+    if(playerRadius<PLAYER_RADIUS_MAX){
+      playerRadius+=PLAYER_RADIUS_STEP;
+      updatePlayerRadiusUI();
+      try{localStorage.setItem('turf-player-radius',playerRadius)}catch(e){}
+      fetchNearbyPlayers();
+    }
+  });
+
+  function buildPlayerItem(player){
+    const li=document.createElement('li');
+    li.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .85rem;font-family:var(--font-mono);font-size:.9rem;color:var(--text)';
+    const ds=distStr(player._dist);
+    const clock=directionToZone(player.latitude,player.longitude);
+    const dirPart=clock?` ${clock}.`:'';
+    li.textContent=`${player.name}. ${ds} bort.${dirPart}`;
+    return li;
+  }
+
+  function renderNearbyPlayersList(players){
+    nearbyPlayersList.innerHTML='';
+    if(!players.length){
+      const li=document.createElement('li');
+      li.id='nearby-players-empty';
+      li.style.cssText='color:var(--muted);font-family:var(--font-mono);font-size:.85rem';
+      li.textContent=t.noPlayersNearby;
+      nearbyPlayersList.appendChild(li);
+      return;
+    }
+    const frag=document.createDocumentFragment();
+    players.forEach(p=>frag.appendChild(buildPlayerItem(p)));
+    nearbyPlayersList.appendChild(frag);
+  }
+
+  async function fetchNearbyPlayers(){
+    if(userLat===null||userLon===null) return;
+    try{
+      const r=await fetch(PLAYER_LOCATION_API);
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const allPlayers=await r.json();
+      if(!Array.isArray(allPlayers)) throw new Error('Unexpected response shape');
+
+      /* Filter to radius, exclude self */
+      const nearby=allPlayers
+        .filter(p=>!(savedUsername&&p.name===savedUsername))
+        .map(p=>{
+          p._dist=haversineKm(userLat,userLon,p.latitude,p.longitude)*1000; /* meters */
+          return p;
+        })
+        .filter(p=>p._dist<=playerRadius)
+        .sort((a,b)=>a._dist-b._dist);
+
+      renderNearbyPlayersList(nearby);
+
+      /* ── Announcement logic ── */
+      const currentIds=new Set(nearby.map(p=>p.id));
+      let announcementText='';
+      if(nearby.length===0){
+        announcementText=t.noPlayersNearby;
+      } else {
+        const closest=nearby[0];
+        const isNew=!previousNearbyPlayerIds.has(closest.id);
+        const prefix=isNew?t.newPlayerNearbyPrefix:t.playerNearbyPrefix;
+        const ds=Math.round(closest._dist);
+        const clock=directionToZone(closest.latitude,closest.longitude);
+        announcementText=prefix+t.playerDistDir(closest.name,ds,clock||'');
+        if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
+      }
+      previousNearbyPlayerIds=currentIds;
+
+      /* VO alerts — aria-live */
+      if(playerVoActive){
+        playerAlertRegion.textContent='';
+        requestAnimationFrame(()=>{playerAlertRegion.textContent=announcementText;});
+      }
+      /* Voice mode — speech synthesis, reuses existing voice/rate/volume settings */
+      if(playerVoiceActive){
+        announcePlayerText(announcementText);
+      }
+    }catch(e){
+      /* Undocumented endpoint — fail silently, just show empty state */
+      renderNearbyPlayersList([]);
+    }
+  }
+
+  async function announcePlayerText(text){
+    if(!window.speechSynthesis) return;
+    try{if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();}catch(e){}
+    await playWakeTone();
+    await waitForVoices();
+    try{
+      window.speechSynthesis.cancel();
+      const utt=new SpeechSynthesisUtterance(text);
+      const langCode=lang==='sv'?'sv-SE':'en-GB';
+      utt.lang=langCode;
+      utt.rate=voiceSpeed;
+      utt.volume=voiceVolume;
+      const voice=getVoice(langCode);
+      if(voice) utt.voice=voice;
+      window.speechSynthesis.speak(utt);
+    }catch(e){}
+  }
+
+  function startPlayerMonitor(){
+    if(playerMonitorTimer) clearInterval(playerMonitorTimer);
+    fetchNearbyPlayers();
+    playerMonitorTimer=setInterval(fetchNearbyPlayers,playerUpdateFreq*1000);
+  }
+  function restartPlayerMonitor(){
+    if(playerMonitorTimer) startPlayerMonitor();
+  }
 
   /* ════════════════════════════════════════
      INTERVAL CONTROL
@@ -1885,7 +2217,7 @@
     setStatus(t.statusAcquiring,'loading');
     navigator.geolocation.watchPosition(
       pos=>{const first=userLat===null;userLat=pos.coords.latitude;userLon=pos.coords.longitude;
-        if(first){btnRefresh.disabled=false;fetchNearbyZones(false)}},
+        if(first){btnRefresh.disabled=false;fetchNearbyZones(false);startPlayerMonitor();}},
       err=>{const msgs={1:t.geoErr1,2:t.geoErr2,3:t.geoErr3};setStatus(msgs[err.code]||t.geoErrUnknown,'error')},
       {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:5000}
     );
