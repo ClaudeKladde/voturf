@@ -434,7 +434,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-05-25 21:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-17 13:30</span>
     </div>
   </div>
 
@@ -479,6 +479,29 @@
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
     <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
+  </div>
+
+  <!-- ══ PLAYER DETAIL VIEW (for nearby players) ══ -->
+  <div id="player-detail-view" class="view">
+    <button id="btn-back-player-detail" class="btn-back" aria-label="Tillbaka till listan">&#8592; <span id="lbl-back-player-detail">Tillbaka till listan</span></button>
+    <h1 id="player-detail-heading" tabindex="-1">—</h1>
+    <ul id="player-detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
+      <li id="pdi-rank">—</li>
+      <li id="pdi-next-rank">—</li>
+      <li id="pdi-points">—</li>
+      <li id="pdi-pph">—</li>
+      <li id="pdi-unique">—</li>
+      <li id="pdi-taken">—</li>
+      <li id="pdi-medals">—</li>
+      <li id="pdi-zones-count">—</li>
+      <li id="pdi-region">—</li>
+      <li id="pdi-place">—</li>
+    </ul>
+    <div id="player-owned-zones-section">
+      <h2 id="player-owned-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">—</h2>
+      <ul id="player-owned-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
+    <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
 
   <!-- VO alert live region — outside all views so VoiceOver never swipes to it normally -->
@@ -545,6 +568,7 @@
       newPlayerNearbyPrefix:'Ny spelare i närheten. ',
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
       playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
+      playerLoadError:'Kunde inte ladda spelaren.',
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -680,6 +704,7 @@
       newPlayerNearbyPrefix:'New player nearby. ',
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meters away. ${dir}.`,
       playerTotalCount:(n)=>` Total of ${n} players nearby.`,
+      playerLoadError:'Could not load player.',
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -855,6 +880,7 @@
   const listView      =document.getElementById('list-view');
   const detailView    =document.getElementById('detail-view');
   const profileView   =document.getElementById('profile-view');
+  const playerDetailView=document.getElementById('player-detail-view');
   const startSection  =document.getElementById('start-section');
   const statusMsg     =document.getElementById('status-msg');
   const zoneList      =document.getElementById('zone-list');
@@ -1148,6 +1174,7 @@
     clearInterval(detailLiveInterval);activeZone=null;
     detailView.classList.remove('active');
     profileView.classList.remove('active');
+    playerDetailView.classList.remove('active');
     listView.classList.add('active');
     document.title='VO Turf List';
     if(lastFocusedBtn){lastFocusedBtn.focus();lastFocusedBtn=null;}
@@ -1159,6 +1186,7 @@
     document.getElementById('owned-list').innerHTML='';
     listView.classList.remove('active');
     profileView.classList.remove('active');
+    playerDetailView.classList.remove('active');
     detailView.classList.add('active');
     document.title=t.pageTitle(zone.name);
     renderDetail();detailHeading.focus();
@@ -1171,15 +1199,34 @@
     clearInterval(detailLiveInterval);
     listView.classList.remove('active');
     detailView.classList.remove('active');
+    playerDetailView.classList.remove('active');
     profileView.classList.add('active');
     document.title=`${savedUsername} — VO Turf`;
     renderProfile();
     document.getElementById('profile-heading').focus();
     if(!fromPopState) history.pushState({view:'profile'},'',`#profile`);
   }
+  function showPlayerDetail(player,fromPopState=false){
+    clearInterval(detailLiveInterval);
+    listView.classList.remove('active');
+    detailView.classList.remove('active');
+    profileView.classList.remove('active');
+    playerDetailView.classList.add('active');
+    document.title=`${player.name} — VO Turf`;
+    /* Reset to loading state before fetch resolves */
+    document.getElementById('player-detail-heading').textContent=player.name;
+    ['pdi-rank','pdi-next-rank','pdi-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
+      .forEach(id=>{document.getElementById(id).textContent='—'});
+    document.getElementById('player-owned-zones-heading').textContent='—';
+    document.getElementById('player-owned-zones-list').innerHTML='';
+    document.getElementById('player-detail-heading').focus();
+    if(!fromPopState) history.pushState({view:'playerDetail',playerName:player.name},'',`#player-${player.id??player.name}`);
+    fetchAndRenderPlayerDetail(player.name);
+  }
   window.addEventListener('popstate',e=>{
     if(e.state?.view==='detail'){const z=allZonesSorted.find(z=>z.id===e.state.zoneId);if(z){showDetail(z,true);return;}}
     if(e.state?.view==='profile'){showProfile(true);return;}
+    if(e.state?.view==='playerDetail'){showPlayerDetail({name:e.state.playerName},true);return;}
     showList(true);
   });
   history.replaceState({view:'list'},'',location.pathname);
@@ -1241,6 +1288,12 @@
     const lblBackProfBot=document.getElementById('lbl-back-profile-bottom');
     if(lblBackProfBot) lblBackProfBot.textContent=t.backToListProfile;
     document.getElementById('btn-back-profile-bottom')?.setAttribute('aria-label',t.backToListProfile);
+    const lblBackPlayerDet=document.getElementById('lbl-back-player-detail');
+    if(lblBackPlayerDet) lblBackPlayerDet.textContent=t.backToListProfile;
+    document.getElementById('btn-back-player-detail')?.setAttribute('aria-label',t.backToListProfile);
+    const lblBackPlayerDetBot=document.getElementById('lbl-back-player-detail-bottom');
+    if(lblBackPlayerDetBot) lblBackPlayerDetBot.textContent=t.backToListProfile;
+    document.getElementById('btn-back-player-detail-bottom')?.setAttribute('aria-label',t.backToListProfile);
     updateCompassBtn();
     document.getElementById('lbl-username').textContent=t.usernameLabel;
     usernameInput.placeholder=t.usernamePlaceholder;
@@ -1417,6 +1470,65 @@
       zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,false,true)));
       ul.appendChild(frag);
     }catch(e){
+      ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
+    }
+  }
+
+  /* ════════════════════════════════════════
+     PLAYER DETAIL — for any nearby player tapped in the list
+     Mirrors the Profile page pattern, but for an arbitrary player.
+  ════════════════════════════════════════ */
+  async function fetchAndRenderPlayerDetail(playerName){
+    try{
+      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:playerName}])});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data=await r.json();
+      if(!data.length) throw new Error('Player not found');
+      const u=data[0];
+      const rn=rankName(u.rank);
+      const next=nextRankInfo(u.rank,u.totalPoints);
+      const totalMedals=(u.medals||[]).filter(m=>m>0).length;
+
+      document.getElementById('player-detail-heading').textContent=u.name;
+      document.getElementById('pdi-rank').textContent=t.piRank(u.rank,rn);
+      document.getElementById('pdi-next-rank').textContent=next?t.piNextRank(next.pointsNeeded,next.name):t.piMaxRank;
+      document.getElementById('pdi-points').textContent=t.piPoints(u.totalPoints);
+      document.getElementById('pdi-pph').textContent=t.piPph(u.pointsPerHour??0);
+      document.getElementById('pdi-unique').textContent=t.piUnique(u.uniqueZonesTaken??0);
+      document.getElementById('pdi-taken').textContent=t.piTaken(u.taken??0);
+      document.getElementById('pdi-medals').textContent=t.piMedals(totalMedals);
+      document.getElementById('pdi-zones-count').textContent=t.piZonesCount((u.zones||[]).length);
+      document.getElementById('pdi-region').textContent=t.piRegion(u.region?.name??t.unknown);
+      document.getElementById('pdi-place').textContent=t.piPlace(u.place??'—');
+
+      fetchAndRenderPlayerOwnedZones(u,u.zones||[]);
+    }catch(e){
+      document.getElementById('player-detail-heading').textContent=t.playerLoadError;
+    }
+  }
+
+  async function fetchAndRenderPlayerOwnedZones(owner,zoneIds){
+    const hd=document.getElementById('player-owned-zones-heading');
+    const ul=document.getElementById('player-owned-zones-list');
+    hd.textContent=t.ownsZonesLoading;ul.innerHTML='';
+    try{
+      if(!zoneIds.length){
+        hd.textContent=t.ownsZones(owner.name,0);
+        ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">—</li>`;
+        return;
+      }
+      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body:JSON.stringify(zoneIds.map(id=>({id})))});
+      if(!r.ok)throw new Error(`HTTP ${r.status}`);
+      const zones=await r.json();
+      if(userLat!==null){zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});zones.sort((a,b)=>a._dist-b._dist);}
+      else{zones.sort((a,b)=>a.name.localeCompare(b.name))}
+      hd.textContent=t.ownsZones(owner.name,zones.length);
+      if(!zones.length){ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">—</li>`;return}
+      const frag=document.createDocumentFragment();
+      zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,true)));
+      ul.appendChild(frag);
+    }catch(e){
+      hd.textContent=owner.name;
       ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
     }
   }
@@ -1627,12 +1739,23 @@
   });
 
   function buildPlayerItem(player){
-    const li=document.createElement('li');
-    li.style.cssText='background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.6rem .85rem;font-family:var(--font-mono);font-size:.9rem;color:var(--text)';
     const ds=distStr(player._dist);
     const clock=directionToZone(player.latitude,player.longitude);
     const dirPart=clock?` ${clock}.`:'';
-    li.textContent=`${player.name}. ${ds} bort.${dirPart}`;
+    const label=`${player.name}. ${ds} bort.${dirPart}`;
+    const li=document.createElement('li');
+    li.className='zone-card';
+    li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(label)}">
+      <div aria-hidden="true">
+        <div class="zv-name">${escHtml(player.name)}<span class="zv-arrow">&#8594;</span></div>
+        <div class="zv-strip">
+          <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
+          <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock?clock.split(',')[0]:'—'}</span></div>
+        </div>
+      </div>
+    </button>`;
+    const btn=li.querySelector('.zone-btn');
+    btn.addEventListener('click',()=>{lastFocusedBtn=btn;showPlayerDetail(player)});
     return li;
   }
 
@@ -1659,14 +1782,14 @@
       const allPlayers=await r.json();
       if(!Array.isArray(allPlayers)) throw new Error('Unexpected response shape');
 
-      /* Filter to radius, exclude self */
+      /* Filter to radius, exclude self. Distance stored in km, consistent with distStr() used everywhere else. */
       const nearby=allPlayers
         .filter(p=>!(savedUsername&&p.name===savedUsername))
         .map(p=>{
-          p._dist=haversineKm(userLat,userLon,p.latitude,p.longitude)*1000; /* meters */
+          p._dist=haversineKm(userLat,userLon,p.latitude,p.longitude); /* km */
           return p;
         })
-        .filter(p=>p._dist<=playerRadius)
+        .filter(p=>p._dist*1000<=playerRadius)
         .sort((a,b)=>a._dist-b._dist);
 
       renderNearbyPlayersList(nearby);
@@ -1680,7 +1803,7 @@
         const closest=nearby[0];
         const isNew=!previousNearbyPlayerIds.has(closest.id);
         const prefix=isNew?t.newPlayerNearbyPrefix:t.playerNearbyPrefix;
-        const ds=Math.round(closest._dist);
+        const ds=Math.round(closest._dist*1000);
         const clock=directionToZone(closest.latitude,closest.longitude);
         announcementText=prefix+t.playerDistDir(closest.name,ds,clock||'');
         if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
@@ -2262,13 +2385,13 @@
     tipsToggle.focus();
   });
 
-  /* Bottom detail back button */
-  document.getElementById('btn-back-detail-bottom').addEventListener('click',()=>showList());
   /* Back buttons — work in both Safari and standalone home screen mode */
   document.getElementById('btn-back-detail').addEventListener('click',()=>showList());
   document.getElementById('btn-back-detail-bottom').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile-bottom').addEventListener('click',()=>showList());
+  document.getElementById('btn-back-player-detail').addEventListener('click',()=>showList());
+  document.getElementById('btn-back-player-detail-bottom').addEventListener('click',()=>showList());
 
   /* Bottom tips — independent panel, own open/close, focus management */
   const tipsToggleBottom   = document.getElementById('tips-toggle-bottom');
