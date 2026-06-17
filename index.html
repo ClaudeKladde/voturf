@@ -262,7 +262,9 @@
         <li id="tip-9">Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.</li>
         <li id="tip-10">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
         <li id="tip-11">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
-        <li id="tip-12">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera VO-avisering spelare eller Röstläge spelare under Inställningar för att höra när någon kommer inom avståndet. Justera uppdateringsfrekvens och avstånd under samma rubrik.</li>
+        <li id="tip-12">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera Avisera spelare under Inställningar för att höra när någon kommer inom avståndet — avisering följer samma Röstläge/VO-aviseringar som zonerna. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.</li>
+        <li id="tip-13">Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt samma Röstläge/VO-aviseringar som övriga aviseringar.</li>
+        <li id="tip-14">Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem. Tryck på en väns namn för att se deras profil, eller ta bort dem som vän längst ner på deras profilsida.</li>
       </ul>
       <button id="tips-close-top"
         style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
@@ -303,6 +305,8 @@
 
     <div id="status-msg">Hämtar navigationsposition…</div>
 
+    <!-- Real h2 heading so it appears in VoiceOver's heading rotor, matching nearby players section -->
+    <h2 id="nearby-zones-heading" tabindex="-1">Nearliggande zoner</h2>
     <ul id="zone-list"></ul>
     <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
     <button id="btn-load-more" hidden>Ladda fler zoner</button>
@@ -372,18 +376,10 @@
     <h3 id="nearby-players-settings-heading" style="font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--accent);margin:1rem 0 .5rem;">Spelare i närheten</h3>
 
     <div class="settings-control">
-      <span class="settings-label" id="lbl-player-vo">VO-avisering spelare:</span>
-      <button id="btn-player-vo-alerts" aria-pressed="false"
-        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;">
-        Av
-      </button>
-    </div>
-
-    <div class="settings-control">
-      <span class="settings-label" id="lbl-player-voice">Röstläge spelare:</span>
-      <button id="btn-player-voice-mode" aria-pressed="false"
-        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;">
-        Av
+      <span class="settings-label" id="lbl-player-notify">Avisera spelare:</span>
+      <button id="btn-player-notify" aria-pressed="true"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:var(--accent);color:#000;transition:background .15s,color .15s,border-color .15s;">
+        På
       </button>
     </div>
 
@@ -434,7 +430,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-17 13:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-17 14:15</span>
     </div>
   </div>
 
@@ -478,10 +474,29 @@
       <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
+
+    <!-- Friends section — bottom of profile page -->
+    <div id="friends-section">
+      <h2 id="friends-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Turf-vänner</h2>
+      <div class="settings-control" id="friend-input-control">
+        <input type="text" id="friend-input"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="Användarnamn"
+          aria-label="Användarnamn att lägga till som vän"
+          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
+        />
+        <button class="stepper-btn" id="btn-add-friend" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
+      </div>
+      <div id="friend-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
+      <ul id="friends-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
+        <li id="friends-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga vänner tillagda.</li>
+      </ul>
+    </div>
+
     <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
   </div>
 
-  <!-- ══ PLAYER DETAIL VIEW (for nearby players) ══ -->
+  <!-- ══ PLAYER DETAIL VIEW (for nearby players and friends) ══ -->
   <div id="player-detail-view" class="view">
     <button id="btn-back-player-detail" class="btn-back" aria-label="Tillbaka till listan">&#8592; <span id="lbl-back-player-detail">Tillbaka till listan</span></button>
     <h1 id="player-detail-heading" tabindex="-1">—</h1>
@@ -501,6 +516,11 @@
       <h2 id="player-owned-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">—</h2>
       <ul id="player-owned-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
+    <!-- Remove friend button — only shown when this page was opened from the Friends list -->
+    <button id="btn-remove-friend" hidden
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--danger);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--danger);margin-top:1rem;margin-bottom:.5rem;text-align:left;">
+      Ta bort vän
+    </button>
     <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
 
@@ -542,7 +562,9 @@
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
-        'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera VO-avisering spelare eller Röstläge spelare under Inställningar för att höra när någon kommer inom avståndet. Justera uppdateringsfrekvens och avstånd under samma rubrik.',
+        'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera Avisera spelare under Inställningar för att höra när någon kommer inom avståndet — avisering följer samma Röstläge/VO-aviseringar som zonerna. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.',
+        'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt samma Röstläge/VO-aviseringar som övriga aviseringar.',
+        'Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem. Tryck på en väns namn för att se deras profil, eller ta bort dem som vän längst ner på deras profilsida.',
       ],
       hideTakenOn:'Dölj tagna på',hideTakenOff:'Dölj tagna',
       hideTakenNoUser:'Lägg till ditt användarnamn under Inställningar för att aktivera denna funktion.',
@@ -569,6 +591,30 @@
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
       playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
       playerLoadError:'Kunde inte ladda spelaren.',
+      nearbyZonesHeading:'Nearliggande zoner',
+      playerNotifyLabel:'Avisera spelare:',
+      playerNotifyOnAria:'Avisera spelare på',
+      playerNotifyOffAria:'Avisera spelare av',
+      playerNearZone:(name)=>` Nära ${name}.`,
+      gpsLostMsg:'Platssignal förlorad. Kontrollera att GPS är aktiverat.',
+      gpsRestoredMsg:'Platssignal återställd.',
+      gpsWeakMsg:'Svag GPS-signal. Positionen kan vara mindre exakt.',
+      compassCalibrationMsg:'Kompassen behöver kalibreras. Rör telefonen i en åtta-rörelse för bättre precision.',
+      friendsHeading:'Turf-vänner',
+      friendInputAria:'Användarnamn att lägga till som vän',
+      friendInputPlaceholder:'Användarnamn',
+      friendAddBtn:'Lägg till',
+      friendAddLoading:'Söker spelare…',
+      friendAddNotFound:(n)=>`Spelaren "${n}" hittades inte.`,
+      friendAddError:'Kunde inte söka spelare.',
+      friendAddSuccess:(n)=>`${n} tillagd som vän.`,
+      friendAddDuplicate:(n)=>`${n} är redan en vän.`,
+      friendAddSelf:'Du kan inte lägga till dig själv som vän.',
+      friendsEmpty:'Inga vänner tillagda.',
+      friendBtnAria:(n)=>`${n}. Visa profil.`,
+      removeFriendBtn:'Ta bort vän',
+      removeFriendAria:(n)=>`Ta bort ${n} som vän.`,
+      friendRemovedMsg:(n)=>`${n} borttagen som vän.`,
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -678,7 +724,9 @@
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
-        'Nearby players appear as their own list after the zone list, updated every 30–120 seconds based on your setting. Enable Player VO alerts or Player voice mode under Settings to hear when someone comes within range. Adjust update frequency and distance under the same heading.',
+        'Nearby players appear as their own list after the zone list, updated every 30–120 seconds based on your setting. Enable Notify players under Settings to hear when someone comes within range — notifications follow the same Voice mode/VO alerts as zones. The closest player\'s name, distance, direction, and nearest zone are shown and announced.',
+        'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the same Voice mode/VO alerts as other announcements.',
+        'Add Turf friends at the bottom of your profile page. Friends are excluded from the nearby players list and you will not get notified about them. Tap a friend\'s name to view their profile, or remove them as a friend at the bottom of their profile page.',
       ],
       hideTakenOn:'Hide taken on',hideTakenOff:'Hide taken',
       hideTakenNoUser:'Add your username under Settings to use this function.',
@@ -705,6 +753,30 @@
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meters away. ${dir}.`,
       playerTotalCount:(n)=>` Total of ${n} players nearby.`,
       playerLoadError:'Could not load player.',
+      nearbyZonesHeading:'Nearby zones',
+      playerNotifyLabel:'Notify players:',
+      playerNotifyOnAria:'Notify players on',
+      playerNotifyOffAria:'Notify players off',
+      playerNearZone:(name)=>` Near ${name}.`,
+      gpsLostMsg:'Location signal lost. Check that GPS is enabled.',
+      gpsRestoredMsg:'Location signal restored.',
+      gpsWeakMsg:'Weak GPS signal. Position may be less accurate.',
+      compassCalibrationMsg:'Compass needs calibration. Move your phone in a figure-eight motion for better accuracy.',
+      friendsHeading:'Turf friends',
+      friendInputAria:'Username to add as a friend',
+      friendInputPlaceholder:'Username',
+      friendAddBtn:'Add',
+      friendAddLoading:'Looking up player…',
+      friendAddNotFound:(n)=>`Player "${n}" not found.`,
+      friendAddError:'Could not look up player.',
+      friendAddSuccess:(n)=>`${n} added as a friend.`,
+      friendAddDuplicate:(n)=>`${n} is already a friend.`,
+      friendAddSelf:'You cannot add yourself as a friend.',
+      friendsEmpty:'No friends added.',
+      friendBtnAria:(n)=>`${n}. View profile.`,
+      removeFriendBtn:'Remove friend',
+      removeFriendAria:(n)=>`Remove ${n} as a friend.`,
+      friendRemovedMsg:(n)=>`${n} removed as a friend.`,
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -826,8 +898,7 @@
   const PLAYER_LOCATION_API='https://api.turfgame.com/v4/users/location';
   const PLAYER_FREQ_MIN=30,PLAYER_FREQ_MAX=120,PLAYER_FREQ_STEP=5,PLAYER_FREQ_DEFAULT=60;
   const PLAYER_RADIUS_MIN=50,PLAYER_RADIUS_MAX=1000,PLAYER_RADIUS_STEP=50,PLAYER_RADIUS_DEFAULT=500;
-  let playerVoActive=false;
-  let playerVoiceActive=false;
+  let playerNotifyActive=true;  /* single toggle, follows top Voice mode/VO alerts — on by default */
   let playerUpdateFreq=PLAYER_FREQ_DEFAULT;
   let playerRadius=PLAYER_RADIUS_DEFAULT;
   let previousNearbyPlayerIds=new Set();
@@ -838,6 +909,24 @@
   let audioCtx=null;
   let savedUsername=null;
   let savedUserProfile=null;  // full API user object
+  let friendsList=[];  // array of friend usernames, excluded from nearby players
+
+  /* ═══ Player detail navigation context ═══ */
+  let playerDetailReturnView='list';   /* 'list' if opened from nearby players, 'profile' if opened from friends */
+  let playerDetailCurrentName=null;
+
+  /* ═══ GPS / compass health monitoring ═══ */
+  let lastGpsTimestamp=null;
+  let gpsSignalLostWarned=false;
+  let gpsAccuracyHistory=[];
+  const GPS_LOST_THRESHOLD_MS=45000;
+  const GPS_WEAK_ACCURACY_M=50;
+  const GPS_WEAK_READINGS_NEEDED=3;
+  let gpsWeakWarned=false;
+  let gpsHealthCheckTimer=null;
+  let compassBadReadingCount=0;
+  let compassCalibrationWarned=false;
+  const COMPASS_BAD_READINGS_NEEDED=5;
 
   /* ════════════════════════════════════════
      RANK TABLE — from wiki.turfgame.com/en/wiki/Ranks
@@ -927,10 +1016,8 @@
       if(savedVoAlerts==='true') voAlertsActive=true;
       const savedHideTaken=localStorage.getItem('turf-hide-taken');
       if(savedHideTaken==='true') hideTakenActive=true;
-      const savedPlayerVo=localStorage.getItem('turf-player-vo');
-      if(savedPlayerVo==='true') playerVoActive=true;
-      const savedPlayerVoice=localStorage.getItem('turf-player-voice');
-      if(savedPlayerVoice==='true') playerVoiceActive=true;
+      const savedPlayerNotify=localStorage.getItem('turf-player-notify');
+      if(savedPlayerNotify==='false') playerNotifyActive=false;  /* default true unless explicitly turned off */
       const savedPlayerFreq=parseInt(localStorage.getItem('turf-player-freq'),10);
       if(!isNaN(savedPlayerFreq)&&savedPlayerFreq>=PLAYER_FREQ_MIN&&savedPlayerFreq<=PLAYER_FREQ_MAX)
         playerUpdateFreq=savedPlayerFreq;
@@ -941,6 +1028,10 @@
       if(savedCompass==='false') compassEnabled=false;
       const sUser=localStorage.getItem('turf-username');
       if(sUser) savedUsername=sUser;
+      try{
+        const savedFriends=JSON.parse(localStorage.getItem('turf-friends')||'[]');
+        if(Array.isArray(savedFriends)) friendsList=savedFriends;
+      }catch(e){friendsList=[];}
     }catch(e){}
   }
   loadPrefs();
@@ -1051,6 +1142,21 @@
     window.addEventListener('deviceorientation',e=>{
       if(e.webkitCompassHeading!=null){compassHeading=e.webkitCompassHeading;compassAvailable=true;}
       else if(e.alpha!=null){compassHeading=(360-e.alpha)%360;compassAvailable=true;}
+
+      /* Compass calibration detection — iOS exposes webkitCompassAccuracy
+         alongside heading. Negative or missing means uncalibrated/invalid. */
+      if(compassEnabled&&typeof e.webkitCompassAccuracy==='number'){
+        const badReading=e.webkitCompassAccuracy<0||e.webkitCompassAccuracy>35;
+        if(badReading){
+          compassBadReadingCount++;
+          if(compassBadReadingCount>=COMPASS_BAD_READINGS_NEEDED&&!compassCalibrationWarned){
+            compassCalibrationWarned=true;  /* once per session only */
+            announceSystemMessage(t.compassCalibrationMsg);
+          }
+        } else {
+          compassBadReadingCount=0;
+        }
+      }
     },true);
   }
 
@@ -1206,8 +1312,10 @@
     document.getElementById('profile-heading').focus();
     if(!fromPopState) history.pushState({view:'profile'},'',`#profile`);
   }
-  function showPlayerDetail(player,fromPopState=false){
+  function showPlayerDetail(player,fromPopState=false,returnView){
     clearInterval(detailLiveInterval);
+    if(returnView) playerDetailReturnView=returnView;
+    playerDetailCurrentName=player.name;
     listView.classList.remove('active');
     detailView.classList.remove('active');
     profileView.classList.remove('active');
@@ -1219,14 +1327,27 @@
       .forEach(id=>{document.getElementById(id).textContent='—'});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
+    /* Remove-friend button only shown when opened from the Friends list */
+    const removeBtn=document.getElementById('btn-remove-friend');
+    removeBtn.hidden=playerDetailReturnView!=='profile';
+    /* Back button labels — return to the correct place */
+    const backLabel=playerDetailReturnView==='profile'?t.backToListProfile:t.backToList;
+    document.getElementById('lbl-back-player-detail').textContent=backLabel;
+    document.getElementById('btn-back-player-detail').setAttribute('aria-label',backLabel);
+    document.getElementById('lbl-back-player-detail-bottom').textContent=backLabel;
+    document.getElementById('btn-back-player-detail-bottom').setAttribute('aria-label',backLabel);
     document.getElementById('player-detail-heading').focus();
-    if(!fromPopState) history.pushState({view:'playerDetail',playerName:player.name},'',`#player-${player.id??player.name}`);
+    if(!fromPopState) history.pushState({view:'playerDetail',playerName:player.name,returnView:playerDetailReturnView},'',`#player-${player.id??player.name}`);
     fetchAndRenderPlayerDetail(player.name);
+  }
+  function backFromPlayerDetail(){
+    if(playerDetailReturnView==='profile') showProfile();
+    else showList();
   }
   window.addEventListener('popstate',e=>{
     if(e.state?.view==='detail'){const z=allZonesSorted.find(z=>z.id===e.state.zoneId);if(z){showDetail(z,true);return;}}
     if(e.state?.view==='profile'){showProfile(true);return;}
-    if(e.state?.view==='playerDetail'){showPlayerDetail({name:e.state.playerName},true);return;}
+    if(e.state?.view==='playerDetail'){showPlayerDetail({name:e.state.playerName},true,e.state.returnView||'list');return;}
     showList(true);
   });
   history.replaceState({view:'list'},'',location.pathname);
@@ -1254,25 +1375,41 @@
     document.getElementById('lbl-speed').textContent=t.speedLabel;
     document.getElementById('lbl-compass').textContent=t.compassLabel;
     document.getElementById('gps-reminder').textContent=t.gpsReminder;
+    /* Nearby zones heading */
+    const nzHeading=document.getElementById('nearby-zones-heading');
+    if(nzHeading) nzHeading.textContent=t.nearbyZonesHeading;
     /* Nearby players */
     const nphHeading=document.getElementById('nearby-players-heading');
     if(nphHeading) nphHeading.textContent=t.nearbyPlayersHeading;
     const nphSettingsHeading=document.getElementById('nearby-players-settings-heading');
     if(nphSettingsHeading) nphSettingsHeading.textContent=t.nearbyPlayersSettingsHeading;
-    const lblPlayerVo=document.getElementById('lbl-player-vo');
-    if(lblPlayerVo) lblPlayerVo.textContent=t.playerVoLabel;
-    const lblPlayerVoice=document.getElementById('lbl-player-voice');
-    if(lblPlayerVoice) lblPlayerVoice.textContent=t.playerVoiceLabel;
+    const lblPlayerNotify=document.getElementById('lbl-player-notify');
+    if(lblPlayerNotify) lblPlayerNotify.textContent=t.playerNotifyLabel;
     const lblPlayerFreq=document.getElementById('lbl-player-freq');
     if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
     const lblPlayerRadius=document.getElementById('lbl-player-radius');
     if(lblPlayerRadius) lblPlayerRadius.textContent=t.playerRadiusLabel;
-    if(typeof updatePlayerVoBtn==='function'){
-      updatePlayerVoBtn();updatePlayerVoiceBtn();updatePlayerFreqUI();updatePlayerRadiusUI();
+    if(typeof updatePlayerNotifyBtn==='function'){
+      updatePlayerNotifyBtn();updatePlayerFreqUI();updatePlayerRadiusUI();
       /* Re-render current nearby players list (mainly to refresh empty-state text) */
       if(nearbyPlayersList && nearbyPlayersList.children.length===1 && nearbyPlayersList.children[0].id==='nearby-players-empty'){
         nearbyPlayersList.children[0].textContent=t.noPlayersNearby;
       }
+    }
+    /* Friends section */
+    const friendsHeadingEl=document.getElementById('friends-heading');
+    if(friendsHeadingEl) friendsHeadingEl.textContent=t.friendsHeading;
+    const friendInputEl=document.getElementById('friend-input');
+    if(friendInputEl){
+      friendInputEl.placeholder=t.friendInputPlaceholder;
+      friendInputEl.setAttribute('aria-label',t.friendInputAria);
+    }
+    const btnAddFriendEl=document.getElementById('btn-add-friend');
+    if(btnAddFriendEl) btnAddFriendEl.textContent=t.friendAddBtn;
+    const btnRemoveFriendEl=document.getElementById('btn-remove-friend');
+    if(btnRemoveFriendEl) btnRemoveFriendEl.textContent=t.removeFriendBtn;
+    if(typeof renderFriendsList==='function'&&friendsListEl&&friendsListEl.children.length===1&&friendsListEl.children[0].id==='friends-empty'){
+      friendsListEl.children[0].textContent=t.friendsEmpty;
     }
     const lblVol=document.getElementById('lbl-volume');
     if(lblVol) lblVol.textContent=t.volumeLabel;
@@ -1446,6 +1583,10 @@
 
     /* Fetch and render owned zones */
     fetchAndRenderMyZones(u.zones||[]);
+
+    /* Render friends list */
+    document.getElementById('friends-heading').textContent=t.friendsHeading;
+    renderFriendsList();
   }
 
   async function fetchAndRenderMyZones(zoneIds){
@@ -1473,6 +1614,91 @@
       ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
     }
   }
+
+  /* ════════════════════════════════════════
+     FRIENDS — added from the bottom of the Profile page.
+     Friends are excluded from the Nearby players list and
+     never trigger player announcements, same as your own username.
+  ════════════════════════════════════════ */
+  const friendInput  =document.getElementById('friend-input');
+  const btnAddFriend =document.getElementById('btn-add-friend');
+  const friendStatus =document.getElementById('friend-status');
+  const friendsListEl=document.getElementById('friends-list');
+
+  function renderFriendsList(){
+    friendsListEl.innerHTML='';
+    if(!friendsList.length){
+      const li=document.createElement('li');
+      li.id='friends-empty';
+      li.style.cssText='color:var(--muted);font-family:var(--font-mono);font-size:.85rem';
+      li.textContent=t.friendsEmpty;
+      friendsListEl.appendChild(li);
+      return;
+    }
+    const frag=document.createDocumentFragment();
+    friendsList.forEach(name=>{
+      const li=document.createElement('li');
+      li.className='zone-card';
+      li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(t.friendBtnAria(name))}">
+        <div aria-hidden="true"><div class="zv-name">${escHtml(name)}<span class="zv-arrow">&#8594;</span></div></div>
+      </button>`;
+      const btn=li.querySelector('.zone-btn');
+      btn.addEventListener('click',()=>{
+        lastFocusedBtn=btn;
+        playerDetailReturnView='profile';
+        showPlayerDetail({name});
+      });
+      frag.appendChild(li);
+    });
+    friendsListEl.appendChild(frag);
+  }
+
+  async function addFriend(){
+    const name=friendInput.value.trim();
+    if(!name) return;
+    if(savedUsername&&name===savedUsername){
+      friendStatus.textContent=t.friendAddSelf;
+      return;
+    }
+    if(friendsList.includes(name)){
+      friendStatus.textContent=t.friendAddDuplicate(name);
+      return;
+    }
+    friendStatus.textContent=t.friendAddLoading;
+    btnAddFriend.disabled=true;
+    try{
+      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name}])});
+      if(!r.ok) throw new Error();
+      const data=await r.json();
+      if(!data.length){
+        friendStatus.textContent=t.friendAddNotFound(name);
+        return;
+      }
+      const confirmedName=data[0].name;
+      if(friendsList.includes(confirmedName)){
+        friendStatus.textContent=t.friendAddDuplicate(confirmedName);
+        return;
+      }
+      friendsList.push(confirmedName);
+      try{localStorage.setItem('turf-friends',JSON.stringify(friendsList))}catch(e){}
+      friendStatus.textContent=t.friendAddSuccess(confirmedName);
+      friendInput.value='';
+      renderFriendsList();
+    }catch(e){
+      friendStatus.textContent=t.friendAddError;
+    }finally{
+      btnAddFriend.disabled=false;
+    }
+  }
+
+  function removeFriend(name){
+    friendsList=friendsList.filter(f=>f!==name);
+    try{localStorage.setItem('turf-friends',JSON.stringify(friendsList))}catch(e){}
+    renderFriendsList();
+  }
+
+  btnAddFriend.addEventListener('click',addFriend);
+  friendInput.addEventListener('keydown',e=>{if(e.key==='Enter') addFriend();});
 
   /* ════════════════════════════════════════
      PLAYER DETAIL — for any nearby player tapped in the list
@@ -1651,8 +1877,7 @@
      Wrapped in try/catch throughout — if it ever goes
      away, the feature fails silently and shows "no players".
   ════════════════════════════════════════ */
-  const btnPlayerVo       =document.getElementById('btn-player-vo-alerts');
-  const btnPlayerVoice    =document.getElementById('btn-player-voice-mode');
+  const btnPlayerNotify   =document.getElementById('btn-player-notify');
   const playerFreqVal     =document.getElementById('player-freq-val');
   const btnPlayerFreqMinus=document.getElementById('btn-player-freq-minus');
   const btnPlayerFreqPlus =document.getElementById('btn-player-freq-plus');
@@ -1662,21 +1887,13 @@
   const nearbyPlayersList =document.getElementById('nearby-players-list');
   const playerAlertRegion =document.getElementById('player-alert-region');
 
-  function updatePlayerVoBtn(){
-    btnPlayerVo.textContent=playerVoActive?t.playerOn:t.playerOff;
-    btnPlayerVo.setAttribute('aria-pressed',playerVoActive?'true':'false');
-    btnPlayerVo.setAttribute('aria-label',playerVoActive?t.playerVoOnAria:t.playerVoOffAria);
-    btnPlayerVo.style.background=playerVoActive?'var(--accent)':'transparent';
-    btnPlayerVo.style.color=playerVoActive?'#000':'var(--muted)';
-    btnPlayerVo.style.borderColor=playerVoActive?'var(--accent)':'var(--border)';
-  }
-  function updatePlayerVoiceBtn(){
-    btnPlayerVoice.textContent=playerVoiceActive?t.playerOn:t.playerOff;
-    btnPlayerVoice.setAttribute('aria-pressed',playerVoiceActive?'true':'false');
-    btnPlayerVoice.setAttribute('aria-label',playerVoiceActive?t.playerVoiceOnAria:t.playerVoiceOffAria);
-    btnPlayerVoice.style.background=playerVoiceActive?'var(--accent)':'transparent';
-    btnPlayerVoice.style.color=playerVoiceActive?'#000':'var(--muted)';
-    btnPlayerVoice.style.borderColor=playerVoiceActive?'var(--accent)':'var(--border)';
+  function updatePlayerNotifyBtn(){
+    btnPlayerNotify.textContent=playerNotifyActive?t.playerOn:t.playerOff;
+    btnPlayerNotify.setAttribute('aria-pressed',playerNotifyActive?'true':'false');
+    btnPlayerNotify.setAttribute('aria-label',playerNotifyActive?t.playerNotifyOnAria:t.playerNotifyOffAria);
+    btnPlayerNotify.style.background=playerNotifyActive?'var(--accent)':'transparent';
+    btnPlayerNotify.style.color=playerNotifyActive?'#000':'var(--muted)';
+    btnPlayerNotify.style.borderColor=playerNotifyActive?'var(--accent)':'var(--border)';
   }
   function updatePlayerFreqUI(){
     playerFreqVal.textContent=`${playerUpdateFreq}s`;
@@ -1695,15 +1912,10 @@
     btnPlayerRadiusPlus.setAttribute('aria-label',t.playerRadiusPlusAria(Math.min(PLAYER_RADIUS_MAX,playerRadius+PLAYER_RADIUS_STEP)));
   }
 
-  btnPlayerVo.addEventListener('click',()=>{
-    playerVoActive=!playerVoActive;
-    updatePlayerVoBtn();
-    try{localStorage.setItem('turf-player-vo',String(playerVoActive))}catch(e){}
-  });
-  btnPlayerVoice.addEventListener('click',()=>{
-    playerVoiceActive=!playerVoiceActive;
-    updatePlayerVoiceBtn();
-    try{localStorage.setItem('turf-player-voice',String(playerVoiceActive))}catch(e){}
+  btnPlayerNotify.addEventListener('click',()=>{
+    playerNotifyActive=!playerNotifyActive;
+    updatePlayerNotifyBtn();
+    try{localStorage.setItem('turf-player-notify',String(playerNotifyActive))}catch(e){}
   });
   btnPlayerFreqMinus.addEventListener('click',()=>{
     if(playerUpdateFreq>PLAYER_FREQ_MIN){
@@ -1738,11 +1950,24 @@
     }
   });
 
+  /* Find the closest already-loaded zone to a given player's position */
+  function nearestZoneToPlayer(player){
+    if(!allZonesSorted.length) return null;
+    let best=null,bestDist=Infinity;
+    for(const z of allZonesSorted){
+      const d=haversineKm(player.latitude,player.longitude,z.latitude,z.longitude);
+      if(d<bestDist){bestDist=d;best=z;}
+    }
+    return best;
+  }
+
   function buildPlayerItem(player){
     const ds=distStr(player._dist);
     const clock=directionToZone(player.latitude,player.longitude);
     const dirPart=clock?` ${clock}.`:'';
-    const label=`${player.name}. ${ds} bort.${dirPart}`;
+    const nearZone=nearestZoneToPlayer(player);
+    const nearZonePart=nearZone?t.playerNearZone(nearZone.name):'';
+    const label=`${player.name}. ${ds} bort.${dirPart}${nearZonePart}`;
     const li=document.createElement('li');
     li.className='zone-card';
     li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(label)}">
@@ -1755,7 +1980,7 @@
       </div>
     </button>`;
     const btn=li.querySelector('.zone-btn');
-    btn.addEventListener('click',()=>{lastFocusedBtn=btn;showPlayerDetail(player)});
+    btn.addEventListener('click',()=>{lastFocusedBtn=btn;playerDetailReturnView='list';showPlayerDetail(player)});
     return li;
   }
 
@@ -1782,9 +2007,10 @@
       const allPlayers=await r.json();
       if(!Array.isArray(allPlayers)) throw new Error('Unexpected response shape');
 
-      /* Filter to radius, exclude self. Distance stored in km, consistent with distStr() used everywhere else. */
+      /* Filter to radius, exclude self and friends. Distance stored in km, consistent with distStr(). */
       const nearby=allPlayers
         .filter(p=>!(savedUsername&&p.name===savedUsername))
+        .filter(p=>!friendsList.includes(p.name))
         .map(p=>{
           p._dist=haversineKm(userLat,userLon,p.latitude,p.longitude); /* km */
           return p;
@@ -1805,19 +2031,23 @@
         const prefix=isNew?t.newPlayerNearbyPrefix:t.playerNearbyPrefix;
         const ds=Math.round(closest._dist*1000);
         const clock=directionToZone(closest.latitude,closest.longitude);
+        const nearZone=nearestZoneToPlayer(closest);
         announcementText=prefix+t.playerDistDir(closest.name,ds,clock||'');
+        if(nearZone) announcementText+=t.playerNearZone(nearZone.name);
         if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
       }
       previousNearbyPlayerIds=currentIds;
 
-      /* VO alerts — aria-live */
-      if(playerVoActive){
-        playerAlertRegion.textContent='';
-        requestAnimationFrame(()=>{playerAlertRegion.textContent=announcementText;});
-      }
-      /* Voice mode — speech synthesis, reuses existing voice/rate/volume settings */
-      if(playerVoiceActive){
-        announcePlayerText(announcementText);
+      /* Single "Avisera spelare" toggle gates whether player info is included at all.
+         Within that, it follows the same top toolbar Voice mode / VO alerts toggles as zones. */
+      if(playerNotifyActive){
+        if(voAlertsActive){
+          playerAlertRegion.textContent='';
+          requestAnimationFrame(()=>{playerAlertRegion.textContent=announcementText;});
+        }
+        if(monitorActive){
+          announcePlayerText(announcementText);
+        }
       }
     }catch(e){
       /* Undocumented endpoint — fail silently, just show empty state */
@@ -2339,11 +2569,76 @@
     if(!navigator.geolocation){setStatus(t.geoNotSupported,'error');return}
     setStatus(t.statusAcquiring,'loading');
     navigator.geolocation.watchPosition(
-      pos=>{const first=userLat===null;userLat=pos.coords.latitude;userLon=pos.coords.longitude;
-        if(first){btnRefresh.disabled=false;fetchNearbyZones(false);startPlayerMonitor();}},
+      pos=>{
+        const first=userLat===null;
+        userLat=pos.coords.latitude;userLon=pos.coords.longitude;
+        lastGpsTimestamp=Date.now();
+        /* GPS signal restored after being lost */
+        if(gpsSignalLostWarned){
+          gpsSignalLostWarned=false;
+          announceSystemMessage(t.gpsRestoredMsg);
+        }
+        /* Track accuracy for weak-signal detection */
+        if(typeof pos.coords.accuracy==='number'){
+          gpsAccuracyHistory.push(pos.coords.accuracy);
+          if(gpsAccuracyHistory.length>GPS_WEAK_READINGS_NEEDED) gpsAccuracyHistory.shift();
+          const allWeak=gpsAccuracyHistory.length>=GPS_WEAK_READINGS_NEEDED&&gpsAccuracyHistory.every(a=>a>GPS_WEAK_ACCURACY_M);
+          if(allWeak&&!gpsWeakWarned){
+            gpsWeakWarned=true;
+            announceSystemMessage(t.gpsWeakMsg);
+          } else if(!allWeak&&gpsWeakWarned&&pos.coords.accuracy<=GPS_WEAK_ACCURACY_M){
+            gpsWeakWarned=false;  /* accuracy improved, allow future re-warning */
+          }
+        }
+        if(first){btnRefresh.disabled=false;fetchNearbyZones(false);startPlayerMonitor();startGpsHealthCheck();}
+      },
       err=>{const msgs={1:t.geoErr1,2:t.geoErr2,3:t.geoErr3};setStatus(msgs[err.code]||t.geoErrUnknown,'error')},
       {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:5000}
     );
+  }
+
+  /* ════════════════════════════════════════
+     GPS / COMPASS HEALTH MONITORING
+     Always visible in status text; spoken/VO-announced
+     following the same top toolbar toggles as other alerts.
+  ════════════════════════════════════════ */
+  function announceSystemMessage(text){
+    /* Always update the visual status text */
+    setStatus(text,'');
+    /* Speak via Voice mode if active */
+    if(monitorActive){
+      (async()=>{
+        try{if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();}catch(e){}
+        await playWakeTone();
+        await waitForVoices();
+        try{
+          window.speechSynthesis.cancel();
+          const utt=new SpeechSynthesisUtterance(text);
+          const langCode=lang==='sv'?'sv-SE':'en-GB';
+          utt.lang=langCode;utt.rate=voiceSpeed;utt.volume=voiceVolume;
+          const voice=getVoice(langCode);
+          if(voice) utt.voice=voice;
+          window.speechSynthesis.speak(utt);
+        }catch(e){}
+      })();
+    }
+    /* Write to VO alert region if active */
+    if(voAlertsActive){
+      voAlertRegion.textContent='';
+      requestAnimationFrame(()=>{voAlertRegion.textContent=text;});
+    }
+  }
+
+  function startGpsHealthCheck(){
+    if(gpsHealthCheckTimer) clearInterval(gpsHealthCheckTimer);
+    gpsHealthCheckTimer=setInterval(()=>{
+      if(lastGpsTimestamp===null) return;
+      const elapsed=Date.now()-lastGpsTimestamp;
+      if(elapsed>GPS_LOST_THRESHOLD_MS&&!gpsSignalLostWarned){
+        gpsSignalLostWarned=true;
+        announceSystemMessage(t.gpsLostMsg);
+      }
+    },15000);
   }
 
   /* ════════════════════════════════════════
@@ -2390,8 +2685,16 @@
   document.getElementById('btn-back-detail-bottom').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile').addEventListener('click',()=>showList());
   document.getElementById('btn-back-profile-bottom').addEventListener('click',()=>showList());
-  document.getElementById('btn-back-player-detail').addEventListener('click',()=>showList());
-  document.getElementById('btn-back-player-detail-bottom').addEventListener('click',()=>showList());
+  document.getElementById('btn-back-player-detail').addEventListener('click',()=>backFromPlayerDetail());
+  document.getElementById('btn-back-player-detail-bottom').addEventListener('click',()=>backFromPlayerDetail());
+  document.getElementById('btn-remove-friend').addEventListener('click',()=>{
+    if(playerDetailCurrentName){
+      const removedName=playerDetailCurrentName;
+      removeFriend(removedName);
+      showProfile();
+      document.getElementById('friend-status').textContent=t.friendRemovedMsg(removedName);
+    }
+  });
 
   /* Bottom tips — independent panel, own open/close, focus management */
   const tipsToggleBottom   = document.getElementById('tips-toggle-bottom');
