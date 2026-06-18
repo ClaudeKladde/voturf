@@ -222,7 +222,7 @@
     <!-- Tips content lives OUTSIDE start-section so it stays accessible after Start is tapped -->
     <div id="tips-content" hidden>
       <div id="tips-list">
-        <h3 id="tips-h-zones">Nearliggande zoner</h3>
+        <h3 id="tips-h-zones">Närliggande zoner</h3>
         <ul>
           <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
           <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
@@ -327,7 +327,7 @@
     <div id="status-msg">Hämtar navigationsposition…</div>
 
     <!-- Real h2 heading so it appears in VoiceOver's heading rotor, matching nearby players section -->
-    <h2 id="nearby-zones-heading" tabindex="-1">Nearliggande zoner</h2>
+    <h2 id="nearby-zones-heading" tabindex="-1">Närliggande zoner</h2>
     <ul id="zone-list"></ul>
     <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
     <button id="btn-load-more" hidden>Ladda fler zoner</button>
@@ -563,7 +563,7 @@
       appDescription:'Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.',
       startBtn:'Starta navigering',startBtnAria:'Starta navigering och ladda zoner i närheten',
       tipsLabel:'Tips &amp; instruktioner',
-      tipsHeadings:['Nearliggande zoner','Verktygsfält','Röstläge och VO-aviseringar','Spelare i närheten','Vänner','Profil och användarnamn','GPS och kompass','Inställningar','Tips och övrigt'],
+      tipsHeadings:['Närliggande zoner','Verktygsfält','Röstläge och VO-aviseringar','Spelare i närheten','Vänner','Profil och användarnamn','GPS och kompass','Inställningar','Tips och övrigt'],
       tips:[
         'Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
@@ -608,7 +608,7 @@
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
       playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
       playerLoadError:'Kunde inte ladda spelaren.',
-      nearbyZonesHeading:'Nearliggande zoner',
+      nearbyZonesHeading:'Närliggande zoner',
       playerNotifyLabel:'Avisera spelare:',
       playerNotifyOnAria:'Avisera spelare på',
       playerNotifyOffAria:'Avisera spelare av',
@@ -704,7 +704,7 @@
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
       piNextRank:(pts,rn)=>`Nästa rank: ${pts.toLocaleString('sv-SE')} poäng till ${rn}`,
       piMaxRank:'Max rank uppnådd — Turfalicious',
-      piPoints:(p)=>`Totalt poäng: ${p.toLocaleString('sv-SE')}`,
+      piPoints:(p)=>`Totala poäng: ${p.toLocaleString('sv-SE')}`,
       piPph:(p)=>`Poäng per timme: ${p}`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
       piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
