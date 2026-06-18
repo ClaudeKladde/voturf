@@ -45,16 +45,12 @@
     .btn-back:hover{border-color:var(--accent);color:var(--accent)}
     .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 
-    /* ── Skip link to settings ── */
-    #skip-to-settings{
-      display:block;
-      position:absolute;left:-9999px;
-      font-family:var(--font-mono);font-size:.85rem;font-weight:700;
-      background:var(--accent);color:#000;
-      padding:.4rem .85rem;border-radius:var(--radius);
-      text-decoration:none;
+    /* ── Skip links ── */
+    #skip-links a{
+      display:block;font-family:var(--font-mono);font-size:.75rem;
+      color:var(--accent2);text-decoration:underline;
     }
-    #skip-to-settings:focus{position:static;margin-bottom:.5rem;}
+    #skip-links[hidden]{display:none}
 
     /* ── Start section ── */
     #start-section p{font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.6rem}
@@ -77,97 +73,73 @@
       padding:.75rem;margin-bottom:.75rem;
     }
     #tips-content[hidden]{display:none}
-    #tips-content ul{list-style:none;display:flex;flex-direction:column;gap:.5rem}
-    #tips-content li{
+    #tips-list h3{
+      font-family:var(--font-mono);font-size:.82rem;font-weight:700;
+      color:var(--accent);margin:.85rem 0 .35rem;
+      border-bottom:1px solid var(--border);padding-bottom:.25rem;
+    }
+    #tips-list ul{list-style:none;display:flex;flex-direction:column;gap:.5rem;margin:0}
+    #tips-list li{
       font-family:var(--font-mono);font-size:.8rem;color:var(--muted);
       padding-left:.75rem;border-left:2px solid var(--border);line-height:1.5;
     }
 
-    /* ── Sticky toolbar: yellow background, two columns ── */
+    /* ── Sticky toolbar: yellow background, 2 rows of 3 ── */
     #toolbar{
       position:sticky;top:0;z-index:10;
       background:var(--accent);
-      display:flex;gap:.4rem;
+      display:flex;flex-direction:column;gap:.35rem;
       padding:.4rem;
       margin-bottom:.6rem;
       border-radius:var(--radius);
     }
-    /* Left: Refresh — full height, black on yellow */
-    #btn-refresh{
-      flex:1;display:flex;align-items:center;justify-content:space-between;
-      gap:.4rem;font-family:var(--font-mono);font-size:.85rem;font-weight:700;
-      border:2px solid #000;border-radius:var(--radius);
-      padding:.55rem .85rem;cursor:pointer;background:#000;color:var(--accent);
-      transition:background .15s,color .15s;white-space:nowrap;min-height:5.5rem;
+    #toolbar-row1,#toolbar-row2{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
     }
-    #btn-refresh:hover{background:var(--accent);color:#000;border-color:#000}
-    #btn-refresh:focus-visible{outline:3px solid #000;outline-offset:3px}
-    #btn-refresh:disabled{opacity:.5;cursor:not-allowed}
-    #btn-refresh:disabled:hover{background:#000;color:var(--accent)}
-    .btn-refresh-inner{display:flex;flex-direction:column;align-items:flex-start;gap:.15rem}
-    #btn-refresh-label{font-size:.85rem}
-    .btn-countdown-vis{font-size:.75rem;opacity:.8}
-
-    /* Right column: Filter on top, Monitor below */
-    #toolbar-right{display:flex;flex-direction:column;gap:.4rem}
-
-    /* Middle column: VO alerts top, Voice mode bottom */
-    #toolbar-middle{display:flex;flex-direction:column;gap:.4rem}
-
-    /* VO alerts button — same style as monitor */
-    #btn-vo-alerts-toolbar{
+    /* All toolbar buttons share the same base style */
+    #toolbar button:not(#btn-refresh){
+      font-family:var(--font-mono);font-size:.72rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.4rem .3rem;cursor:pointer;background:#000;color:var(--muted);
+      white-space:nowrap;width:100%;text-align:center;
+      transition:background .15s,color .15s;min-height:2.4rem;
+    }
+    #toolbar button:not(#btn-refresh).active,
+    #toolbar button:not(#btn-refresh)[aria-pressed="true"]{
+      background:var(--accent);color:#000;border-color:#000;
+    }
+    #toolbar button:not(#btn-refresh):focus-visible{outline:3px solid #000;outline-offset:3px}
+    /* Refresh spans full first column height */
+    #btn-refresh{
       font-family:var(--font-mono);font-size:.8rem;font-weight:700;
       border:2px solid #000;border-radius:var(--radius);
-      padding:.45rem .75rem;cursor:pointer;background:#000;color:var(--muted);
-      white-space:nowrap;width:100%;text-align:left;transition:background .15s,color .15s;
+      padding:.4rem .5rem;cursor:pointer;background:#000;color:var(--accent);
+      transition:background .15s,color .15s;white-space:nowrap;
+      width:100%;text-align:left;
     }
-    #btn-vo-alerts-toolbar.active{background:var(--accent);color:#000;border-color:#000}
-    #btn-vo-alerts-toolbar:focus-visible{outline:3px solid #000;outline-offset:3px}
-
-    /* Filter button — compact, dark bg, yellow text, right column */
-    #filter-wrap{position:relative}
-    #btn-filter{
-      font-family:var(--font-mono);font-size:.75rem;font-weight:700;
-      border:2px solid #000;border-radius:var(--radius);
-      padding:.35rem .6rem;cursor:pointer;background:#000;color:var(--accent);
-      white-space:nowrap;width:100%;text-align:center;
-    }
-    #btn-filter:focus-visible{outline:3px solid #000;outline-offset:3px}
-    #filter-menu{
+    #btn-refresh:focus-visible{outline:3px solid #000;outline-offset:3px}
+    #btn-refresh:disabled{opacity:.5;cursor:not-allowed}
+    .btn-refresh-inner{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem}
+    #btn-refresh-label{font-size:.78rem}
+    .btn-countdown-vis{font-size:.7rem;opacity:.8}
+    /* Filter and Voice menus */
+    #filter-wrap,#voice-menu-wrap{position:relative;width:100%}
+    #filter-wrap button,#voice-menu-wrap>button{width:100%}
+    #filter-menu,#voice-menu{
       position:absolute;top:calc(100% + .35rem);right:0;
       background:var(--surface);border:1px solid var(--border);
       border-radius:var(--radius);list-style:none;min-width:11rem;z-index:20;overflow:hidden;
     }
-    #filter-menu[hidden]{display:none}
-    #filter-menu li button{
+    #filter-menu[hidden],#voice-menu[hidden]{display:none}
+    #filter-menu li button,#voice-menu li button{
       display:block;width:100%;text-align:left;
       font-family:var(--font-mono);font-size:.85rem;
       padding:.55rem .85rem;border:none;background:transparent;color:var(--text);cursor:pointer;
     }
-    #filter-menu li button:hover{background:rgba(255,255,255,.06)}
-    #filter-menu li button[aria-checked="true"]{color:var(--accent)}
-    #filter-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
-    #filter-menu li+li{border-top:1px solid var(--border)}
-
-    /* Monitor toggle — dark bg, yellow text; active = yellow bg, black text */
-    #btn-monitor{
-      font-family:var(--font-mono);font-size:.8rem;font-weight:700;
-      border:2px solid #000;border-radius:var(--radius);
-      padding:.45rem .75rem;cursor:pointer;background:#000;color:var(--muted);
-      white-space:nowrap;width:100%;text-align:left;transition:background .15s,color .15s;
-    }
-    #btn-monitor.active{background:var(--accent);color:#000;border-color:#000}
-    #btn-monitor:focus-visible{outline:3px solid #000;outline-offset:3px}
-
-    /* Hide taken button in toolbar — matches monitor/vo-alerts style */
-    #btn-hide-taken{
-      font-family:var(--font-mono);font-size:.75rem;font-weight:700;
-      border:2px solid #000;border-radius:var(--radius);
-      padding:.35rem .6rem;cursor:pointer;background:#000;color:var(--muted);
-      white-space:nowrap;width:100%;text-align:center;transition:background .15s,color .15s;
-    }
-    #btn-hide-taken.active{background:var(--accent);color:#000;border-color:#000}
-    #btn-hide-taken:focus-visible{outline:3px solid #000;outline-offset:3px}
+    #filter-menu li button:hover,#voice-menu li button:hover{background:rgba(255,255,255,.06)}
+    #filter-menu li button[aria-checked="true"],#voice-menu li button[aria-checked="true"]{color:var(--accent)}
+    #filter-menu li button:focus-visible,#voice-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
+    #filter-menu li+li,#voice-menu li+li{border-top:1px solid var(--border)}
 
     /* ── Status ── */
     #status-msg{font-size:.85rem;color:var(--muted);font-family:var(--font-mono);min-height:1.4em;margin-bottom:.6rem}
@@ -235,8 +207,7 @@
     <p id="app-description" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.4rem;">Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.</p>
     <p id="gps-reminder" style="font-family:var(--font-mono);font-size:.82rem;color:var(--muted);margin-bottom:.75rem;">Se till att tillåta GPS och kompass för att appen ska fungera korrekt.</p>
 
-    <!-- Skip to settings — appears after navigation starts, before toolbar -->
-    <a id="skip-to-settings" href="#settings-heading" hidden>Hoppa till inställningar</a>
+    <!-- Skip links and profile button appear after navigation starts -->
 
     <!-- Start section with collapsible tips -->
     <div id="start-section">
@@ -250,45 +221,86 @@
 
     <!-- Tips content lives OUTSIDE start-section so it stays accessible after Start is tapped -->
     <div id="tips-content" hidden>
-      <ul id="tips-list">
-        <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
-        <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
-        <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.</li>
-        <li id="tip-4">Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsfrekvens, talhastighet och språk där.</li>
-        <li id="tip-5">Röstläge och VO-aviseringar läser båda upp närmaste zon vid varje automatisk uppdatering. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal och du kan justera talhastighet och röstvolym under Inställningar. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Aktivera önskat läge med knapparna i verktygsfältet.</li>
-        <li id="tip-6">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
-        <li id="tip-7">Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.</li>
-        <li id="tip-8">Dölj tagna zoner tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn under Inställningar.</li>
-        <li id="tip-9">Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.</li>
-        <li id="tip-10">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
-        <li id="tip-11">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
-        <li id="tip-12">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera Avisera spelare under Inställningar för att höra när någon kommer inom avståndet — avisering följer samma Röstläge/VO-aviseringar som zonerna. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.</li>
-        <li id="tip-13">Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt samma Röstläge/VO-aviseringar som övriga aviseringar.</li>
-        <li id="tip-14">Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem. Tryck på en väns namn för att se deras profil, eller ta bort dem som vän längst ner på deras profilsida.</li>
-      </ul>
+      <div id="tips-list">
+        <h3 id="tips-h-zones">Nearliggande zoner</h3>
+        <ul>
+          <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
+          <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
+          <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.</li>
+        </ul>
+        <h3 id="tips-h-toolbar">Verktygsfält</h3>
+        <ul>
+          <li id="tip-4">Verktygsfältet har två rader med tre knappar vardera. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Aviseringsläge.</li>
+          <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
+          <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
+        </ul>
+        <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
+        <ul>
+          <li id="tip-7">Aviseringsläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Röstläge och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.</li>
+        </ul>
+        <h3 id="tips-h-players">Spelare i närheten</h3>
+        <ul>
+          <li id="tip-8">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.</li>
+          <li id="tip-9">Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner.</li>
+        </ul>
+        <h3 id="tips-h-friends">Vänner</h3>
+        <ul>
+          <li id="tip-10">Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem. Om en vän är aktiv i spelet visas Aktiv-märket bredvid deras namn. Tryck på en väns namn för att se deras profil, eller ta bort dem som vän längst ner på deras profilsida.</li>
+        </ul>
+        <h3 id="tips-h-profile">Profil och användarnamn</h3>
+        <ul>
+          <li id="tip-11">Min profil-knappen finns alltid längst upp på sidan. Öppna den för att lägga till ditt användarnamn första gången. När du är inloggad visas stats, dina egna zoner och vänlistan.</li>
+        </ul>
+        <h3 id="tips-h-gps">GPS och kompass</h3>
+        <ul>
+          <li id="tip-12">Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.</li>
+          <li id="tip-13">Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt det valda aviseringsläget.</li>
+        </ul>
+        <h3 id="tips-h-settings">Inställningar</h3>
+        <ul>
+          <li id="tip-14">Inställningar finns längst ner på zonlistan. Justera uppdateringsfrekvens (standardvärde 30 sekunder), talhastighet, röstvolym, kompass och spelaravstånd där.</li>
+        </ul>
+        <h3 id="tips-h-misc">Tips och övrigt</h3>
+        <ul>
+          <li id="tip-15">Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.</li>
+          <li id="tip-16">Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.</li>
+          <li id="tip-17">Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.</li>
+        </ul>
+      </div>
       <button id="tips-close-top"
         style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:600;border:1px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);text-align:left;margin-top:.65rem;">
         &#x2715; <span id="lbl-tips-close-top">Stäng instruktioner</span>
       </button>
     </div>
 
-    <!-- Sticky toolbar: yellow background, Refresh left, Filter+Monitor right -->
-    <div id="toolbar">
-      <button id="btn-refresh" aria-label="Uppdatera zoner. Automatisk uppdatering om — sekunder." disabled>
-        <div class="btn-refresh-inner" aria-hidden="true">
-          <span id="btn-refresh-label">Uppdatera nu</span>
-          <span class="btn-countdown-vis"><span id="countdown">—</span>s</span>
-        </div>
-      </button>
+    <!-- Profile button — always visible at top before toolbar -->
+    <button id="btn-profile"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
+      Min profil
+    </button>
 
-      <!-- Middle column: VO alerts top (most used), Voice mode bottom -->
-      <div id="toolbar-middle">
-        <button id="btn-vo-alerts-toolbar" aria-pressed="false">VO-aviseringar av</button>
-        <button id="btn-monitor" aria-pressed="false">Röstläge av</button>
+    <!-- Skip links — appear after navigation starts -->
+    <div id="skip-links" hidden style="display:flex;flex-direction:column;gap:.25rem;margin-bottom:.4rem">
+      <a id="skip-to-players" href="#nearby-players-heading" style="font-family:var(--font-mono);font-size:.75rem;color:var(--accent2)">Hoppa till spelare i närheten</a>
+      <a id="skip-to-settings" href="#settings-heading" style="font-family:var(--font-mono);font-size:.75rem;color:var(--accent2)">Hoppa till inställningar</a>
+    </div>
+
+    <!-- Sticky toolbar: 2 rows of 3 buttons -->
+    <div id="toolbar" role="toolbar" aria-label="Verktygsfält">
+      <!-- Row 1: Refresh | Pause/Start | Avisera spelare -->
+      <div id="toolbar-row1">
+        <button id="btn-refresh" aria-label="Uppdatera zoner. Automatisk uppdatering om — sekunder." disabled>
+          <div class="btn-refresh-inner" aria-hidden="true">
+            <span id="btn-refresh-label">Uppdatera</span>
+            <span class="btn-countdown-vis"><span id="countdown">—</span>s</span>
+          </div>
+        </button>
+        <button id="btn-pause" aria-pressed="false">Pausa</button>
+        <button id="btn-player-notify" aria-pressed="true">Avisera spelare</button>
       </div>
-
-      <!-- Right column: Filter top, Hide taken bottom -->
-      <div id="toolbar-right">
+      <!-- Row 2: Dölj tagna | Filter | Voice/VO menu -->
+      <div id="toolbar-row2">
+        <button id="btn-hide-taken" aria-pressed="false">Dölj tagna</button>
         <div id="filter-wrap">
           <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox">
             <span id="btn-filter-label">Filter</span>
@@ -299,7 +311,16 @@
             <li><button role="option" data-filter="blocked"   aria-checked="false">Blockerade</button></li>
           </ul>
         </div>
-        <button id="btn-hide-taken" aria-pressed="false">Dölj tagna</button>
+        <div id="voice-menu-wrap">
+          <button id="btn-voice-menu" aria-expanded="false" aria-haspopup="listbox">
+            <span id="btn-voice-menu-label">VO-aviseringar</span>
+          </button>
+          <ul id="voice-menu" role="listbox" hidden>
+            <li><button role="option" data-mode="vo"    aria-checked="true">VO-aviseringar</button></li>
+            <li><button role="option" data-mode="voice" aria-checked="false">Röstläge</button></li>
+            <li><button role="option" data-mode="off"   aria-checked="false">Av</button></li>
+          </ul>
+        </div>
       </div>
     </div>
 
@@ -319,25 +340,6 @@
 
     <!-- Settings section -->
     <h2 id="settings-heading" tabindex="-1">Inställningar</h2>
-
-    <!-- Username / Profile — first control under Settings -->
-    <div class="settings-control" id="username-control">
-      <span class="settings-label" id="lbl-username">Mitt användarnamn:</span>
-      <input
-        type="text" id="username-input"
-        autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-        placeholder="Användarnamn"
-        aria-label="Ditt Turf-användarnamn"
-        style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
-      />
-      <button class="stepper-btn" id="btn-add-user" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
-    </div>
-    <div id="username-status" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;" aria-live="polite"></div>
-    <!-- Profile button — shown after successful user load, hidden initially -->
-    <button id="btn-profile" hidden
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
-      —
-    </button>
 
     <!-- Auto update interval -->
     <div class="settings-control">
@@ -373,15 +375,7 @@
     </div>
 
     <!-- Nearby players settings group -->
-    <h3 id="nearby-players-settings-heading" style="font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--accent);margin:1rem 0 .5rem;">Spelare i närheten</h3>
-
-    <div class="settings-control">
-      <span class="settings-label" id="lbl-player-notify">Avisera spelare:</span>
-      <button id="btn-player-notify" aria-pressed="true"
-        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:var(--accent);color:#000;transition:background .15s,color .15s,border-color .15s;">
-        På
-      </button>
-    </div>
+    <h3 id="nearby-players-settings-heading" style="font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--accent);margin:1rem 0 .5rem;">Inställningar för spelare</h3>
 
     <div class="settings-control">
       <span class="settings-label" id="lbl-player-freq">Uppdateringsfrekvens spelare: </span>
@@ -430,7 +424,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-17 14:15</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-18 13:30</span>
     </div>
   </div>
 
@@ -457,7 +451,25 @@
   <!-- ══ PROFILE VIEW ══ -->
   <div id="profile-view" class="view">
     <button id="btn-back-profile" class="btn-back" aria-label="Tillbaka till listan">&#8592; <span id="lbl-back-profile">Tillbaka till listan</span></button>
-    <h1 id="profile-heading" tabindex="-1">—</h1>
+    <h1 id="profile-heading" tabindex="-1">Min profil</h1>
+
+    <!-- Username setup — shown when no username set, hidden after -->
+    <div id="profile-username-setup">
+      <div class="settings-control" id="username-control">
+        <span class="settings-label" id="lbl-username">Mitt användarnamn:</span>
+        <input type="text" id="username-input"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="Användarnamn"
+          aria-label="Ditt Turf-användarnamn"
+          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
+        />
+        <button class="stepper-btn" id="btn-add-user" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
+      </div>
+      <div id="username-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
+    </div>
+
+    <!-- Profile stats — shown when username is set -->
+    <div id="profile-stats-section">
     <ul id="profile-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pi-rank">—</li>
       <li id="pi-next-rank">—</li>
@@ -475,10 +487,14 @@
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
 
-    <!-- Friends section — bottom of profile page -->
+    <!-- Friends section — bottom of profile page, list first then add form -->
     <div id="friends-section">
       <h2 id="friends-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Turf-vänner</h2>
-      <div class="settings-control" id="friend-input-control">
+      <ul id="friends-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
+        <li id="friends-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga vänner tillagda.</li>
+      </ul>
+      <div id="friend-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-top:.5rem;min-height:1.2em;"></div>
+      <div class="settings-control" id="friend-input-control" style="margin-top:.5rem">
         <input type="text" id="friend-input"
           autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
           placeholder="Användarnamn"
@@ -487,11 +503,8 @@
         />
         <button class="stepper-btn" id="btn-add-friend" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
       </div>
-      <div id="friend-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
-      <ul id="friends-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
-        <li id="friends-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga vänner tillagda.</li>
-      </ul>
     </div>
+    </div><!-- end profile-stats-section -->
 
     <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
   </div>
@@ -550,21 +563,25 @@
       appDescription:'Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.',
       startBtn:'Starta navigering',startBtnAria:'Starta navigering och ladda zoner i närheten',
       tipsLabel:'Tips &amp; instruktioner',
+      tipsHeadings:['Nearliggande zoner','Verktygsfält','Röstläge och VO-aviseringar','Spelare i närheten','Vänner','Profil och användarnamn','GPS och kompass','Inställningar','Tips och övrigt'],
       tips:[
         'Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
-        'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig.',
-        'Inställningar finns längst ner på zonlistan under rubriken Inställningar — justera uppdateringsfrekvens, talhastighet och språk där.',
-        'Röstläge och VO-aviseringar läser båda upp närmaste zon vid varje automatisk uppdatering. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal och du kan justera talhastighet och röstvolym under Inställningar. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Aktivera önskat läge med knapparna i verktygsfältet.',
-        'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
-        'Lägg till ditt användarnamn under Inställningar för att se din profil, stats och egna zoner. Dina zoner visas i gult i listan.',
-        'Dölj tagna zoner tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn under Inställningar.',
+        'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
+        'Verktygsfältet har två rader med tre knappar vardera. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Aviseringsläge.',
+        'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
+        'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
+        'Aviseringsläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Röstläge och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
+        'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.',
+        'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner.',
+        'Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem. Om en vän är aktiv i spelet visas Aktiv-märket bredvid deras namn. Tryck på en väns namn för att se deras profil, eller ta bort dem som vän längst ner på deras profilsida.',
+        'Min profil-knappen finns alltid längst upp på sidan. Öppna den för att lägga till ditt användarnamn första gången. När du är inloggad visas stats, dina egna zoner och vänlistan.',
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
+        'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt det valda aviseringsläget.',
+        'Inställningar finns längst ner på zonlistan. Justera uppdateringsfrekvens (standardvärde 30 sekunder), talhastighet, röstvolym, kompass och spelaravstånd där.',
+        'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
-        'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad var 30–120 sekund baserat på din inställning. Aktivera Avisera spelare under Inställningar för att höra när någon kommer inom avståndet — avisering följer samma Röstläge/VO-aviseringar som zonerna. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.',
-        'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt samma Röstläge/VO-aviseringar som övriga aviseringar.',
-        'Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem. Tryck på en väns namn för att se deras profil, eller ta bort dem som vän längst ner på deras profilsida.',
       ],
       hideTakenOn:'Dölj tagna på',hideTakenOff:'Dölj tagna',
       hideTakenNoUser:'Lägg till ditt användarnamn under Inställningar för att aktivera denna funktion.',
@@ -615,6 +632,7 @@
       removeFriendBtn:'Ta bort vän',
       removeFriendAria:(n)=>`Ta bort ${n} som vän.`,
       friendRemovedMsg:(n)=>`${n} borttagen som vän.`,
+      friendOnline:'Aktiv',
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -655,6 +673,7 @@
       voAlertsOnAria:'VO-aviseringar på',voAlertsOffAria:'VO-aviseringar av',
       locationPermDenied:'Platsåtkomst nekad. Gå till Inställningar → Integritet och säkerhet → Platstjänster → Safari webbplatser → Fråga nästa gång.',
       skipToSettings:'Hoppa till inställningar',
+      skipToPlayers:'Hoppa till spelare i närheten',
       backToList:'Tillbaka till zonlistan',
       backToListProfile:'Tillbaka till listan',
       tipsLabelBottom:'Tips &amp; instruktioner',
@@ -671,6 +690,15 @@
       addUserFound:(n,r,rn)=>`${n} hittad — rank ${r} ${rn}.`,
       profileBtn:(n)=>`${n} — profil`,
       profileBtnAria:(n)=>`Öppna profil för ${n}`,
+      profileBtnGuest:'Min profil',
+      profileBtnGuestAria:'Min profil — logga in',
+      pauseBtnPause:'Pausa',pauseBtnStart:'Starta',
+      pauseBtnPauseAria:'Pausa alla uppdateringar och aviseringar',
+      pauseBtnStartAria:'Starta alla uppdateringar och aviseringar',
+      voModeVo:'VO-aviseringar',voModeVoice:'Röstläge',voModeOff:'Avisering av',
+      voModeMenuAria:'Välj aviseringsläge',
+      voModeVoLabel:'VO-aviseringar',voModeVoiceLabel:'Röstläge',voModeOffLabel:'Av',
+      playerSettingsHeading:'Inställningar för spelare',
       myZonesHeading:'Mina zoner',
       myZonesEmpty:'Du äger inga zoner just nu.',
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
@@ -712,21 +740,25 @@
       appDescription:'Your accessible Turf companion. Real-time zone info built for screen reader users.',
       startBtn:'Start navigation',startBtnAria:'Start navigation and load nearby zones',
       tipsLabel:'Tips &amp; instructions',
+      tipsHeadings:['Nearby zones','Toolbar','Voice mode and VO alerts','Nearby players','Friends','Profile and username','GPS and compass','Settings','Tips and misc'],
       tips:[
         'Each zone in the list is one swipe — name, distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver, or swipe from the left edge in Safari.',
-        'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you.',
-        'Settings are at the bottom of the zone list under the Settings heading — adjust update frequency, voice rate, and language there.',
-        'Voice mode and VO alerts both read the nearest zone on every auto-update. Voice mode uses a separate synthetic voice with a beep as signal and you can adjust speech rate and volume under Settings. VO alerts uses your own VoiceOver voice and speed. Enable your preferred mode with the buttons in the toolbar.',
-        'Remember to keep your screen unlocked and Safari open for the app to work properly.',
-        'Add your username under Settings to see your profile, stats and owned zones. Your zones are highlighted in yellow in the list.',
-        'Hide my zones removes your own zones from the list so the next available zone appears at the top. Requires your username to be added under Settings.',
+        'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
+        'The toolbar has two rows of three buttons. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Announcement mode.',
+        'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
+        'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
+        'The Announcement mode button opens a menu with three options: VO alerts (default), Voice mode, and Off. VO alerts uses your own VoiceOver voice and speed. Voice mode uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
+        'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced.',
+        'Tap a player in the list to open their profile with stats and owned zones.',
+        'Add Turf friends at the bottom of your profile page. Friends are excluded from the nearby players list and you will not get notified about them. If a friend is active in the game, an Active badge appears next to their name. Tap a friend\'s name to view their profile, or remove them as a friend at the bottom of their profile page.',
+        'The My profile button is always at the top of the page. Open it to add your username the first time. Once logged in, your stats, owned zones, and friends list are shown.',
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
+        'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the selected announcement mode.',
+        'Settings are at the bottom of the zone list. Adjust update frequency (default 30 seconds), speech rate, voice volume, compass, and player distance there.',
+        'Remember to keep your screen unlocked and Safari open for the app to work properly.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
-        'Nearby players appear as their own list after the zone list, updated every 30–120 seconds based on your setting. Enable Notify players under Settings to hear when someone comes within range — notifications follow the same Voice mode/VO alerts as zones. The closest player\'s name, distance, direction, and nearest zone are shown and announced.',
-        'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the same Voice mode/VO alerts as other announcements.',
-        'Add Turf friends at the bottom of your profile page. Friends are excluded from the nearby players list and you will not get notified about them. Tap a friend\'s name to view their profile, or remove them as a friend at the bottom of their profile page.',
       ],
       hideTakenOn:'Hide taken on',hideTakenOff:'Hide taken',
       hideTakenNoUser:'Add your username under Settings to use this function.',
@@ -777,6 +809,7 @@
       removeFriendBtn:'Remove friend',
       removeFriendAria:(n)=>`Remove ${n} as a friend.`,
       friendRemovedMsg:(n)=>`${n} removed as a friend.`,
+      friendOnline:'Active',
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -817,6 +850,7 @@
       voAlertsOnAria:'VO alerts on',voAlertsOffAria:'VO alerts off',
       locationPermDenied:'Location access denied. Go to Settings → Privacy & Security → Location Services → Safari Websites → Ask Next Time.',
       skipToSettings:'Skip to settings',
+      skipToPlayers:'Skip to nearby players',
       backToList:'Back to zone list',
       backToListProfile:'Back to list',
       tipsLabelBottom:'Tips &amp; instructions',
@@ -833,6 +867,15 @@
       addUserFound:(n,r,rn)=>`${n} found — rank ${r} ${rn}.`,
       profileBtn:(n)=>`${n} — profile`,
       profileBtnAria:(n)=>`Open profile for ${n}`,
+      profileBtnGuest:'My profile',
+      profileBtnGuestAria:'My profile — log in',
+      pauseBtnPause:'Pause',pauseBtnStart:'Start',
+      pauseBtnPauseAria:'Pause all updates and announcements',
+      pauseBtnStartAria:'Start all updates and announcements',
+      voModeVo:'VO alerts',voModeVoice:'Voice mode',voModeOff:'Alerts off',
+      voModeMenuAria:'Select announcement mode',
+      voModeVoLabel:'VO alerts',voModeVoiceLabel:'Voice mode',voModeOffLabel:'Off',
+      playerSettingsHeading:'Player settings',
       myZonesHeading:'My zones',
       myZonesEmpty:'You do not own any zones right now.',
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
@@ -890,13 +933,16 @@
   let voiceSpeed=SPEED_DEFAULT;
   const VOLUME_MIN=0.1,VOLUME_MAX=1.0,VOLUME_STEP=0.1,VOLUME_DEFAULT=0.8;
   let voiceVolume=VOLUME_DEFAULT;
-  let monitorActive=false;     /* Voice Mode — off by default */
-  let voAlertsActive=false;    /* VO alerts — off by default */
+  let voiceMode='vo';          /* 'vo' | 'voice' | 'off' — VO-aviseringar default */
+  let pauseActive=false;       /* Pause/Start — running by default */
+  /* Convenience accessors used throughout existing code */
+  const isMonitorActive=()=>voiceMode==='voice'&&!pauseActive;
+  const isVoAlertsActive=()=>voiceMode==='vo'&&!pauseActive;
   let hideTakenActive=false;   /* Hide my zones — off by default */
 
   /* ═══ Nearby players state ═══ */
   const PLAYER_LOCATION_API='https://api.turfgame.com/v4/users/location';
-  const PLAYER_FREQ_MIN=30,PLAYER_FREQ_MAX=120,PLAYER_FREQ_STEP=5,PLAYER_FREQ_DEFAULT=60;
+  const PLAYER_FREQ_MIN=10,PLAYER_FREQ_MAX=120,PLAYER_FREQ_STEP=5,PLAYER_FREQ_DEFAULT=35;
   const PLAYER_RADIUS_MIN=50,PLAYER_RADIUS_MAX=1000,PLAYER_RADIUS_STEP=50,PLAYER_RADIUS_DEFAULT=500;
   let playerNotifyActive=true;  /* single toggle, follows top Voice mode/VO alerts — on by default */
   let playerUpdateFreq=PLAYER_FREQ_DEFAULT;
@@ -910,6 +956,7 @@
   let savedUsername=null;
   let savedUserProfile=null;  // full API user object
   let friendsList=[];  // array of friend usernames, excluded from nearby players
+  let activeFriends=new Set(); // friends currently visible in the location feed
 
   /* ═══ Player detail navigation context ═══ */
   let playerDetailReturnView='list';   /* 'list' if opened from nearby players, 'profile' if opened from friends */
@@ -984,7 +1031,6 @@
   const btnFilter     =document.getElementById('btn-filter');
   const btnFilterLabel=document.getElementById('btn-filter-label');
   const filterMenu    =document.getElementById('filter-menu');
-  const btnMonitor    =document.getElementById('btn-monitor');
   const tipsToggle    =document.getElementById('tips-toggle');
   const tipsContent   =document.getElementById('tips-content');
   const intervalVal   =document.getElementById('interval-val');
@@ -1010,10 +1056,8 @@
       const savedVolume=parseFloat(localStorage.getItem('turf-volume'));
       if(!isNaN(savedVolume)&&savedVolume>=VOLUME_MIN&&savedVolume<=VOLUME_MAX)
         voiceVolume=Math.round(savedVolume*10)/10;
-      const savedMonitor=localStorage.getItem('turf-monitor');
-      if(savedMonitor==='true') monitorActive=true;
-      const savedVoAlerts=localStorage.getItem('turf-vo-alerts');
-      if(savedVoAlerts==='true') voAlertsActive=true;
+      const savedVoiceMode=localStorage.getItem('turf-voice-mode');
+      if(savedVoiceMode==='voice'||savedVoiceMode==='off'||savedVoiceMode==='vo') voiceMode=savedVoiceMode;
       const savedHideTaken=localStorage.getItem('turf-hide-taken');
       if(savedHideTaken==='true') hideTakenActive=true;
       const savedPlayerNotify=localStorage.getItem('turf-player-notify');
@@ -1213,7 +1257,7 @@
   }
 
   async function announceZone(zone){
-    if(!monitorActive||!zone) return;
+    if(!isMonitorActive()||!zone) return;
     if(!window.speechSynthesis) return;
     /* Resume audio context if suspended after inactivity */
     try{if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();}catch(e){}
@@ -1365,6 +1409,11 @@
     document.getElementById('app-description').textContent=t.appDescription;
     btnStart.textContent=t.startBtn;btnStart.setAttribute('aria-label',t.startBtnAria);
     tipsToggle.querySelector('#tips-toggle-label').innerHTML=t.tipsLabel;
+    /* Update tips section headings */
+    if(t.tipsHeadings){
+      const headingIds=['tips-h-zones','tips-h-toolbar','tips-h-voice','tips-h-players','tips-h-friends','tips-h-profile','tips-h-gps','tips-h-settings','tips-h-misc'];
+      headingIds.forEach((id,i)=>{const el=document.getElementById(id);if(el&&t.tipsHeadings[i]) el.textContent=t.tipsHeadings[i];});
+    }
     /* Update tips text */
     const tipEls=document.querySelectorAll('#tips-list li');
     t.tips.forEach((tip,i)=>{if(tipEls[i]) tipEls[i].textContent=tip;});
@@ -1382,9 +1431,7 @@
     const nphHeading=document.getElementById('nearby-players-heading');
     if(nphHeading) nphHeading.textContent=t.nearbyPlayersHeading;
     const nphSettingsHeading=document.getElementById('nearby-players-settings-heading');
-    if(nphSettingsHeading) nphSettingsHeading.textContent=t.nearbyPlayersSettingsHeading;
-    const lblPlayerNotify=document.getElementById('lbl-player-notify');
-    if(lblPlayerNotify) lblPlayerNotify.textContent=t.playerNotifyLabel;
+    if(nphSettingsHeading) nphSettingsHeading.textContent=t.playerSettingsHeading;
     const lblPlayerFreq=document.getElementById('lbl-player-freq');
     if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
     const lblPlayerRadius=document.getElementById('lbl-player-radius');
@@ -1455,26 +1502,52 @@
     if(lblClose) lblClose.textContent=t.tipsClose;
     const btnCloseBottom=document.getElementById('tips-close-bottom');
     if(btnCloseBottom) btnCloseBottom.setAttribute('aria-label',t.tipsCloseAria);
-    /* Populate bottom tips list with same content */
+    /* Populate bottom tips list with same content including section headings */
     const bottomTipsList=document.getElementById('tips-list-bottom');
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
-      t.tips.forEach(tip=>{
-        const li=document.createElement('li');
-        li.textContent=tip;
-        li.style.cssText='font-family:var(--font-mono);font-size:.8rem;color:var(--muted);padding-left:.75rem;border-left:2px solid var(--border);line-height:1.5';
-        bottomTipsList.appendChild(li);
+      /* Tip count per section matching static HTML structure */
+      const sectionSizes=[3,3,1,2,1,1,2,1,3];
+      let tipIdx=0;
+      (t.tipsHeadings||[]).forEach((heading,si)=>{
+        const h=document.createElement('h3');
+        h.textContent=heading;
+        h.style.cssText='font-family:var(--font-mono);font-size:.82rem;font-weight:700;color:var(--accent);margin:.85rem 0 .35rem;border-bottom:1px solid var(--border);padding-bottom:.25rem;';
+        bottomTipsList.appendChild(h);
+        const count=sectionSizes[si]||1;
+        for(let i=0;i<count&&tipIdx<t.tips.length;i++,tipIdx++){
+          const li=document.createElement('li');
+          li.textContent=t.tips[tipIdx];
+          li.style.cssText='font-family:var(--font-mono);font-size:.8rem;color:var(--muted);padding-left:.75rem;border-left:2px solid var(--border);line-height:1.5';
+          bottomTipsList.appendChild(li);
+        }
       });
     }
     const opts=filterMenu.querySelectorAll('button[data-filter]');
     opts[0].textContent=t.filterAll;opts[1].textContent=t.filterAvailable;opts[2].textContent=t.filterBlocked;
+    /* Update voice menu options text */
+    const voiceOpts=document.querySelectorAll('#voice-menu button[data-mode]');
+    if(voiceOpts.length===3){
+      voiceOpts[0].textContent=t.voModeVoLabel;
+      voiceOpts[1].textContent=t.voModeVoiceLabel;
+      voiceOpts[2].textContent=t.voModeOffLabel;
+    }
     updateFilterLabel();
-    updateMonitorBtn();
+    updateVoiceModeBtn();
+    updatePauseBtn();
     updateIntervalUI();
     updateSpeedUI();
     if(typeof updateHideTakenBtn==='function') updateHideTakenBtn();
+    /* Update nearby players settings heading */
+    const npsHeading=document.getElementById('nearby-players-settings-heading');
+    if(npsHeading) npsHeading.textContent=t.playerSettingsHeading;
+    /* Skip links */
+    const skipPlayers=document.getElementById('skip-to-players');
+    if(skipPlayers&&!skipPlayers.parentElement.hidden) skipPlayers.textContent=t.skipToPlayers??'Hoppa till spelare i närheten';
     const skipLink=document.getElementById('skip-to-settings');
-    if(!skipLink.hidden) skipLink.textContent=t.skipToSettings;
+    if(skipLink&&!skipLink.parentElement.hidden) skipLink.textContent=t.skipToSettings;
+    /* Profile button */
+    applyUsernameUI();
     try{localStorage.setItem('turf-lang',lang)}catch(e){}
     refreshAllBlockLabels();
     if(activeZone) renderDetail();
@@ -1491,19 +1564,20 @@
   const btnProfile    =document.getElementById('btn-profile');
 
   function applyUsernameUI(){
-    const control=document.getElementById('username-control');
+    /* Profile button at top always shows, label changes based on login state */
     if(savedUsername){
-      control.style.display='none';
-      usernameStatus.style.display='none';
-      btnProfile.hidden=false;
-      btnProfile.style.display='block';
       btnProfile.textContent=t.profileBtn(savedUsername);
       btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
     } else {
-      control.style.display='';
-      usernameStatus.style.display='';
-      btnProfile.hidden=true;
-      btnProfile.style.display='none';
+      btnProfile.textContent=t.profileBtnGuest??'Min profil';
+      btnProfile.setAttribute('aria-label',t.profileBtnGuestAria??'Min profil');
+    }
+    /* On the Profile page: show setup form or stats depending on login state */
+    const setupSection=document.getElementById('profile-username-setup');
+    const statsSection=document.getElementById('profile-stats-section');
+    if(setupSection&&statsSection){
+      setupSection.hidden=!!savedUsername;
+      statsSection.hidden=!savedUsername;
     }
   }
 
@@ -1608,7 +1682,7 @@
         zones.sort((a,b)=>a._dist-b._dist);
       } else { zones.sort((a,b)=>a.name.localeCompare(b.name)); }
       const frag=document.createDocumentFragment();
-      zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,false,true)));
+      zones.forEach((z,i)=>frag.appendChild(buildOwnedZoneItem(z,i+1,false,true)));
       ul.appendChild(frag);
     }catch(e){
       ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
@@ -1637,10 +1711,16 @@
     }
     const frag=document.createDocumentFragment();
     friendsList.forEach(name=>{
+      const isOnline=activeFriends.has(name);
+      const onlineLabel=isOnline?` ${t.friendOnline??'Aktiv'}. `:'';
+      const ariaLabel=`${name}.${onlineLabel} ${t.friendBtnAria(name).split('.').pop().trim()}`;
+      const onlineBadge=isOnline
+        ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}</span>`
+        :'';
       const li=document.createElement('li');
       li.className='zone-card';
-      li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(t.friendBtnAria(name))}">
-        <div aria-hidden="true"><div class="zv-name">${escHtml(name)}<span class="zv-arrow">&#8594;</span></div></div>
+      li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(ariaLabel)}">
+        <div aria-hidden="true"><div class="zv-name">${escHtml(name)}${onlineBadge}<span class="zv-arrow">&#8594;</span></div></div>
       </button>`;
       const btn=li.querySelector('.zone-btn');
       btn.addEventListener('click',()=>{
@@ -1653,39 +1733,45 @@
     friendsListEl.appendChild(frag);
   }
 
+  let friendStatusTimer=null;
+  function setFriendStatus(msg){
+    friendStatus.textContent=msg;
+    clearTimeout(friendStatusTimer);
+    if(msg) friendStatusTimer=setTimeout(()=>{friendStatus.textContent='';},4000);
+  }
+
   async function addFriend(){
-    const name=friendInput.value.trim();
     if(!name) return;
     if(savedUsername&&name===savedUsername){
-      friendStatus.textContent=t.friendAddSelf;
+      setFriendStatus(t.friendAddSelf);
       return;
     }
     if(friendsList.includes(name)){
-      friendStatus.textContent=t.friendAddDuplicate(name);
+      setFriendStatus(t.friendAddDuplicate(name));
       return;
     }
-    friendStatus.textContent=t.friendAddLoading;
+    setFriendStatus(t.friendAddLoading);
     btnAddFriend.disabled=true;
     try{
       const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name}])});
       if(!r.ok) throw new Error();
       const data=await r.json();
       if(!data.length){
-        friendStatus.textContent=t.friendAddNotFound(name);
+        setFriendStatus(t.friendAddNotFound(name));
         return;
       }
       const confirmedName=data[0].name;
       if(friendsList.includes(confirmedName)){
-        friendStatus.textContent=t.friendAddDuplicate(confirmedName);
+        setFriendStatus(t.friendAddDuplicate(confirmedName));
         return;
       }
       friendsList.push(confirmedName);
       try{localStorage.setItem('turf-friends',JSON.stringify(friendsList))}catch(e){}
-      friendStatus.textContent=t.friendAddSuccess(confirmedName);
+      setFriendStatus(t.friendAddSuccess(confirmedName));
       friendInput.value='';
       renderFriendsList();
     }catch(e){
-      friendStatus.textContent=t.friendAddError;
+      setFriendStatus(t.friendAddError);
     }finally{
       btnAddFriend.disabled=false;
     }
@@ -1751,7 +1837,7 @@
       hd.textContent=t.ownsZones(owner.name,zones.length);
       if(!zones.length){ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">—</li>`;return}
       const frag=document.createDocumentFragment();
-      zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,true)));
+      zones.forEach((z,i)=>frag.appendChild(buildOwnedZoneItem(z,i+1,true)));
       ul.appendChild(frag);
     }catch(e){
       hd.textContent=owner.name;
@@ -1793,51 +1879,84 @@
   }
 
   /* ════════════════════════════════════════
-     MONITOR TOGGLE
+     VOICE MODE MENU (replaces separate Monitor + VO alerts toggles)
+     Three states: 'vo' | 'voice' | 'off'
+     Works like Filter — shows current state, popup to change.
   ════════════════════════════════════════ */
-  function updateMonitorBtn(){
-    if(monitorActive){
-      btnMonitor.textContent=t.monitorOn;
-      btnMonitor.setAttribute('aria-pressed','true');
-      btnMonitor.setAttribute('aria-label',t.monitorOnAria);
-      btnMonitor.classList.add('active');
-    } else {
-      btnMonitor.textContent=t.monitorOff;
-      btnMonitor.setAttribute('aria-pressed','false');
-      btnMonitor.setAttribute('aria-label',t.monitorOffAria);
-      btnMonitor.classList.remove('active');
-    }
+  const voAlertRegion=document.getElementById('vo-alert-region');
+  const btnVoiceMenu=document.getElementById('btn-voice-menu');
+  const voiceMenuEl=document.getElementById('voice-menu');
+
+  function updateVoiceModeBtn(){
+    let label='';
+    if(voiceMode==='vo')    label=t.voModeVo;
+    if(voiceMode==='voice') label=t.voModeVoice;
+    if(voiceMode==='off')   label=t.voModeOff;
+    btnVoiceMenu.querySelector('#btn-voice-menu-label').textContent=label;
+    btnVoiceMenu.setAttribute('aria-label',label);
+    /* Update checkmarks in popup */
+    voiceMenuEl.querySelectorAll('button[role="option"]').forEach(b=>{
+      b.setAttribute('aria-checked', b.dataset.mode===voiceMode ? 'true' : 'false');
+    });
   }
-  btnMonitor.addEventListener('click',()=>{
-    monitorActive=!monitorActive;
-    updateMonitorBtn();
-    try{localStorage.setItem('turf-monitor',String(monitorActive))}catch(e){}
+
+  btnVoiceMenu.addEventListener('click',()=>{
+    const isOpen=!voiceMenuEl.hidden;
+    voiceMenuEl.hidden=isOpen;
+    btnVoiceMenu.setAttribute('aria-expanded',String(!isOpen));
+  });
+
+  voiceMenuEl.querySelectorAll('button[role="option"]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      voiceMode=btn.dataset.mode;
+      updateVoiceModeBtn();
+      voiceMenuEl.hidden=true;
+      btnVoiceMenu.setAttribute('aria-expanded','false');
+      try{localStorage.setItem('turf-voice-mode',voiceMode)}catch(e){}
+    });
+  });
+
+  document.addEventListener('click',e=>{
+    if(!btnVoiceMenu.contains(e.target)&&!voiceMenuEl.contains(e.target)){
+      voiceMenuEl.hidden=true;
+      btnVoiceMenu.setAttribute('aria-expanded','false');
+    }
   });
 
   /* ════════════════════════════════════════
-     VO ALERTS TOGGLE
+     PAUSE / START TOGGLE
   ════════════════════════════════════════ */
-  const btnVoAlerts=document.getElementById('btn-vo-alerts-toolbar');
-  const voAlertRegion=document.getElementById('vo-alert-region');
+  const btnPause=document.getElementById('btn-pause');
 
-  function updateVoAlertsBtn(){
-    if(voAlertsActive){
-      btnVoAlerts.textContent=t.voAlertsOn;
-      btnVoAlerts.setAttribute('aria-pressed','true');
-      btnVoAlerts.setAttribute('aria-label',t.voAlertsOnAria);
-      btnVoAlerts.classList.add('active');
+  function updatePauseBtn(){
+    if(pauseActive){
+      btnPause.textContent=t.pauseBtnStart;
+      btnPause.setAttribute('aria-pressed','true');
+      btnPause.setAttribute('aria-label',t.pauseBtnStartAria);
+      btnPause.classList.add('active');
     } else {
-      btnVoAlerts.textContent=t.voAlertsOff;
-      btnVoAlerts.setAttribute('aria-pressed','false');
-      btnVoAlerts.setAttribute('aria-label',t.voAlertsOffAria);
-      btnVoAlerts.classList.remove('active');
+      btnPause.textContent=t.pauseBtnPause;
+      btnPause.setAttribute('aria-pressed','false');
+      btnPause.setAttribute('aria-label',t.pauseBtnPauseAria);
+      btnPause.classList.remove('active');
     }
   }
 
-  btnVoAlerts.addEventListener('click',()=>{
-    voAlertsActive=!voAlertsActive;
-    updateVoAlertsBtn();
-    try{localStorage.setItem('turf-vo-alerts',String(voAlertsActive))}catch(e){}
+  btnPause.addEventListener('click',()=>{
+    pauseActive=!pauseActive;
+    updatePauseBtn();
+    if(pauseActive){
+      /* Pause — stop all timers */
+      clearInterval(refreshTimer);refreshTimer=null;
+      clearInterval(countdownTimer);countdownTimer=null;
+      clearInterval(playerMonitorTimer);playerMonitorTimer=null;
+      setRefreshLabel(null);
+    } else {
+      /* Resume — restart all timers */
+      fetchNearbyZones(true);
+      startPlayerMonitor();
+    }
+    try{localStorage.setItem('turf-pause',String(pauseActive))}catch(e){}
   });
 
   /* ════════════════════════════════════════
@@ -2020,6 +2139,12 @@
 
       renderNearbyPlayersList(nearby);
 
+      /* ── Track which friends are online (visible in location feed) ── */
+      const onlineNames=new Set(allPlayers.map(p=>p.name));
+      activeFriends=new Set(friendsList.filter(name=>onlineNames.has(name)));
+      /* Re-render friends list to reflect updated online status */
+      if(document.getElementById('profile-view').classList.contains('active')) renderFriendsList();
+
       /* ── Announcement logic ── */
       const currentIds=new Set(nearby.map(p=>p.id));
       let announcementText='';
@@ -2041,11 +2166,11 @@
       /* Single "Avisera spelare" toggle gates whether player info is included at all.
          Within that, it follows the same top toolbar Voice mode / VO alerts toggles as zones. */
       if(playerNotifyActive){
-        if(voAlertsActive){
+        if(isVoAlertsActive()){
           playerAlertRegion.textContent='';
           requestAnimationFrame(()=>{playerAlertRegion.textContent=announcementText;});
         }
-        if(monitorActive){
+        if(isMonitorActive()){
           announcePlayerText(announcementText);
         }
       }
@@ -2248,6 +2373,35 @@
     return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   }
   function distStr(km){const m=Math.round(km*1000);return m<1000?`${m} m`:`${(m/1000).toFixed(2)} km`}
+
+  /* Relative timestamp for owned zones — shown when zone is NOT blocked */
+  function takenAgoStr(dateStr){
+    if(!dateStr) return null;
+    const then=new Date(dateStr);
+    if(isNaN(then)) return null;
+    const diffMs=Date.now()-then.getTime();
+    const mins=Math.floor(diffMs/60000);
+    const hours=Math.floor(diffMs/3600000);
+    const days=Math.floor(diffMs/86400000);
+    const pad=n=>String(n).padStart(2,'0');
+    const timeStr=`${pad(then.getHours())}:${pad(then.getMinutes())}`;
+    const dateIso=`${then.getFullYear()}-${pad(then.getMonth()+1)}-${pad(then.getDate())}`;
+    if(lang==='sv'){
+      if(mins<60) return `Tagen för ${mins} minut${mins===1?'':'er'} sedan.`;
+      if(hours<24) return `Tagen för ${hours} timm${hours===1?'e':'ar'} sedan.`;
+      const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+      if(then.toDateString()===yesterday.toDateString()) return `Tagen igår kl. ${timeStr}.`;
+      if(days<=30) return `Tagen för ${days} dag${days===1?'':'ar'} sedan.`;
+      return `Tagen ${dateIso} kl. ${timeStr}.`;
+    } else {
+      if(mins<60) return `Taken ${mins} minute${mins===1?'':'s'} ago.`;
+      if(hours<24) return `Taken ${hours} hour${hours===1?'':'s'} ago.`;
+      const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+      if(then.toDateString()===yesterday.toDateString()) return `Taken yesterday at ${timeStr}.`;
+      if(days<=30) return `Taken ${days} day${days===1?'':'s'} ago.`;
+      return `Taken ${dateIso} at ${timeStr}.`;
+    }
+  }
   function bearingDeg(lat1,lon1,lat2,lon2){
     const φ1=lat1*Math.PI/180,φ2=lat2*Math.PI/180,Δλ=(lon2-lon1)*Math.PI/180;
     const y=Math.sin(Δλ)*Math.cos(φ2),x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
@@ -2374,6 +2528,32 @@
     return li;
   }
 
+  /* Owned-zone item for profile/player-detail lists — includes taken timestamp when not blocked */
+  function buildOwnedZoneItem(zone,rank,skipOwner=false,isMyZone=false){
+    const li=buildZoneItem(zone,rank,skipOwner,isMyZone);
+    const block=getBlockStatus(zone);
+    /* Only add timestamp when zone is not currently blocked */
+    if(!block.blocked&&zone.dateLastTaken){
+      const ts=takenAgoStr(zone.dateLastTaken);
+      if(ts){
+        const btn=li.querySelector('.zone-btn');
+        /* Append to aria-label */
+        const current=btn.getAttribute('aria-label')||'';
+        btn.setAttribute('aria-label',current.replace(/\.?\s*$/,'')+'. '+ts);
+        /* Append visually in a small timestamp line */
+        const strip=btn.querySelector('.zv-strip');
+        if(strip){
+          const tsEl=document.createElement('div');
+          tsEl.className='zv-field';
+          tsEl.style.cssText='width:100%;margin-top:.15rem;';
+          tsEl.innerHTML=`<span class="zv-value" style="color:var(--muted);font-size:.75rem" aria-hidden="true">${escHtml(ts)}</span>`;
+          strip.appendChild(tsEl);
+        }
+      }
+    }
+    return li;
+  }
+
   /* ════════════════════════════════════════
      RENDER LIST
   ════════════════════════════════════════ */
@@ -2477,7 +2657,7 @@
       hd.textContent=t.ownsZones(owner.name,zones.length);
       if(!zones.length){ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">—</li>`;return}
       const frag=document.createDocumentFragment();
-      zones.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1,true)));
+      zones.forEach((z,i)=>frag.appendChild(buildOwnedZoneItem(z,i+1,true)));
       ul.appendChild(frag);
     }catch{
       hd.textContent=owner.name;
@@ -2532,9 +2712,9 @@
             announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart}`;
           }
           /* Voice Mode — Speech Synthesis */
-          if(monitorActive) announceZone(z);
+          if(isMonitorActive()) announceZone(z);
           /* VO alerts — aria-live region, delay to let list render first */
-          if(voAlertsActive&&announcementText){
+          if(isVoAlertsActive()&&announcementText){
             setTimeout(()=>{
               voAlertRegion.textContent='';
               requestAnimationFrame(()=>{voAlertRegion.textContent=announcementText;});
@@ -2606,7 +2786,7 @@
     /* Always update the visual status text */
     setStatus(text,'');
     /* Speak via Voice mode if active */
-    if(monitorActive){
+    if(isMonitorActive()){
       (async()=>{
         try{if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();}catch(e){}
         await playWakeTone();
@@ -2623,7 +2803,7 @@
       })();
     }
     /* Write to VO alert region if active */
-    if(voAlertsActive){
+    if(isVoAlertsActive()){
       voAlertRegion.textContent='';
       requestAnimationFrame(()=>{voAlertRegion.textContent=text;});
     }
@@ -2649,9 +2829,8 @@
     document.getElementById('app-description').hidden=true;
     document.getElementById('gps-reminder').hidden=true;
     /* Show skip link now that settings are reachable */
-    const skipLink=document.getElementById('skip-to-settings');
-    skipLink.hidden=false;
-    skipLink.textContent=t.skipToSettings;
+    const skipLinksDiv=document.getElementById('skip-links');
+    skipLinksDiv.hidden=false;
     /* AudioContext must be created inside a user gesture */
     ensureAudioCtx();
     /* Silent audio loop to prevent screen lock on iOS */
@@ -2692,7 +2871,7 @@
       const removedName=playerDetailCurrentName;
       removeFriend(removedName);
       showProfile();
-      document.getElementById('friend-status').textContent=t.friendRemovedMsg(removedName);
+      setFriendStatus(t.friendRemovedMsg(removedName));
     }
   });
 
@@ -2721,8 +2900,8 @@
   /* Apply saved preferences and language */
   t=T[lang];
   switchLang(lang);
-  updateMonitorBtn();
-  updateVoAlertsBtn();
+  updateVoiceModeBtn();
+  updatePauseBtn();
   updateHideTakenBtn();
   updateIntervalUI();
   updateSpeedUI();
