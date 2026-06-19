@@ -424,7 +424,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-18 13:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-19 10:00</span>
     </div>
   </div>
 
@@ -435,7 +435,7 @@
     <ul id="detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="di-block">—</li>
       <li id="di-location">—</li>
-      <li id="di-owner">—</li>
+      <li id="di-owner-wrap">—</li>
       <li id="di-taken">—</li>
       <li id="di-points">—</li>
       <li id="di-zone">—</li>
@@ -529,12 +529,13 @@
       <h2 id="player-owned-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">—</h2>
       <ul id="player-owned-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
-    <!-- Remove friend button — only shown when this page was opened from the Friends list -->
-    <button id="btn-remove-friend" hidden
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--danger);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--danger);margin-top:1rem;margin-bottom:.5rem;text-align:left;">
-      Ta bort vän
+    <!-- Add/Remove friend toggle — label reflects current friend status -->
+    <button id="btn-toggle-friend"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:1rem;margin-bottom:.35rem;text-align:left;">
+      Lägg till som vän
     </button>
-    <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
+    <div id="player-detail-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
+    <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
 
   <!-- VO alert live region — outside all views so VoiceOver never swipes to it normally -->
@@ -630,9 +631,12 @@
       friendsEmpty:'Inga vänner tillagda.',
       friendBtnAria:(n)=>`${n}. Visa profil.`,
       removeFriendBtn:'Ta bort vän',
+      addFriendBtn:'Lägg till som vän',
+      addFriendAria:(n)=>`Lägg till ${n} som vän.`,
       removeFriendAria:(n)=>`Ta bort ${n} som vän.`,
       friendRemovedMsg:(n)=>`${n} borttagen som vän.`,
       friendOnline:'Aktiv',
+      friendStatsText:(zones,pph)=>`Äger ${zones} zon${zones===1?'':'er'}. +${pph}.`,
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -726,6 +730,8 @@
       dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',
       dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
       dkOwner:'Nuvarande ägare',dkLasttaken:'Senast tagen',
+      openProfileFor:(n)=>`Öppna profil för ${n}.`,
+      openMyProfile:'Öppna min profil.',
       dkTotal:'Totalt tagningar',dkTp:'Tagningspoäng',dkPph:'Poäng per timme',
       dkType:'Zontyp',dkRegion:'Region',dkCreated:'Skapad',
       pageTitle:(n)=>`${n} — VO Turf`,
@@ -807,9 +813,12 @@
       friendsEmpty:'No friends added.',
       friendBtnAria:(n)=>`${n}. View profile.`,
       removeFriendBtn:'Remove friend',
+      addFriendBtn:'Add as friend',
+      addFriendAria:(n)=>`Add ${n} as a friend.`,
       removeFriendAria:(n)=>`Remove ${n} as a friend.`,
       friendRemovedMsg:(n)=>`${n} removed as a friend.`,
       friendOnline:'Active',
+      friendStatsText:(zones,pph)=>`Owns ${zones} zone${zones===1?'':'s'}. +${pph}.`,
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -903,6 +912,8 @@
       dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',
       dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
       dkOwner:'Current owner',dkLasttaken:'Last taken',
+      openProfileFor:(n)=>`Open profile for ${n}.`,
+      openMyProfile:'Open my profile.',
       dkTotal:'Total takeovers',dkTp:'Takeover points',dkPph:'Points per hour',
       dkType:'Zone type',dkRegion:'Region',dkCreated:'Date created',
       pageTitle:(n)=>`${n} — VO Turf`,
@@ -957,6 +968,7 @@
   let savedUserProfile=null;  // full API user object
   let friendsList=[];  // array of friend usernames, excluded from nearby players
   let activeFriends=new Set(); // friends currently visible in the location feed
+  let friendsStatsCache={}; // name -> {zonesCount, pph}
 
   /* ═══ Player detail navigation context ═══ */
   let playerDetailReturnView='list';   /* 'list' if opened from nearby players, 'profile' if opened from friends */
@@ -1371,9 +1383,8 @@
       .forEach(id=>{document.getElementById(id).textContent='—'});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
-    /* Remove-friend button only shown when opened from the Friends list */
-    const removeBtn=document.getElementById('btn-remove-friend');
-    removeBtn.hidden=playerDetailReturnView!=='profile';
+    document.getElementById('player-detail-status').textContent='';
+    updateFriendToggleBtn(player.name);
     /* Back button labels — return to the correct place */
     const backLabel=playerDetailReturnView==='profile'?t.backToListProfile:t.backToList;
     document.getElementById('lbl-back-player-detail').textContent=backLabel;
@@ -1384,8 +1395,23 @@
     if(!fromPopState) history.pushState({view:'playerDetail',playerName:player.name,returnView:playerDetailReturnView},'',`#player-${player.id??player.name}`);
     fetchAndRenderPlayerDetail(player.name);
   }
+  function updateFriendToggleBtn(name){
+    const btn=document.getElementById('btn-toggle-friend');
+    const isSelf=savedUsername&&name===savedUsername;
+    if(isSelf){
+      btn.hidden=true;
+      return;
+    }
+    btn.hidden=false;
+    const isFriend=friendsList.includes(name);
+    btn.textContent=isFriend?t.removeFriendBtn:t.addFriendBtn;
+    btn.setAttribute('aria-label',isFriend?t.removeFriendAria(name):t.addFriendAria(name));
+    btn.style.color=isFriend?'var(--danger)':'var(--accent2)';
+    btn.style.borderColor=isFriend?'var(--danger)':'var(--accent2)';
+  }
   function backFromPlayerDetail(){
     if(playerDetailReturnView==='profile') showProfile();
+    else if(playerDetailReturnView==='detail'&&activeZone) showDetail(activeZone);
     else showList();
   }
   window.addEventListener('popstate',e=>{
@@ -1453,8 +1479,7 @@
     }
     const btnAddFriendEl=document.getElementById('btn-add-friend');
     if(btnAddFriendEl) btnAddFriendEl.textContent=t.friendAddBtn;
-    const btnRemoveFriendEl=document.getElementById('btn-remove-friend');
-    if(btnRemoveFriendEl) btnRemoveFriendEl.textContent=t.removeFriendBtn;
+    if(playerDetailCurrentName&&typeof updateFriendToggleBtn==='function') updateFriendToggleBtn(playerDetailCurrentName);
     if(typeof renderFriendsList==='function'&&friendsListEl&&friendsListEl.children.length===1&&friendsListEl.children[0].id==='friends-empty'){
       friendsListEl.children[0].textContent=t.friendsEmpty;
     }
@@ -1661,6 +1686,7 @@
     /* Render friends list */
     document.getElementById('friends-heading').textContent=t.friendsHeading;
     renderFriendsList();
+    fetchFriendsStats();
   }
 
   async function fetchAndRenderMyZones(zoneIds){
@@ -1712,15 +1738,18 @@
     const frag=document.createDocumentFragment();
     friendsList.forEach(name=>{
       const isOnline=activeFriends.has(name);
-      const onlineLabel=isOnline?` ${t.friendOnline??'Aktiv'}. `:'';
-      const ariaLabel=`${name}.${onlineLabel} ${t.friendBtnAria(name).split('.').pop().trim()}`;
+      const stats=friendsStatsCache[name];
+      const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph):'';
+      const statsBadge=stats?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(statsText)}</span>`:'';
+      const onlineLabel=isOnline?` ${t.friendOnline??'Aktiv'}.`:'';
+      const ariaLabel=`${name}. ${statsText}${onlineLabel}`.trim();
       const onlineBadge=isOnline
         ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}</span>`
         :'';
       const li=document.createElement('li');
       li.className='zone-card';
       li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(ariaLabel)}">
-        <div aria-hidden="true"><div class="zv-name">${escHtml(name)}${onlineBadge}<span class="zv-arrow">&#8594;</span></div></div>
+        <div aria-hidden="true"><div class="zv-name">${escHtml(name)}${statsBadge}${onlineBadge}<span class="zv-arrow">&#8594;</span></div></div>
       </button>`;
       const btn=li.querySelector('.zone-btn');
       btn.addEventListener('click',()=>{
@@ -1733,6 +1762,21 @@
     friendsListEl.appendChild(frag);
   }
 
+  async function fetchFriendsStats(){
+    if(!friendsList.length) return;
+    try{
+      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(friendsList.map(name=>({name})))});
+      if(!r.ok) throw new Error();
+      const data=await r.json();
+      data.forEach(u=>{
+        friendsStatsCache[u.name]={zonesCount:(u.zones||[]).length,pph:u.pointsPerHour??0};
+      });
+      renderFriendsList();
+    }catch(e){
+      /* fail silently — list just shows names without stats */
+    }
+  }
+
   let friendStatusTimer=null;
   function setFriendStatus(msg){
     friendStatus.textContent=msg;
@@ -1741,6 +1785,7 @@
   }
 
   async function addFriend(){
+    const name=friendInput.value.trim();
     if(!name) return;
     if(savedUsername&&name===savedUsername){
       setFriendStatus(t.friendAddSelf);
@@ -1801,7 +1846,8 @@
       const next=nextRankInfo(u.rank,u.totalPoints);
       const totalMedals=(u.medals||[]).filter(m=>m>0).length;
 
-      document.getElementById('player-detail-heading').textContent=u.name;
+      const zonesCount=(u.zones||[]).length;
+      document.getElementById('player-detail-heading').textContent=`${u.name}. ${t.friendStatsText(zonesCount,u.pointsPerHour??0)}`;
       document.getElementById('pdi-rank').textContent=t.piRank(u.rank,rn);
       document.getElementById('pdi-next-rank').textContent=next?t.piNextRank(next.pointsNeeded,next.name):t.piMaxRank;
       document.getElementById('pdi-points').textContent=t.piPoints(u.totalPoints);
@@ -2422,7 +2468,7 @@
   }
   function formatDate(iso){
     if(!iso)return t.unknown;
-    return new Date(iso).toLocaleString(lang==='sv'?'sv-SE':'en-GB',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
+    return new Date(iso).toLocaleString(lang==='sv'?'sv-SE':'en-GB',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
   }
   function escHtml(s){const d=document.createElement('div');d.textContent=String(s??'');return d.innerHTML}
   function escAttr(s){return String(s??'').replace(/&/g,'&amp;').replace(/"/g,'&quot;')}
@@ -2632,11 +2678,26 @@
     const elapsed=elapsedSec(z.dateLastTaken);
     const ownerId=z.currentOwner?.id;
     const entry=ownerId?ownerCache[ownerId]:null;
-    const ownerName=z.currentOwner?.name??t.unownedLabel;
+    const ownerName=z.currentOwner?.name??null;
     const rankStr=entry?.rank!=null?` rank ${entry.rank}`:'';
     const btStr=entry?.blocktime!=null?`, ${t.dkOwnerBt} ${formatDuration(entry.blocktime)}`:'';
     di('di-block').textContent=block.label;
-    di('di-owner').textContent=`${t.dkOwner} ${ownerName}${rankStr}${btStr}`;
+    /* Owner line — tappable button when there's an actual owner */
+    const ownerWrap=document.getElementById('di-owner-wrap');
+    const visibleOwnerText=`${t.dkOwner} ${ownerName??t.unownedLabel}${rankStr}${btStr}`;
+    if(ownerName){
+      const isSelf=savedUsername&&ownerName===savedUsername;
+      const ariaLabel=isSelf?t.openMyProfile:t.openProfileFor(ownerName);
+      ownerWrap.innerHTML=`<button class="zone-btn" id="btn-open-owner" style="width:100%;text-align:left;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem;color:var(--text);font-family:var(--font-mono);cursor:pointer;" aria-label="${escAttr(ariaLabel)}"><span aria-hidden="true">${escHtml(visibleOwnerText)}</span></button>`;
+      const ownerBtn=document.getElementById('btn-open-owner');
+      ownerBtn.addEventListener('click',()=>{
+        lastFocusedBtn=ownerBtn;
+        if(isSelf){ showProfile(); }
+        else { playerDetailReturnView='detail'; showPlayerDetail({name:ownerName}); }
+      });
+    } else {
+      ownerWrap.textContent=visibleOwnerText;
+    }
     di('di-taken').textContent=`${t.dkLasttaken} ${formatDate(z.dateLastTaken)}, ${t.dkElapsed} ${elapsed!==null?`${formatDuration(elapsed)} ${t.agoSuffix}`:t.unknown}`;
   }
 
@@ -2866,13 +2927,22 @@
   document.getElementById('btn-back-profile-bottom').addEventListener('click',()=>showList());
   document.getElementById('btn-back-player-detail').addEventListener('click',()=>backFromPlayerDetail());
   document.getElementById('btn-back-player-detail-bottom').addEventListener('click',()=>backFromPlayerDetail());
-  document.getElementById('btn-remove-friend').addEventListener('click',()=>{
-    if(playerDetailCurrentName){
-      const removedName=playerDetailCurrentName;
-      removeFriend(removedName);
-      showProfile();
-      setFriendStatus(t.friendRemovedMsg(removedName));
+  document.getElementById('btn-toggle-friend').addEventListener('click',()=>{
+    if(!playerDetailCurrentName) return;
+    const name=playerDetailCurrentName;
+    const statusEl=document.getElementById('player-detail-status');
+    if(friendsList.includes(name)){
+      removeFriend(name);
+      updateFriendToggleBtn(name);
+      statusEl.textContent=t.friendRemovedMsg(name);
+    } else {
+      friendsList.push(name);
+      try{localStorage.setItem('turf-friends',JSON.stringify(friendsList))}catch(e){}
+      updateFriendToggleBtn(name);
+      statusEl.textContent=t.friendAddSuccess(name);
     }
+    clearTimeout(window._pdStatusTimer);
+    window._pdStatusTimer=setTimeout(()=>{statusEl.textContent='';},4000);
   });
 
   /* Bottom tips — independent panel, own open/close, focus management */
