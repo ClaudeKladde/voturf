@@ -429,7 +429,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-24 13:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-24 13:45</span>
     </div>
   </div>
 
@@ -485,10 +485,10 @@
     <ul id="profile-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pi-rank">—</li>
       <li id="pi-next-rank">—</li>
-      <li id="pi-points">—</li>
       <li id="pi-round-points">—</li>
-      <li id="pi-pph">—</li>
       <li id="pi-unique">—</li>
+      <li id="pi-points">—</li>
+      <li id="pi-pph">—</li>
       <li id="pi-taken">—</li>
       <li id="pi-medals">—</li>
       <li id="pi-zones-count">—</li>
@@ -533,10 +533,10 @@
     <ul id="player-detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pdi-rank">—</li>
       <li id="pdi-next-rank">—</li>
-      <li id="pdi-points">—</li>
       <li id="pdi-round-points">—</li>
-      <li id="pdi-pph">—</li>
       <li id="pdi-unique">—</li>
+      <li id="pdi-points">—</li>
+      <li id="pdi-pph">—</li>
       <li id="pdi-taken">—</li>
       <li id="pdi-medals">—</li>
       <li id="pdi-zones-count">—</li>
@@ -655,7 +655,7 @@
       removeFriendAria:(n)=>`Ta bort ${n} som vän.`,
       friendRemovedMsg:(n)=>`${n} borttagen som vän.`,
       friendOnline:'Aktiv',
-      friendStatsText:(zones,pph)=>`Äger ${zones} zon${zones===1?'':'er'}. +${pph}.`,
+      friendStatsText:(zones,pph,pts)=>`Äger ${zones} zon${zones===1?'':'er'}. +${pph}. Poäng ${pts.toLocaleString('sv-SE')}.`,
       showNearbyLabel:'Visa i spelare i närheten',
       showNearbyOnAria:(n)=>`${n} visas i spelare i närheten. Tryck för att dölja.`,
       showNearbyOffAria:(n)=>`${n} döljs från spelare i närheten. Tryck för att visa.`,
@@ -720,7 +720,7 @@
       profileBtnAria:(n)=>`Öppna profil för ${n}`,
       profileBtnGuest:'Min profil',
       profileBtnGuestAria:'Min profil — logga in',
-      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} Poäng ${pts.toLocaleString('sv-SE')}.`,
+      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph,pts)}`,
       statusExpanding:'Inga zoner inom standardavstånd, söker längre bort…',
       pauseBtnPause:'Pausa',pauseBtnStart:'Starta',
       pauseBtnPauseAria:'Pausa alla uppdateringar och aviseringar',
@@ -736,7 +736,7 @@
       piNextRank:(pts,rn)=>`Nästa rank: ${pts.toLocaleString('sv-SE')} poäng till ${rn}`,
       piMaxRank:'Max rank uppnådd — Turfalicious',
       piPoints:(p)=>`Totala poäng: ${p.toLocaleString('sv-SE')}`,
-      piRoundPoints:(p)=>`Rundpoäng: ${p.toLocaleString('sv-SE')}`,
+      piRoundPoints:(p)=>`Omgångspoäng: ${p.toLocaleString('sv-SE')}`,
       piPph:(p)=>`Poäng per timme: ${p}`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
       piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
@@ -848,7 +848,7 @@
       removeFriendAria:(n)=>`Remove ${n} as a friend.`,
       friendRemovedMsg:(n)=>`${n} removed as a friend.`,
       friendOnline:'Active',
-      friendStatsText:(zones,pph)=>`Owns ${zones} zone${zones===1?'':'s'}. +${pph}.`,
+      friendStatsText:(zones,pph,pts)=>`Owns ${zones} zone${zones===1?'':'s'}. +${pph}. Points ${pts.toLocaleString('en-GB')}.`,
       showNearbyLabel:'Show in nearby players',
       showNearbyOnAria:(n)=>`${n} is shown in nearby players. Tap to hide.`,
       showNearbyOffAria:(n)=>`${n} is hidden from nearby players. Tap to show.`,
@@ -913,7 +913,7 @@
       profileBtnAria:(n)=>`Open profile for ${n}`,
       profileBtnGuest:'My profile',
       profileBtnGuestAria:'My profile — log in',
-      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} Points ${pts.toLocaleString('en-GB')}.`,
+      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph,pts)}`,
       statusExpanding:'No zones within default range, searching further…',
       pauseBtnPause:'Pause',pauseBtnStart:'Start',
       pauseBtnPauseAria:'Pause all updates and announcements',
@@ -1424,7 +1424,7 @@
     document.title=`${player.name} — VO Turf`;
     /* Reset to loading state before fetch resolves */
     document.getElementById('player-detail-heading').textContent=player.name;
-    ['pdi-rank','pdi-next-rank','pdi-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
+    ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
       .forEach(id=>{document.getElementById(id).textContent='—'});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
@@ -1841,7 +1841,7 @@
     friendsList.forEach(name=>{
       const isOnline=activeFriends.has(name);
       const stats=friendsStatsCache[name];
-      const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph):'';
+      const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph,stats.points):'';
       const statsBadge=stats?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(statsText)}</span>`:'';
       const onlineLabel=isOnline?` ${t.friendOnline??'Aktiv'}.`:'';
       const ariaLabel=`${name}. ${statsText}${onlineLabel}`.trim();
@@ -1871,7 +1871,7 @@
       if(!r.ok) throw new Error();
       const data=await r.json();
       data.forEach(u=>{
-        friendsStatsCache[u.name]={zonesCount:(u.zones||[]).length,pph:u.pointsPerHour??0};
+        friendsStatsCache[u.name]={zonesCount:(u.zones||[]).length,pph:u.pointsPerHour??0,points:u.points??0};
       });
       renderFriendsList();
     }catch(e){
@@ -1953,7 +1953,7 @@
       const totalMedals=(u.medals||[]).filter(m=>m>0).length;
 
       const zonesCount=(u.zones||[]).length;
-      document.getElementById('player-detail-heading').textContent=`${u.name}. ${t.friendStatsText(zonesCount,u.pointsPerHour??0)}`;
+      document.getElementById('player-detail-heading').textContent=`${u.name}. ${t.friendStatsText(zonesCount,u.pointsPerHour??0,u.points??0)}`;
       document.getElementById('pdi-rank').textContent=t.piRank(u.rank,rn);
       document.getElementById('pdi-next-rank').textContent=next?t.piNextRank(next.pointsNeeded,next.name):t.piMaxRank;
       document.getElementById('pdi-points').textContent=t.piPoints(u.totalPoints);
