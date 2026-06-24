@@ -429,7 +429,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-24 13:45</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-24 14:30</span>
     </div>
   </div>
 
@@ -722,6 +722,7 @@
       profileBtnGuestAria:'Min profil — logga in',
       profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph,pts)}`,
       statusExpanding:'Inga zoner inom standardavstånd, söker längre bort…',
+      statusRetrying:'Hastighetsbegränsning nådd, försöker igen…',
       pauseBtnPause:'Pausa',pauseBtnStart:'Starta',
       pauseBtnPauseAria:'Pausa alla uppdateringar och aviseringar',
       pauseBtnStartAria:'Starta alla uppdateringar och aviseringar',
@@ -915,6 +916,7 @@
       profileBtnGuestAria:'My profile — log in',
       profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph,pts)}`,
       statusExpanding:'No zones within default range, searching further…',
+      statusRetrying:'Rate limit reached, retrying…',
       pauseBtnPause:'Pause',pauseBtnStart:'Start',
       pauseBtnPauseAria:'Pause all updates and announcements',
       pauseBtnStartAria:'Start all updates and announcements',
@@ -2846,14 +2848,19 @@
   /* ════════════════════════════════════════
      FETCH ZONES
   ════════════════════════════════════════ */
+  function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
   const BBOX_TIERS=[BBOX_DEG,BBOX_DEG*2,BBOX_DEG*4,BBOX_DEG*8]; /* ~5km / ~10km / ~20km / ~40km */
-  async function fetchNearbyZones(isAuto=false){
+  async function fetchNearbyZones(isAuto=false,attempt=0){
     if(isFetching||userLat===null)return;
     isFetching=true;btnRefresh.disabled=true;
     setStatus(t.statusLoading,'loading');
     let zones=[];
+    let rateLimited=false;
     try{
       for(let i=0;i<BBOX_TIERS.length;i++){
+        /* API allows only one request per second per resource — wait before
+           every retry beyond the first to stay safely within that limit. */
+        if(i>0) await sleep(1100);
         const half=BBOX_TIERS[i]/2;
         const body=JSON.stringify([{northEast:{latitude:userLat+half,longitude:userLon+half},southWest:{latitude:userLat-half,longitude:userLon-half}}]);
         const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
@@ -2909,8 +2916,22 @@
           }
         }
       }
-    }catch(e){setStatus(t.statusError(e.message),'error')}
-    finally{isFetching=false;btnRefresh.disabled=false;startCountdown()}
+    }catch(e){
+      if(attempt<1&&/one request per second/i.test(e.message)){
+        rateLimited=true;
+      } else {
+        setStatus(t.statusError(e.message),'error');
+      }
+    }
+    finally{
+      isFetching=false;btnRefresh.disabled=false;
+      if(rateLimited){
+        setStatus(t.statusRetrying,'loading');
+        setTimeout(()=>fetchNearbyZones(isAuto,attempt+1),1500);
+      } else {
+        startCountdown();
+      }
+    }
   }
 
   /* ════════════════════════════════════════
