@@ -425,7 +425,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-19 11:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-19 13:15</span>
     </div>
   </div>
 
@@ -714,6 +714,8 @@
       profileBtnAria:(n)=>`Öppna profil för ${n}`,
       profileBtnGuest:'Min profil',
       profileBtnGuestAria:'Min profil — logga in',
+      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} ${pts.toLocaleString('sv-SE')} poäng.`,
+      statusExpanding:'Inga zoner inom standardavstånd, söker längre bort…',
       pauseBtnPause:'Pausa',pauseBtnStart:'Starta',
       pauseBtnPauseAria:'Pausa alla uppdateringar och aviseringar',
       pauseBtnStartAria:'Starta alla uppdateringar och aviseringar',
@@ -903,6 +905,8 @@
       profileBtnAria:(n)=>`Open profile for ${n}`,
       profileBtnGuest:'My profile',
       profileBtnGuestAria:'My profile — log in',
+      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} ${pts.toLocaleString('en-GB')} points.`,
+      statusExpanding:'No zones within default range, searching further…',
       pauseBtnPause:'Pause',pauseBtnStart:'Start',
       pauseBtnPauseAria:'Pause all updates and announcements',
       pauseBtnStartAria:'Start all updates and announcements',
@@ -1651,8 +1655,17 @@
   function applyUsernameUI(){
     /* Profile button at top always shows, label changes based on login state */
     if(savedUsername){
-      btnProfile.textContent=t.profileBtn(savedUsername);
-      btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
+      if(savedUserProfile){
+        const zonesCount=(savedUserProfile.zones||[]).length;
+        const pph=savedUserProfile.pointsPerHour??0;
+        const totalPoints=savedUserProfile.totalPoints??0;
+        const label=t.profileBtnStats(savedUsername,zonesCount,pph,totalPoints);
+        btnProfile.textContent=label;
+        btnProfile.setAttribute('aria-label',label);
+      } else {
+        btnProfile.textContent=t.profileBtn(savedUsername);
+        btnProfile.setAttribute('aria-label',t.profileBtnAria(savedUsername));
+      }
     } else {
       btnProfile.textContent=t.profileBtnGuest??'Min profil';
       btnProfile.setAttribute('aria-label',t.profileBtnGuestAria??'Min profil');
@@ -1663,6 +1676,24 @@
     if(setupSection&&statsSection){
       setupSection.hidden=!!savedUsername;
       statsSection.hidden=!savedUsername;
+    }
+  }
+
+  /* Refresh own profile stats on the same cadence as the main zone refresh —
+     updates the Min profil button label always, and re-renders the full
+     Profile page (including Mina zoner) if it happens to be open. */
+  async function refreshProfileStats(){
+    if(!savedUsername) return;
+    try{
+      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
+      if(!r.ok) return;
+      const data=await r.json();
+      if(!data.length) return;
+      savedUserProfile=data[0];
+      applyUsernameUI();
+      if(profileView.classList.contains('active')) renderProfile();
+    }catch(e){
+      /* fail silently — stale stats are better than a broken refresh cycle */
     }
   }
 
@@ -2803,16 +2834,23 @@
   /* ════════════════════════════════════════
      FETCH ZONES
   ════════════════════════════════════════ */
+  const BBOX_TIERS=[BBOX_DEG,BBOX_DEG*2,BBOX_DEG*4,BBOX_DEG*8]; /* ~5km / ~10km / ~20km / ~40km */
   async function fetchNearbyZones(isAuto=false){
     if(isFetching||userLat===null)return;
     isFetching=true;btnRefresh.disabled=true;
     setStatus(t.statusLoading,'loading');
-    const half=BBOX_DEG/2;
-    const body=JSON.stringify([{northEast:{latitude:userLat+half,longitude:userLon+half},southWest:{latitude:userLat-half,longitude:userLon-half}}]);
+    let zones=[];
     try{
-      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
-      if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.errorMessage||`HTTP ${r.status}`)}
-      const zones=await r.json();
+      for(let i=0;i<BBOX_TIERS.length;i++){
+        const half=BBOX_TIERS[i]/2;
+        const body=JSON.stringify([{northEast:{latitude:userLat+half,longitude:userLon+half},southWest:{latitude:userLat-half,longitude:userLon-half}}]);
+        const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
+        if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.errorMessage||`HTTP ${r.status}`)}
+        zones=await r.json();
+        if(zones.length>0||i===BBOX_TIERS.length-1) break;
+        /* Nothing found at this tier — widen the search area for this fetch only */
+        setStatus(t.statusExpanding,'loading');
+      }
       zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});
       zones.sort((a,b)=>a._dist-b._dist);
       allZonesSorted=zones;
@@ -2820,6 +2858,8 @@
       shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
       renderZoneSlice();
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
+      /* Keep "Mina zoner" and the Min profil button stats in sync with the same refresh cadence */
+      refreshProfileStats();
       /* Announcements — only on auto-refresh, use filtered list so it matches what is shown */
       if(isAuto){
         const filteredFirst=getFilteredZones()[0];
@@ -3067,7 +3107,7 @@
         const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
         if(!r.ok)return;
         const data=await r.json();
-        if(data.length) savedUserProfile=data[0];
+        if(data.length){ savedUserProfile=data[0]; applyUsernameUI(); }
       }catch(e){}
     })();
   }
