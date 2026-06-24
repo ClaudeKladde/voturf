@@ -84,15 +84,23 @@
       padding-left:.75rem;border-left:2px solid var(--border);line-height:1.5;
     }
 
-    /* ── Sticky toolbar: yellow background, 2 rows of 3 ── */
+    /* ── Sticky toolbar: yellow background, profile row + 2 rows of 3 ── */
     #toolbar{
-      position:sticky;top:0;z-index:10;
+      position:sticky;top:0;top:env(safe-area-inset-top,0);z-index:10;
       background:var(--accent);
       display:flex;flex-direction:column;gap:.35rem;
       padding:.4rem;
       margin-bottom:.6rem;
       border-radius:var(--radius);
     }
+    /* Profile button — natural full-width row at the top of the toolbar */
+    #toolbar #btn-profile{
+      font-family:var(--font-mono);font-size:.85rem;font-weight:700;
+      border:2px solid #000;border-radius:var(--radius);
+      padding:.5rem .75rem;cursor:pointer;background:#000;color:var(--accent);
+      width:100%;text-align:left;transition:background .15s,color .15s;
+    }
+    #toolbar #btn-profile:focus-visible{outline:3px solid #000;outline-offset:3px}
     #toolbar-row1,#toolbar-row2{
       display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
     }
@@ -230,14 +238,14 @@
         </ul>
         <h3 id="tips-h-toolbar">Verktygsfält</h3>
         <ul>
-          <li id="tip-4">Verktygsfältet har två rader med tre knappar vardera. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Aviseringsläge.</li>
+          <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
           <li id="tip-7">Filter-knappen öppnar en meny för att visa Alla zoner, endast Tillgängliga eller endast Blockerade zoner i listan.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
-          <li id="tip-8">Aviseringsläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Röstläge och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.</li>
+          <li id="tip-8">Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.</li>
         </ul>
         <h3 id="tips-h-players">Spelare i närheten</h3>
         <ul>
@@ -274,20 +282,16 @@
       </button>
     </div>
 
-    <!-- Profile button — always visible at top before toolbar -->
-    <button id="btn-profile"
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
-      Min profil
-    </button>
-
     <!-- Skip links — appear after navigation starts -->
     <div id="skip-links" hidden style="display:flex;flex-direction:column;gap:.25rem;margin-bottom:.4rem">
       <a id="skip-to-players" href="#nearby-players-heading" style="font-family:var(--font-mono);font-size:.75rem;color:var(--accent2)">Hoppa till spelare i närheten</a>
       <a id="skip-to-settings" href="#settings-heading" style="font-family:var(--font-mono);font-size:.75rem;color:var(--accent2)">Hoppa till inställningar</a>
     </div>
 
-    <!-- Sticky toolbar: 2 rows of 3 buttons -->
+    <!-- Sticky toolbar: profile row + 2 rows of 3 buttons -->
     <div id="toolbar" role="toolbar" aria-label="Verktygsfält">
+      <!-- Row 0: Min profil — natural part of the toolbar -->
+      <button id="btn-profile">Min profil</button>
       <!-- Row 1: Refresh | Pause/Start | Avisera spelare -->
       <div id="toolbar-row1">
         <button id="btn-refresh" aria-label="Uppdatera zoner. Automatisk uppdatering om — sekunder." disabled>
@@ -318,7 +322,7 @@
           </button>
           <ul id="voice-menu" role="listbox" hidden>
             <li><button role="option" data-mode="vo"    aria-checked="true">VO-aviseringar</button></li>
-            <li><button role="option" data-mode="voice" aria-checked="false">Röstläge</button></li>
+            <li><button role="option" data-mode="voice" aria-checked="false">Inbyggd röst</button></li>
             <li><button role="option" data-mode="off"   aria-checked="false">Av</button></li>
           </ul>
         </div>
@@ -425,7 +429,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-19 13:15</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-24 13:00</span>
     </div>
   </div>
 
@@ -482,6 +486,7 @@
       <li id="pi-rank">—</li>
       <li id="pi-next-rank">—</li>
       <li id="pi-points">—</li>
+      <li id="pi-round-points">—</li>
       <li id="pi-pph">—</li>
       <li id="pi-unique">—</li>
       <li id="pi-taken">—</li>
@@ -529,6 +534,7 @@
       <li id="pdi-rank">—</li>
       <li id="pdi-next-rank">—</li>
       <li id="pdi-points">—</li>
+      <li id="pdi-round-points">—</li>
       <li id="pdi-pph">—</li>
       <li id="pdi-unique">—</li>
       <li id="pdi-taken">—</li>
@@ -581,11 +587,11 @@
         'Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
-        'Verktygsfältet har två rader med tre knappar vardera. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Aviseringsläge.',
+        'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
         'Filter-knappen öppnar en meny för att visa Alla zoner, endast Tillgängliga eller endast Blockerade zoner i listan.',
-        'Aviseringsläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Röstläge och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Röstläge använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
+        'Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner.',
         'Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem som standard. Om en vän är aktiv i spelet visas Aktiv-märket bredvid deras namn. Tryck på en väns namn för att se deras profil. Där kan du slå på Visa i spelare i närheten om du vill se just den vännen i listan trots att ni är vänner, eller ta bort dem som vän längst ner på sidan.',
@@ -617,8 +623,8 @@
       playerRadiusAria:(m)=>`Avstånd spelare: ${m} meter.`,
       playerRadiusMinusAria:(m)=>`Minska avstånd till ${m} meter.`,
       playerRadiusPlusAria:(m)=>`Öka avstånd till ${m} meter.`,
-      playerNearbyPrefix:'Spelare i närheten. ',
-      newPlayerNearbyPrefix:'Ny spelare i närheten. ',
+      playerNearbyPrefix:'Spelare. ',
+      newPlayerNearbyPrefix:'Ny spelare. ',
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
       playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
       playerLoadError:'Kunde inte ladda spelaren.',
@@ -714,14 +720,15 @@
       profileBtnAria:(n)=>`Öppna profil för ${n}`,
       profileBtnGuest:'Min profil',
       profileBtnGuestAria:'Min profil — logga in',
-      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} ${pts.toLocaleString('sv-SE')} poäng.`,
+      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} Poäng ${pts.toLocaleString('sv-SE')}.`,
       statusExpanding:'Inga zoner inom standardavstånd, söker längre bort…',
       pauseBtnPause:'Pausa',pauseBtnStart:'Starta',
       pauseBtnPauseAria:'Pausa alla uppdateringar och aviseringar',
       pauseBtnStartAria:'Starta alla uppdateringar och aviseringar',
-      voModeVo:'VO-aviseringar',voModeVoice:'Röstläge',voModeOff:'Avisering av',
-      voModeMenuAria:'Välj aviseringsläge',
-      voModeVoLabel:'VO-aviseringar',voModeVoiceLabel:'Röstläge',voModeOffLabel:'Av',
+      voModeVo:'VO-aviseringar',voModeVoice:'Inbyggd röst',voModeOff:'Avisering av',
+      voModeMenuAria:'Välj röstläge',
+      voModeBtnAria:(v)=>`Röstläge: ${v}.`,
+      voModeVoLabel:'VO-aviseringar',voModeVoiceLabel:'Inbyggd röst',voModeOffLabel:'Av',
       playerSettingsHeading:'Inställningar för spelare',
       myZonesHeading:'Mina zoner',
       myZonesEmpty:'Du äger inga zoner just nu.',
@@ -729,6 +736,7 @@
       piNextRank:(pts,rn)=>`Nästa rank: ${pts.toLocaleString('sv-SE')} poäng till ${rn}`,
       piMaxRank:'Max rank uppnådd — Turfalicious',
       piPoints:(p)=>`Totala poäng: ${p.toLocaleString('sv-SE')}`,
+      piRoundPoints:(p)=>`Rundpoäng: ${p.toLocaleString('sv-SE')}`,
       piPph:(p)=>`Poäng per timme: ${p}`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
       piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
@@ -772,11 +780,11 @@
         'Each zone in the list is one swipe — name, distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver, or swipe from the left edge in Safari.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
-        'The toolbar has two rows of three buttons. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Announcement mode.',
+        'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Voice mode.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
         'The Filter button opens a menu to show All zones, only Available zones, or only Blocked zones in the list.',
-        'The Announcement mode button opens a menu with three options: VO alerts (default), Voice mode, and Off. VO alerts uses your own VoiceOver voice and speed. Voice mode uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
+        'The Voice mode button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced.',
         'Tap a player in the list to open their profile with stats and owned zones.',
         'Add Turf friends at the bottom of your profile page. Friends are excluded from the nearby players list and you will not get notified about them by default. If a friend is active in the game, an Active badge appears next to their name. Tap a friend\'s name to view their profile. There you can turn on Show in nearby players if you want to see that specific friend in the list despite being friends, or remove them as a friend at the bottom of the page.',
@@ -808,8 +816,8 @@
       playerRadiusAria:(m)=>`Distance players: ${m} meters.`,
       playerRadiusMinusAria:(m)=>`Decrease distance to ${m} meters.`,
       playerRadiusPlusAria:(m)=>`Increase distance to ${m} meters.`,
-      playerNearbyPrefix:'Player nearby. ',
-      newPlayerNearbyPrefix:'New player nearby. ',
+      playerNearbyPrefix:'Player. ',
+      newPlayerNearbyPrefix:'New player. ',
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meters away. ${dir}.`,
       playerTotalCount:(n)=>` Total of ${n} players nearby.`,
       playerLoadError:'Could not load player.',
@@ -905,14 +913,15 @@
       profileBtnAria:(n)=>`Open profile for ${n}`,
       profileBtnGuest:'My profile',
       profileBtnGuestAria:'My profile — log in',
-      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} ${pts.toLocaleString('en-GB')} points.`,
+      profileBtnStats:(n,zones,pph,pts)=>`${n}. ${t.friendStatsText(zones,pph)} Points ${pts.toLocaleString('en-GB')}.`,
       statusExpanding:'No zones within default range, searching further…',
       pauseBtnPause:'Pause',pauseBtnStart:'Start',
       pauseBtnPauseAria:'Pause all updates and announcements',
       pauseBtnStartAria:'Start all updates and announcements',
-      voModeVo:'VO alerts',voModeVoice:'Voice mode',voModeOff:'Alerts off',
-      voModeMenuAria:'Select announcement mode',
-      voModeVoLabel:'VO alerts',voModeVoiceLabel:'Voice mode',voModeOffLabel:'Off',
+      voModeVo:'VO alerts',voModeVoice:'Built-in voice',voModeOff:'Alerts off',
+      voModeMenuAria:'Select voice mode',
+      voModeBtnAria:(v)=>`Voice mode: ${v}.`,
+      voModeVoLabel:'VO alerts',voModeVoiceLabel:'Built-in voice',voModeOffLabel:'Off',
       playerSettingsHeading:'Player settings',
       myZonesHeading:'My zones',
       myZonesEmpty:'You do not own any zones right now.',
@@ -920,6 +929,7 @@
       piNextRank:(pts,rn)=>`Next rank: ${pts.toLocaleString('en-GB')} points to ${rn}`,
       piMaxRank:'Maximum rank reached — Turfalicious',
       piPoints:(p)=>`Total points: ${p.toLocaleString('en-GB')}`,
+      piRoundPoints:(p)=>`Round points: ${p.toLocaleString('en-GB')}`,
       piPph:(p)=>`Points per hour: ${p}`,
       piUnique:(n)=>`Unique zones taken: ${n.toLocaleString('en-GB')}`,
       piTaken:(n)=>`Total takeovers: ${n.toLocaleString('en-GB')}`,
@@ -1658,8 +1668,8 @@
       if(savedUserProfile){
         const zonesCount=(savedUserProfile.zones||[]).length;
         const pph=savedUserProfile.pointsPerHour??0;
-        const totalPoints=savedUserProfile.totalPoints??0;
-        const label=t.profileBtnStats(savedUsername,zonesCount,pph,totalPoints);
+        const roundPoints=savedUserProfile.points??0;
+        const label=t.profileBtnStats(savedUsername,zonesCount,pph,roundPoints);
         btnProfile.textContent=label;
         btnProfile.setAttribute('aria-label',label);
       } else {
@@ -1762,6 +1772,7 @@
       ?t.piNextRank(next.pointsNeeded,next.name)
       :t.piMaxRank;
     document.getElementById('pi-points').textContent=t.piPoints(u.totalPoints);
+    document.getElementById('pi-round-points').textContent=t.piRoundPoints(u.points??0);
     document.getElementById('pi-pph').textContent=t.piPph(u.pointsPerHour??0);
     document.getElementById('pi-unique').textContent=t.piUnique(u.uniqueZonesTaken??0);
     document.getElementById('pi-taken').textContent=t.piTaken(u.taken??0);
@@ -1946,6 +1957,7 @@
       document.getElementById('pdi-rank').textContent=t.piRank(u.rank,rn);
       document.getElementById('pdi-next-rank').textContent=next?t.piNextRank(next.pointsNeeded,next.name):t.piMaxRank;
       document.getElementById('pdi-points').textContent=t.piPoints(u.totalPoints);
+      document.getElementById('pdi-round-points').textContent=t.piRoundPoints(u.points??0);
       document.getElementById('pdi-pph').textContent=t.piPph(u.pointsPerHour??0);
       document.getElementById('pdi-unique').textContent=t.piUnique(u.uniqueZonesTaken??0);
       document.getElementById('pdi-taken').textContent=t.piTaken(u.taken??0);
@@ -2034,7 +2046,7 @@
     if(voiceMode==='voice') label=t.voModeVoice;
     if(voiceMode==='off')   label=t.voModeOff;
     btnVoiceMenu.querySelector('#btn-voice-menu-label').textContent=label;
-    btnVoiceMenu.setAttribute('aria-label',label);
+    btnVoiceMenu.setAttribute('aria-label',t.voModeBtnAria(label));
     /* Update checkmarks in popup */
     voiceMenuEl.querySelectorAll('button[role="option"]').forEach(b=>{
       b.setAttribute('aria-checked', b.dataset.mode===voiceMode ? 'true' : 'false');
