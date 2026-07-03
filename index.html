@@ -217,6 +217,12 @@
 
     <!-- Skip links and profile button appear after navigation starts -->
 
+    <!-- Language selection — first choice on the start page -->
+    <div id="lang-bar-start" role="group" aria-label="Välj språk" style="display:flex;gap:.4rem;margin-bottom:.75rem;">
+      <button class="lang-btn" id="btn-lang-sv-start" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
+      <button class="lang-btn" id="btn-lang-en-start" aria-pressed="false" aria-label="Switch to English">EN</button>
+    </div>
+
     <!-- Start section with collapsible tips -->
     <div id="start-section">
       <!-- Collapsible tips toggle button -->
@@ -241,8 +247,8 @@
           <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny med fem alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta otagna och Sökzoner. Närmsta otagna kräver att du laddat upp din unikazoner-lista under Min profil.</li>
-          <li id="tip-7b">Sökzoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med fem alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner och Sök zoner. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -250,8 +256,8 @@
         </ul>
         <h3 id="tips-h-players">Spelare i närheten</h3>
         <ul>
-          <li id="tip-9">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp.</li>
-          <li id="tip-10">Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner.</li>
+          <li id="tip-9">Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.</li>
+          <li id="tip-10">Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.</li>
         </ul>
         <h3 id="tips-h-friends">Vänner</h3>
         <ul>
@@ -260,7 +266,8 @@
         </ul>
         <h3 id="tips-h-profile">Profil och användarnamn</h3>
         <ul>
-          <li id="tip-12">Min profil-knappen finns alltid längst upp på sidan. Öppna den för att lägga till ditt användarnamn första gången. När du är inloggad visas stats, dina egna zoner och vänlistan.</li>
+          <li id="tip-12">Min profil-knappen finns alltid längst upp i verktygsfältet. Öppna den för att lägga till ditt användarnamn första gången. När du är inloggad visas stats, dina egna zoner, vänlistan och längst ner sektionen för unikazoner där du kan ladda upp din zonlista.</li>
+          <li id="tip-12b">Unikazoner laddas upp under Min profil längst ner. Uppladdningen stödjer tabb-separerade textfiler och KML-filer. Zoner som inte finns i din lista markeras med ett U-märke visuellt och läses upp som Unik zon i talsyntesen. Kom ihåg att uppdatera listan regelbundet, framför allt efter resor, eftersom den inte uppdateras automatiskt.</li>
         </ul>
         <h3 id="tips-h-gps">GPS och kompass</h3>
         <ul>
@@ -269,7 +276,7 @@
         </ul>
         <h3 id="tips-h-settings">Inställningar</h3>
         <ul>
-          <li id="tip-15">Inställningar finns längst ner på zonlistan. Justera uppdateringsfrekvens (standardvärde 30 sekunder), talhastighet, röstvolym, kompass och spelaravstånd där.</li>
+          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.</li>
         </ul>
         <h3 id="tips-h-misc">Tips och övrigt</h3>
         <ul>
@@ -291,7 +298,7 @@
     </div>
 
     <!-- Sticky toolbar: profile row + 2 rows of 3 buttons -->
-    <div id="toolbar" role="toolbar" aria-label="Verktygsfält">
+    <div id="toolbar" aria-label="Verktygsfält">
       <!-- Row 0: Min profil — natural part of the toolbar -->
       <button id="btn-profile">Min profil</button>
       <!-- Row 1: Refresh | Pause/Start | Avisera spelare -->
@@ -316,8 +323,8 @@
             <li><button role="option" data-filter="all"          aria-checked="true">Alla zoner</button></li>
             <li><button role="option" data-filter="available"    aria-checked="false">Tillgängliga</button></li>
             <li><button role="option" data-filter="blocked"      aria-checked="false">Blockerade</button></li>
-            <li><button role="option" data-filter="notunique"    aria-checked="false">Närmsta otagna</button></li>
-            <li><button role="option" data-filter="search"       aria-checked="false">Sökzoner</button></li>
+            <li><button role="option" data-filter="notunique"    aria-checked="false">Närmsta unikazoner</button></li>
+            <li><button role="option" data-filter="search"       aria-checked="false">Sök zoner</button></li>
           </ul>
         </div>
         <div id="voice-menu-wrap">
@@ -333,7 +340,7 @@
       </div>
     </div>
 
-    <div id="status-msg" role="status" aria-live="polite" aria-atomic="true">Hämtar navigationsposition…</div>
+    <div id="status-msg">Hämtar navigationsposition…</div>
 
     <!-- Search zone area — shown only when Sökzoner filter is active -->
     <section id="search-zone-section" hidden aria-labelledby="search-zone-heading">
@@ -357,14 +364,14 @@
       <!-- Address candidate results -->
       <section id="search-results-section" hidden aria-labelledby="search-results-heading">
         <h2 id="search-results-heading" style="font-family:var(--font-mono);font-size:.9rem;font-weight:700;color:var(--accent);margin:.5rem 0 .35rem;">Sökresultat</h2>
-        <ul id="search-results-list" role="list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+        <ul id="search-results-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
       </section>
     </section>
 
     <!-- Real h2 heading so it appears in VoiceOver's heading rotor, matching nearby players section -->
     <h2 id="nearby-zones-heading" tabindex="-1">Närliggande zoner</h2>
-    <ul id="zone-list" role="list"></ul>
-    <div id="empty-state" hidden role="status">Inga zoner hittades i närheten.</div>
+    <ul id="zone-list"></ul>
+    <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
     <button id="btn-load-more" hidden>Ladda fler zoner</button>
 
     <!-- Back to live mode — shown at bottom of zone list when search filter is active -->
@@ -381,6 +388,16 @@
     </ul>
 
     <!-- Settings section -->
+    <!-- Settings — collapsible panel, closed by default -->
+    <div id="settings-section" style="margin-top:.5rem">
+      <button id="btn-settings-toggle"
+        aria-expanded="false"
+        aria-controls="settings-panel"
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
+        <span id="lbl-settings-toggle">Inställningar</span>
+        <span class="tips-chevron" aria-hidden="true">▼</span>
+      </button>
+      <div id="settings-panel" hidden>
     <h2 id="settings-heading" tabindex="-1">Inställningar</h2>
 
     <!-- Auto update interval -->
@@ -462,13 +479,15 @@
       </div>
     </div>
 
-    <!-- Language -->
-    <div id="lang-bar">
+    <!-- Language in settings — for switching during a session -->
+    <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-03 23:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-04 13:00</span>
     </div>
-  </div>
+      </div><!-- end settings-panel -->
+    </div><!-- end settings-section -->
+  </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
   <div id="detail-view" class="view">
@@ -757,12 +776,12 @@
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
       ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
       filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
-      filterNotUnique:'Närmsta otagna',filterSearch:'Sökzoner',
+      filterNotUnique:'Närmsta unikazoner',filterSearch:'Sök zoner',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
       searchPlaceholder:'Adress, stad — t.ex. Drottninggatan 1, Stockholm',
       searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress',
-      searchHeading:'Sökzoner',searchResultsHeading:'Sökresultat',
+      searchHeading:'Sök zoner',searchResultsHeading:'Sökresultat',
       searchLoading:'Söker…',
       searchNoResults:'Inga adresser hittades. Försök med en mer specifik adress.',
       searchError:'Söktjänsten svarar inte. Kontrollera internetanslutningen och försök igen.',
@@ -977,7 +996,7 @@
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
-      filterNotUnique:'Nearest untaken',filterSearch:'Zone search',
+      filterNotUnique:'Nearest unique zones',filterSearch:'Zone search',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
       searchPlaceholder:'Address, city — e.g. King Street 1, London',
@@ -1334,20 +1353,6 @@
         try{if(audioCtx&&audioCtx.state==='suspended') audioCtx.resume();}catch(e){}
       },{passive:true});
 
-      /* Layer 3 — silent looping video.
-         iOS is very reluctant to suspend active video playback.
-         Opacity 0.01 rather than 0 to avoid iOS optimising it away. */
-      try{
-        const video=document.createElement('video');
-        video.setAttribute('playsinline','');
-        video.setAttribute('muted','');
-        video.loop=true;video.volume=0;
-        video.src='data:video/webm;base64,GkXfowEAAAAAAAAfQoaBAUL3gQFC8oEEQvOBCEKChHdlYm1CEwebQoaBAkK7gQJChIEEGkHjQ4ECQAAAAAAF+AAAAAAAAABZAAAAAAAAAAAAZAAAAAAAAAAAAABAAAAAAAAAAAB1AAAAAAAAAAAAAAAAAAAMUAAAAAAAAAAAAAAAAAAAABVSuZpkAAAAAAAAAAAAAAAAAAABVSuZpkAAAAAAAAAAAAAAAAAAABVSuZpkA==';
-        video.style.cssText='position:fixed;width:1px;height:1px;opacity:0.01;top:-1px;left:-1px;pointer-events:none;';
-        document.body.appendChild(video);
-        video.play().catch(()=>{});
-      }catch(e){}
-
     }catch(e){}
   }
   function initCompass(){
@@ -1479,6 +1484,11 @@
       msg=lang==='sv'
         ?`${zone.name}. ${ds} bort. ${clock}. ${ownerPart}`
         :`${zone.name}. ${ds} away. ${clock}. ${ownerPart}`;
+    }
+
+    /* Append unique zone indicator if zone is not in user's taken unique list */
+    if(!isMyZone&&isUniqueZone(zone.name)){
+      msg+=lang==='sv'?' Unik zon.'  :' Unique zone.';
     }
 
     const langCode=lang==='sv'?'sv-SE':'en-GB';
@@ -1627,6 +1637,14 @@
     btnLangEn.setAttribute('aria-pressed',lang==='en'?'true':'false');
     btnLangSv.setAttribute('aria-label',t.langBtnSvAria);
     btnLangEn.setAttribute('aria-label',t.langBtnEnAria);
+    /* Mirror state on start-page language buttons */
+    const svStart=document.getElementById('btn-lang-sv-start');
+    const enStart=document.getElementById('btn-lang-en-start');
+    if(svStart) svStart.setAttribute('aria-pressed',lang==='sv'?'true':'false');
+    if(enStart) enStart.setAttribute('aria-pressed',lang==='en'?'true':'false');
+    /* Settings toggle label */
+    const lbl=document.getElementById('lbl-settings-toggle');
+    if(lbl) lbl.textContent=t.settingsHeading;
     document.getElementById('app-description').textContent=t.appDescription;
     btnStart.textContent=t.startBtn;btnStart.setAttribute('aria-label',t.startBtnAria);
     tipsToggle.querySelector('#tips-toggle-label').innerHTML=t.tipsLabel;
@@ -1744,7 +1762,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[3,4,1,2,1,1,2,1,3];
+      const sectionSizes=[3,5,1,2,2,2,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -1807,6 +1825,19 @@
     if(activeZone) renderDetail();
   }
   btnLangSv.addEventListener('click',()=>switchLang('sv'));
+  /* Start-page language buttons — mirror the settings ones */
+  document.getElementById('btn-lang-sv-start')?.addEventListener('click',()=>switchLang('sv'));
+  document.getElementById('btn-lang-en-start')?.addEventListener('click',()=>switchLang('en'));
+  /* Settings expandable panel */
+  const btnSettingsToggle=document.getElementById('btn-settings-toggle');
+  const settingsPanel=document.getElementById('settings-panel');
+  btnSettingsToggle?.addEventListener('click',()=>{
+    const open=settingsPanel.hidden;
+    settingsPanel.hidden=!open;
+    btnSettingsToggle.setAttribute('aria-expanded',String(open));
+    btnSettingsToggle.querySelector('.tips-chevron').textContent=open?'▲':'▼';
+    if(open) document.getElementById('settings-heading').focus();
+  });
   btnLangEn.addEventListener('click',()=>switchLang('en'));
 
   /* ════════════════════════════════════════
@@ -2319,6 +2350,9 @@
     searchResultsSection.hidden=true;
     searchResultsList.innerHTML='';
     searchAddressInput.value='';
+    /* Restore original nearby zones heading */
+    const nzh=document.getElementById('nearby-zones-heading');
+    if(nzh) nzh.textContent=t.nearbyZonesHeading??'Närliggande zoner';
     /* Always resume auto-refresh when leaving search mode */
     if(searchModeWasRunning&&!pauseActive){
       fetchNearbyZones(false);
@@ -2394,6 +2428,9 @@
       shownCount=INITIAL_MAX;renderZoneSlice();
       searchAddressStatus.textContent='';
       setStatus(`${displayName.split(',')[0]} — ${zones.length} zoner`,'success');
+      /* Update nearby zones heading to reflect search context */
+      const nzh=document.getElementById('nearby-zones-heading');
+      if(nzh) nzh.textContent=lang==='sv'?`Zoner vid ${displayName.split(',')[0]}`:`Zones near ${displayName.split(',')[0]}`;
       /* Focus the nearby zones heading */
       document.getElementById('nearby-zones-heading').focus();
     }catch(e){
@@ -2688,6 +2725,8 @@
         const clock=directionToZone(closest.latitude,closest.longitude);
         const nearZone=nearestZoneToPlayer(closest);
         announcementText=prefix+t.playerDistDir(closest.name,ds,clock||'');
+        /* Add Aktiv indicator if this player is in the user's friends and currently visible */
+        if(activeFriends.has(closest.name)) announcementText+=' '+(t.friendOnline??'Aktiv')+'.';
         if(nearZone) announcementText+=t.playerNearZone(nearZone.name);
         if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
       }
