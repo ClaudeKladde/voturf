@@ -241,7 +241,8 @@
           <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny för att visa Alla zoner, endast Tillgängliga eller endast Blockerade zoner i listan.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med fem alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta otagna och Sökzoner. Närmsta otagna kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7b">Sökzoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -308,13 +309,15 @@
       <div id="toolbar-row2">
         <button id="btn-hide-taken" aria-pressed="false">Dölj tagna</button>
         <div id="filter-wrap">
-          <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox">
+          <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox" aria-label="Filter: Alla zoner">
             <span id="btn-filter-label">Filter</span>
           </button>
-          <ul id="filter-menu" role="listbox" hidden>
-            <li><button role="option" data-filter="all"       aria-checked="true">Alla zoner</button></li>
-            <li><button role="option" data-filter="available" aria-checked="false">Tillgängliga</button></li>
-            <li><button role="option" data-filter="blocked"   aria-checked="false">Blockerade</button></li>
+          <ul id="filter-menu" role="listbox" aria-label="Välj filterläge" hidden>
+            <li><button role="option" data-filter="all"          aria-checked="true">Alla zoner</button></li>
+            <li><button role="option" data-filter="available"    aria-checked="false">Tillgängliga</button></li>
+            <li><button role="option" data-filter="blocked"      aria-checked="false">Blockerade</button></li>
+            <li><button role="option" data-filter="notunique"    aria-checked="false">Närmsta otagna</button></li>
+            <li><button role="option" data-filter="search"       aria-checked="false">Sökzoner</button></li>
           </ul>
         </div>
         <div id="voice-menu-wrap">
@@ -330,13 +333,46 @@
       </div>
     </div>
 
-    <div id="status-msg">Hämtar navigationsposition…</div>
+    <div id="status-msg" role="status" aria-live="polite" aria-atomic="true">Hämtar navigationsposition…</div>
+
+    <!-- Search zone area — shown only when Sökzoner filter is active -->
+    <section id="search-zone-section" hidden aria-labelledby="search-zone-heading">
+      <h2 id="search-zone-heading" tabindex="-1" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:.75rem 0 .5rem;">Sökzoner</h2>
+      <div role="search" aria-label="Sök på adress">
+        <div class="settings-control" style="gap:.4rem">
+          <input type="text" id="search-address-input"
+            autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+            placeholder="Adress, stad — t.ex. Drottninggatan 1, Stockholm"
+            aria-label="Ange adress att söka zoner kring"
+            style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.35rem .5rem;"/>
+          <button id="btn-address-search"
+            style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.3rem .75rem;cursor:pointer;background:transparent;color:var(--accent2);white-space:nowrap;"
+            aria-label="Sök zoner vid angiven adress">
+            Sök
+          </button>
+        </div>
+        <div id="search-address-status" role="status" aria-live="polite" aria-atomic="true"
+          style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin:.35rem 0;min-height:1.2em;"></div>
+      </div>
+      <!-- Address candidate results -->
+      <section id="search-results-section" hidden aria-labelledby="search-results-heading">
+        <h2 id="search-results-heading" style="font-family:var(--font-mono);font-size:.9rem;font-weight:700;color:var(--accent);margin:.5rem 0 .35rem;">Sökresultat</h2>
+        <ul id="search-results-list" role="list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+      </section>
+    </section>
 
     <!-- Real h2 heading so it appears in VoiceOver's heading rotor, matching nearby players section -->
     <h2 id="nearby-zones-heading" tabindex="-1">Närliggande zoner</h2>
-    <ul id="zone-list"></ul>
-    <div id="empty-state" hidden>Inga zoner hittades i närheten.</div>
+    <ul id="zone-list" role="list"></ul>
+    <div id="empty-state" hidden role="status">Inga zoner hittades i närheten.</div>
     <button id="btn-load-more" hidden>Ladda fler zoner</button>
+
+    <!-- Back to live mode — shown at bottom of zone list when search filter is active -->
+    <button id="btn-back-to-live" hidden
+      aria-label="Återgå till live-läge. Återupptar automatiska uppdateringar från din GPS-position."
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.6rem 1rem;cursor:pointer;background:transparent;color:var(--accent);margin-top:1rem;margin-bottom:.5rem;text-align:left;">
+      ↩ Återgå till live-läge
+    </button>
 
     <!-- Nearby players — real h2 heading so it appears in VoiceOver's heading rotor -->
     <h2 id="nearby-players-heading" tabindex="-1">Spelare i närheten</h2>
@@ -371,15 +407,6 @@
       <button class="stepper-btn" id="btn-volume-plus" aria-label="Öka röstvolym">+</button>
     </div>
 
-    <!-- Compass toggle -->
-    <div class="settings-control">
-      <span class="settings-label" id="lbl-compass">Kompass:</span>
-      <button id="btn-compass" aria-pressed="true"
-        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:var(--accent);color:#000;transition:background .15s,color .15s,border-color .15s;">
-        På
-      </button>
-    </div>
-
     <!-- Nearby players settings group -->
     <h3 id="nearby-players-settings-heading" style="font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--accent);margin:1rem 0 .5rem;">Inställningar för spelare</h3>
 
@@ -397,7 +424,7 @@
       <button class="stepper-btn" id="btn-player-radius-plus" aria-label="Öka avstånd">+</button>
     </div>
 
-    <!-- Location permission button -->
+    <!-- Location and compass — grouped together -->
     <div class="settings-control">
       <span class="settings-label" id="lbl-location-perm">Plats:</span>
       <button id="btn-request-location"
@@ -406,6 +433,15 @@
       </button>
     </div>
     <div id="location-perm-msg" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;display:none;"></div>
+
+    <!-- Compass toggle — grouped with location -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-compass">Kompass:</span>
+      <button id="btn-compass" aria-pressed="true"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:var(--accent);color:#000;transition:background .15s,color .15s,border-color .15s;">
+        På
+      </button>
+    </div>
 
     <!-- Independent tips panel at the bottom — separate from the start screen one -->
     <div style="margin-bottom:.5rem">
@@ -523,7 +559,8 @@
     <!-- Unique zones section — at the very end of profile page -->
     <div id="unique-zones-section">
       <h2 id="unique-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Unikazoner</h2>
-      <p id="unique-zones-count" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.75rem">Inga unikazoner inlästa ännu.</p>
+      <p id="unique-zones-count" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.5rem">Inga unikazoner inlästa ännu.</p>
+      <p id="unique-zones-reminder" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.75rem;line-height:1.6;">Kom ihåg att uppdatera din lista regelbundet, framför allt efter resor eller intensiva spelperioder, eftersom den inte uppdateras automatiskt.</p>
       <p style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6;">
         Ladda upp din zonlista som du exporterat från turf.lundkvist.com.
         <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic"
@@ -720,6 +757,19 @@
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
       ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
       filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
+      filterNotUnique:'Närmsta otagna',filterSearch:'Sökzoner',
+      filterBtnAria:(v)=>`Filter: ${v}`,
+      filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
+      searchPlaceholder:'Adress, stad — t.ex. Drottninggatan 1, Stockholm',
+      searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress',
+      searchHeading:'Sökzoner',searchResultsHeading:'Sökresultat',
+      searchLoading:'Söker…',
+      searchNoResults:'Inga adresser hittades. Försök med en mer specifik adress.',
+      searchError:'Söktjänsten svarar inte. Kontrollera internetanslutningen och försök igen.',
+      searchSelectPrompt:'Välj en adress:',
+      backToLive:'↩ Återgå till live-läge',
+      backToLiveAria:'Återgå till live-läge. Återupptar automatiska uppdateringar från din GPS-position.',
+      uniqueZonesReminder:'Kom ihåg att uppdatera din lista regelbundet, framför allt efter resor eller intensiva spelperioder, eftersom den inte uppdateras automatiskt.',
       filterBtnAria:(f)=>`Filter: ${f}`,
       monitorOn:'Röstläge på',monitorOff:'Röstläge av',
       monitorOnAria:'Röstläge på',
@@ -927,6 +977,19 @@
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
+      filterNotUnique:'Nearest untaken',filterSearch:'Zone search',
+      filterBtnAria:(v)=>`Filter: ${v}`,
+      filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
+      searchPlaceholder:'Address, city — e.g. King Street 1, London',
+      searchBtn:'Search',searchBtnAria:'Search zones near the given address',
+      searchHeading:'Zone search',searchResultsHeading:'Search results',
+      searchLoading:'Searching…',
+      searchNoResults:'No addresses found. Try a more specific address.',
+      searchError:'Search service not responding. Check your internet connection and try again.',
+      searchSelectPrompt:'Select an address:',
+      backToLive:'↩ Back to live mode',
+      backToLiveAria:'Back to live mode. Resumes automatic updates from your GPS position.',
+      uniqueZonesReminder:'Remember to update your list regularly, especially after trips or intensive play sessions, as it does not update automatically.',
       filterBtnAria:(f)=>`Filter: ${f}`,
       monitorOn:'Voice mode on',monitorOff:'Voice mode off',
       monitorOnAria:'Voice mode on',
@@ -1698,7 +1761,24 @@
       });
     }
     const opts=filterMenu.querySelectorAll('button[data-filter]');
-    opts[0].textContent=t.filterAll;opts[1].textContent=t.filterAvailable;opts[2].textContent=t.filterBlocked;
+    if(opts[0]) opts[0].textContent=t.filterAll;
+    if(opts[1]) opts[1].textContent=t.filterAvailable;
+    if(opts[2]) opts[2].textContent=t.filterBlocked;
+    if(opts[3]) opts[3].textContent=t.filterNotUnique;
+    if(opts[4]) opts[4].textContent=t.filterSearch;
+    /* Search section labels */
+    const szh=document.getElementById('search-zone-heading');
+    if(szh) szh.textContent=t.searchHeading;
+    const srh=document.getElementById('search-results-heading');
+    if(srh) srh.textContent=t.searchResultsHeading;
+    const sai=document.getElementById('search-address-input');
+    if(sai) sai.setAttribute('placeholder',t.searchPlaceholder);
+    const bas=document.getElementById('btn-address-search');
+    if(bas){bas.textContent=t.searchBtn;bas.setAttribute('aria-label',t.searchBtnAria);}
+    const btl=document.getElementById('btn-back-to-live');
+    if(btl){btl.textContent=t.backToLive;btl.setAttribute('aria-label',t.backToLiveAria);}
+    const uzr=document.getElementById('unique-zones-reminder');
+    if(uzr) uzr.textContent=t.uniqueZonesReminder;
     /* Update voice menu options text */
     const voiceOpts=document.querySelectorAll('#voice-menu button[data-mode]');
     if(voiceOpts.length===3){
@@ -2142,7 +2222,13 @@
   /* ════════════════════════════════════════
      FILTER
   ════════════════════════════════════════ */
-  function filterLabel(){return activeFilter==='available'?t.filterAvailable:activeFilter==='blocked'?t.filterBlocked:t.filterAll}
+  function filterLabel(){
+    if(activeFilter==='available') return t.filterAvailable;
+    if(activeFilter==='blocked')   return t.filterBlocked;
+    if(activeFilter==='notunique') return t.filterNotUnique;
+    if(activeFilter==='search')    return t.filterSearch;
+    return t.filterAll;
+  }
   function updateFilterLabel(){
     btnFilterLabel.textContent=filterLabel();
     btnFilter.setAttribute('aria-label',t.filterBtnAria(filterLabel()));
@@ -2155,9 +2241,24 @@
   document.addEventListener('click',e=>{if(!e.target.closest('#filter-wrap')){filterMenu.hidden=true;btnFilter.setAttribute('aria-expanded','false');}});
   filterMenu.querySelectorAll('button[data-filter]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      activeFilter=btn.dataset.filter;filterMenu.hidden=true;
-      btnFilter.setAttribute('aria-expanded','false');btnFilter.focus();
-      updateFilterLabel();shownCount=INITIAL_MAX;renderZoneSlice();
+      const newFilter=btn.dataset.filter;
+      const wasSearch=activeFilter==='search';
+      activeFilter=newFilter;
+      filterMenu.hidden=true;
+      btnFilter.setAttribute('aria-expanded','false');
+      btnFilter.focus();
+      updateFilterLabel();
+      /* Handle search mode transitions */
+      if(newFilter==='search'){
+        activateSearchMode();
+      } else {
+        deactivateSearchMode(wasSearch);
+      }
+      /* Handle notunique with no list */
+      if(newFilter==='notunique'&&uniqueZoneNames.size===0){
+        setStatus(t.filterNotUniqueNoList,'');
+      }
+      shownCount=INITIAL_MAX;renderZoneSlice();
     });
   });
   function getFilteredZones(){
@@ -2169,8 +2270,139 @@
     /* Active filter */
     if(activeFilter==='available') return zones.filter(z=>getBlockStatus(z).blocked===false);
     if(activeFilter==='blocked')   return zones.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
+    if(activeFilter==='notunique') return zones.filter(z=>isUniqueZone(z.name));
+    /* search mode — zones already loaded for the searched address, no extra filter */
     return zones;
   }
+
+  /* ════════════════════════════════════════
+     ZONE SEARCH MODE — Nominatim geocoding
+  ════════════════════════════════════════ */
+  const searchZoneSection  =document.getElementById('search-zone-section');
+  const searchAddressInput =document.getElementById('search-address-input');
+  const btnAddressSearch   =document.getElementById('btn-address-search');
+  const searchAddressStatus=document.getElementById('search-address-status');
+  const searchResultsSection=document.getElementById('search-results-section');
+  const searchResultsList  =document.getElementById('search-results-list');
+  const btnBackToLive      =document.getElementById('btn-back-to-live');
+
+  /* Track whether auto-refresh was running before search activated */
+  let searchModeWasRunning=false;
+
+  function activateSearchMode(){
+    searchZoneSection.hidden=false;
+    btnBackToLive.hidden=false;
+    /* Always pause auto-refresh while in search mode */
+    searchModeWasRunning=!pauseActive;
+    if(!pauseActive){
+      clearInterval(refreshTimer);refreshTimer=null;
+      clearInterval(countdownTimer);countdownTimer=null;
+      clearInterval(playerMonitorTimer);playerMonitorTimer=null;
+    }
+    /* Update search heading text */
+    document.getElementById('search-zone-heading').textContent=t.searchHeading;
+    document.getElementById('search-results-heading').textContent=t.searchResultsHeading;
+    searchAddressInput.setAttribute('placeholder',t.searchPlaceholder);
+    btnAddressSearch.textContent=t.searchBtn;
+    btnAddressSearch.setAttribute('aria-label',t.searchBtnAria);
+    btnBackToLive.textContent=t.backToLive;
+    btnBackToLive.setAttribute('aria-label',t.backToLiveAria);
+    /* Focus search field */
+    searchAddressInput.focus();
+  }
+
+  function deactivateSearchMode(wasSearch){
+    if(!wasSearch) return;
+    searchZoneSection.hidden=true;
+    btnBackToLive.hidden=true;
+    searchAddressStatus.textContent='';
+    searchResultsSection.hidden=true;
+    searchResultsList.innerHTML='';
+    searchAddressInput.value='';
+    /* Always resume auto-refresh when leaving search mode */
+    if(searchModeWasRunning&&!pauseActive){
+      fetchNearbyZones(false);
+      startPlayerMonitor();
+      startCountdown();
+    } else if(!pauseActive){
+      fetchNearbyZones(false);
+      startPlayerMonitor();
+      startCountdown();
+    }
+  }
+
+  btnBackToLive.addEventListener('click',()=>{
+    const wasSearch=activeFilter==='search';
+    activeFilter='all';
+    updateFilterLabel();
+    deactivateSearchMode(wasSearch);
+    /* Restore GPS-based zone coordinates */
+    if(userLat!==null) fetchNearbyZones(false);
+    shownCount=INITIAL_MAX;renderZoneSlice();
+  });
+
+  async function doAddressSearch(){
+    const query=searchAddressInput.value.trim();
+    if(!query) return;
+    searchAddressStatus.textContent=t.searchLoading;
+    searchResultsSection.hidden=true;
+    searchResultsList.innerHTML='';
+    try{
+      const url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`;
+      const r=await fetch(url,{headers:{'Accept-Language':lang==='sv'?'sv':'en','User-Agent':'VOTurfList/1.0'}});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const results=await r.json();
+      if(!results.length){
+        searchAddressStatus.textContent=t.searchNoResults;
+        return;
+      }
+      searchAddressStatus.textContent=t.searchSelectPrompt;
+      searchResultsSection.hidden=false;
+      results.forEach(result=>{
+        const displayName=result.display_name;
+        const lat=parseFloat(result.lat);
+        const lon=parseFloat(result.lon);
+        const li=document.createElement('li');
+        li.innerHTML=`<button class="zone-btn" style="width:100%;text-align:left;padding:.5rem .75rem;font-family:var(--font-mono);font-size:.82rem;"
+          aria-label="${escAttr(displayName)}">
+          <span aria-hidden="true">${escHtml(displayName)}</span>
+        </button>`;
+        const btn=li.querySelector('button');
+        btn.addEventListener('click',()=>loadZonesForLocation(lat,lon,displayName));
+        searchResultsList.appendChild(li);
+      });
+      /* Focus first result for VoiceOver */
+      searchResultsList.querySelector('button')?.focus();
+    }catch(e){
+      searchAddressStatus.textContent=t.searchError;
+    }
+  }
+
+  async function loadZonesForLocation(lat,lon,displayName){
+    searchAddressStatus.textContent=t.statusLoading;
+    searchResultsSection.hidden=true;
+    try{
+      const half=BBOX_DEG/2;
+      const body=JSON.stringify([{northEast:{latitude:lat+half,longitude:lon+half},southWest:{latitude:lat-half,longitude:lon-half}}]);
+      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const zones=await r.json();
+      /* Calculate distances relative to the searched address, not GPS */
+      zones.forEach(z=>{z._dist=haversineKm(lat,lon,z.latitude,z.longitude)});
+      zones.sort((a,b)=>a._dist-b._dist);
+      allZonesSorted=zones;
+      shownCount=INITIAL_MAX;renderZoneSlice();
+      searchAddressStatus.textContent='';
+      setStatus(`${displayName.split(',')[0]} — ${zones.length} zoner`,'success');
+      /* Focus the nearby zones heading */
+      document.getElementById('nearby-zones-heading').focus();
+    }catch(e){
+      searchAddressStatus.textContent=t.searchError;
+    }
+  }
+
+  btnAddressSearch.addEventListener('click',doAddressSearch);
+  searchAddressInput.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();doAddressSearch();}});
 
   /* ════════════════════════════════════════
      VOICE MODE MENU (replaces separate Monitor + VO alerts toggles)
