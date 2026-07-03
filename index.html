@@ -429,7 +429,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-06-24 14:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-03 20:00</span>
     </div>
   </div>
 
@@ -495,6 +495,27 @@
       <li id="pi-region">—</li>
       <li id="pi-place">—</li>
     </ul>
+
+    <!-- Unique zones section -->
+    <div id="unique-zones-section">
+      <h2 id="unique-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Unikazoner</h2>
+      <p id="unique-zones-count" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.75rem">Inga unikazoner inlästa ännu.</p>
+      <button id="btn-fetch-unique" aria-describedby="unique-zones-status"
+        style="display:block;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
+        Hämta unikazoner
+      </button>
+      <div id="unique-zones-status" aria-live="polite" aria-atomic="true"
+        style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
+      <!-- KML fallback — shown if CORS blocks direct fetch -->
+      <div id="unique-zones-kml-fallback" hidden>
+        <p id="unique-zones-kml-instructions" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;line-height:1.5;">
+          Direkthämtning blockerades. Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.
+        </p>
+        <input type="file" id="unique-zones-file" accept=".kml,.xml"
+          aria-label="Ladda upp KML-fil med unikazoner"
+          style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted);margin-bottom:.5rem;width:100%;"/>
+      </div>
+    </div>
     <div id="my-zones-section">
       <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
@@ -526,7 +547,7 @@
   <div id="player-detail-view" class="view">
     <button id="btn-back-player-detail" class="btn-back" aria-label="Tillbaka till listan">&#8592; <span id="lbl-back-player-detail">Tillbaka till listan</span></button>
     <h1 id="player-detail-heading" tabindex="-1">—</h1>
-    <button id="btn-show-nearby-friend" hidden aria-pressed="false"
+    <button id="btn-show-nearby-friend" aria-pressed="true"
       style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.75rem;text-align:left;transition:background .15s,color .15s,border-color .15s;">
       Visa i spelare i närheten
     </button>
@@ -659,6 +680,18 @@
       showNearbyLabel:'Visa i spelare i närheten',
       showNearbyOnAria:(n)=>`${n} visas i spelare i närheten. Tryck för att dölja.`,
       showNearbyOffAria:(n)=>`${n} döljs från spelare i närheten. Tryck för att visa.`,
+      uniqueZonesHeading:'Unikazoner',
+      uniqueZonesNone:'Inga unikazoner inlästa ännu.',
+      uniqueZonesCount:(n)=>`${n} unikazoner inlästa.`,
+      fetchUniqueBtn:'Hämta unikazoner',
+      fetchUniqueLoading:'Hämtar unikazoner…',
+      fetchUniqueSuccess:(n)=>`Klart! ${n} unikazoner inlästa.`,
+      fetchUniqueCorsError:'Direkthämtning blockerades. Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.',
+      fetchUniqueError:'Kunde inte hämta unikazoner.',
+      fetchUniqueKmlInstructions:'Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.',
+      fetchUniqueKmlLabel:'Ladda upp KML-fil med unikazoner',
+      uniqueBadge:'Unik',
+      uniqueZoneSuffix:' Unik.',
       refreshLabel:'Uppdatera',
       refreshAria:(s)=>`Uppdatera. Automatisk uppdatering om ${s} sekunder.`,
       statusAcquiring:'Hämtar navigationsposition…',
@@ -673,7 +706,7 @@
       geoErr3:'Navigering tog för lång tid. Försöker igen…',
       geoErrUnknown:'Navigeringsfel.',geoNotSupported:'Navigering stöds inte av denna webbläsare.',
       unowned:'Ej ägd',ownedBy:(n)=>`Ägs av ${n}.`,
-      available:'Tillgänglig',neverTaken:'Aldrig tagen — tillgänglig',
+      available:'Tillgänglig',neverTaken:'Neutral zon',
       blocked:(d)=>`Blockerad — ${d} kvar`,
       blockedBy:(name,d)=>`Blockerad av ${name} — ${d} kvar.`,
       checkingBlock:'Kontrollerar blocktid…',
@@ -853,6 +886,18 @@
       showNearbyLabel:'Show in nearby players',
       showNearbyOnAria:(n)=>`${n} is shown in nearby players. Tap to hide.`,
       showNearbyOffAria:(n)=>`${n} is hidden from nearby players. Tap to show.`,
+      uniqueZonesHeading:'Unique zones',
+      uniqueZonesNone:'No unique zones loaded yet.',
+      uniqueZonesCount:(n)=>`${n} unique zones loaded.`,
+      fetchUniqueBtn:'Fetch unique zones',
+      fetchUniqueLoading:'Fetching unique zones…',
+      fetchUniqueSuccess:(n)=>`Done! ${n} unique zones loaded.`,
+      fetchUniqueCorsError:'Direct fetch blocked. Download the KML file manually from turf.lundkvist.com and upload it below.',
+      fetchUniqueError:'Could not fetch unique zones.',
+      fetchUniqueKmlInstructions:'Download the KML file manually from turf.lundkvist.com and upload it below.',
+      fetchUniqueKmlLabel:'Upload KML file with unique zones',
+      uniqueBadge:'Unique',
+      uniqueZoneSuffix:' Unique.',
       refreshLabel:'Update',
       refreshAria:(s)=>`Update. Auto-update in ${s} seconds.`,
       statusAcquiring:'Acquiring navigation position…',
@@ -867,7 +912,7 @@
       geoErr3:'Navigation timed out. Retrying…',
       geoErrUnknown:'Navigation error.',geoNotSupported:'Navigation not supported by this browser.',
       unowned:'Unowned',ownedBy:(n)=>`Owned by ${n}.`,
-      available:'Available',neverTaken:'Never taken — available',
+      available:'Available',neverTaken:'Neutral zone',
       blocked:(d)=>`Blocked — ${d} remaining`,
       blockedBy:(name,d)=>`Blocked by ${name} — ${d} remaining.`,
       checkingBlock:'Checking block time…',
@@ -1011,7 +1056,9 @@
   let friendsList=[];  // array of friend usernames, excluded from nearby players
   let activeFriends=new Set(); // friends currently visible in the location feed
   let friendsStatsCache={}; // name -> {zonesCount, pph}
-  let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players despite being friends
+  let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players
+  let playersHiddenFromNearby=new Set(); // non-friends explicitly hidden from nearby players
+  let uniqueZoneNames=new Set(); // zone names the user has previously taken (loaded from turf.lundkvist.com or KML)
 
   /* ═══ Player detail navigation context ═══ */
   let playerDetailReturnView='list';   /* 'list' if opened from nearby players, 'profile' if opened from friends */
@@ -1135,6 +1182,14 @@
         const savedShowNearby=JSON.parse(localStorage.getItem('turf-friends-show-nearby')||'[]');
         if(Array.isArray(savedShowNearby)) friendsShowNearby=new Set(savedShowNearby);
       }catch(e){friendsShowNearby=new Set();}
+      try{
+        const savedHidden=JSON.parse(localStorage.getItem('turf-players-hidden-nearby')||'[]');
+        if(Array.isArray(savedHidden)) playersHiddenFromNearby=new Set(savedHidden);
+      }catch(e){playersHiddenFromNearby=new Set();}
+      try{
+        const savedUnique=JSON.parse(localStorage.getItem('turf-unique-zones')||'[]');
+        if(Array.isArray(savedUnique)) uniqueZoneNames=new Set(savedUnique);
+      }catch(e){uniqueZoneNames=new Set();}
     }catch(e){}
   }
   loadPrefs();
@@ -1460,13 +1515,18 @@
     btn.setAttribute('aria-label',isFriend?t.removeFriendAria(name):t.addFriendAria(name));
     btn.style.color=isFriend?'var(--danger)':'var(--accent2)';
     btn.style.borderColor=isFriend?'var(--danger)':'var(--accent2)';
-    /* Show-in-nearby-players toggle — only relevant for friends */
-    showNearbyBtn.hidden=!isFriend;
-    if(isFriend) updateShowNearbyBtn(name);
+    /* Show-in-nearby-players toggle — always visible for non-self players */
+    showNearbyBtn.hidden=false;
+    updateShowNearbyBtn(name);
   }
   function updateShowNearbyBtn(name){
     const btn=document.getElementById('btn-show-nearby-friend');
-    const isShown=friendsShowNearby.has(name);
+    const isFriend=friendsList.includes(name);
+    /* Friends: hidden by default, ON means show in nearby.
+       Non-friends: visible by default, OFF means hide from nearby. */
+    const isShown=isFriend
+      ? friendsShowNearby.has(name)
+      : !playersHiddenFromNearby.has(name);
     btn.textContent=t.showNearbyLabel;
     btn.setAttribute('aria-pressed',isShown?'true':'false');
     btn.setAttribute('aria-label',isShown?t.showNearbyOnAria(name):t.showNearbyOffAria(name));
@@ -1523,6 +1583,12 @@
     if(nphHeading) nphHeading.textContent=t.nearbyPlayersHeading;
     const nphSettingsHeading=document.getElementById('nearby-players-settings-heading');
     if(nphSettingsHeading) nphSettingsHeading.textContent=t.playerSettingsHeading;
+    /* Unique zones labels */
+    const uzhEl=document.getElementById('unique-zones-heading');
+    if(uzhEl) uzhEl.textContent=t.uniqueZonesHeading;
+    const bfuEl=document.getElementById('btn-fetch-unique');
+    if(bfuEl) bfuEl.textContent=t.fetchUniqueBtn;
+    if(typeof updateUniqueZonesUI==='function') updateUniqueZonesUI();
     const lblPlayerFreq=document.getElementById('lbl-player-freq');
     if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
     const lblPlayerRadius=document.getElementById('lbl-player-radius');
@@ -1791,6 +1857,7 @@
     document.getElementById('friends-heading').textContent=t.friendsHeading;
     renderFriendsList();
     fetchFriendsStats();
+    updateUniqueZonesUI();
   }
 
   async function fetchAndRenderMyZones(zoneIds){
@@ -1866,6 +1933,88 @@
     friendsListEl.appendChild(frag);
   }
 
+  /* ════════════════════════════════════════
+     UNIQUE ZONES — fetch from turf.lundkvist.com or KML upload
+  ════════════════════════════════════════ */
+  function isUniqueZone(zoneName){
+    /* Returns true if the zone is NOT in the user's unique list — meaning it's a new unique opportunity */
+    return uniqueZoneNames.size>0&&!uniqueZoneNames.has(zoneName);
+  }
+
+  function updateUniqueZonesUI(){
+    const countEl=document.getElementById('unique-zones-count');
+    if(countEl) countEl.textContent=uniqueZoneNames.size>0?t.uniqueZonesCount(uniqueZoneNames.size):t.uniqueZonesNone;
+  }
+
+  function parseAndStoreUniqueZones(zoneNames){
+    uniqueZoneNames=new Set(zoneNames.map(n=>n.trim()).filter(Boolean));
+    try{localStorage.setItem('turf-unique-zones',JSON.stringify([...uniqueZoneNames]))}catch(e){}
+    updateUniqueZonesUI();
+  }
+
+  function parseKml(text){
+    /* Parse KML/XML using DOMParser — works with Placemark name elements */
+    try{
+      const parser=new DOMParser();
+      const doc=parser.parseFromString(text,'application/xml');
+      const names=[...doc.querySelectorAll('Placemark name')].map(el=>el.textContent.trim()).filter(Boolean);
+      return names;
+    }catch(e){return[];}
+  }
+
+  async function fetchUniqueZones(){
+    if(!savedUsername) return;
+    const statusEl=document.getElementById('unique-zones-status');
+    const kmlFallback=document.getElementById('unique-zones-kml-fallback');
+    const btnFetch=document.getElementById('btn-fetch-unique');
+    statusEl.textContent=t.fetchUniqueLoading;
+    if(kmlFallback) kmlFallback.hidden=true;
+    btnFetch.disabled=true;
+    try{
+      /* Try direct fetch with CORS — public page, may or may not allow it */
+      const url=`https://turf.lundkvist.com/?user=${encodeURIComponent(savedUsername)}&country=%23ALLA%23`;
+      const r=await fetch(url,{mode:'cors'});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const html=await r.text();
+      /* Parse zone names from the HTML table — each row contains the zone name as text */
+      const doc=new DOMParser().parseFromString(html,'text/html');
+      const names=[...doc.querySelectorAll('td:first-child')].map(td=>td.textContent.trim()).filter(Boolean);
+      if(!names.length) throw new Error('parse');
+      parseAndStoreUniqueZones(names);
+      statusEl.textContent=t.fetchUniqueSuccess(uniqueZoneNames.size);
+      setTimeout(()=>{statusEl.textContent='';},5000);
+      /* Re-render zone list to apply unique badges */
+      if(allZonesSorted.length) renderZoneSlice();
+    }catch(e){
+      /* CORS or parse failure — show KML fallback */
+      statusEl.textContent=t.fetchUniqueCorsError;
+      if(kmlFallback) kmlFallback.hidden=false;
+    }finally{
+      btnFetch.disabled=false;
+    }
+  }
+
+  /* Hook up the fetch button and KML file upload */
+  document.getElementById('btn-fetch-unique')?.addEventListener('click',fetchUniqueZones);
+  document.getElementById('unique-zones-file')?.addEventListener('change',async e=>{
+    const file=e.target.files?.[0];
+    if(!file) return;
+    const statusEl=document.getElementById('unique-zones-status');
+    statusEl.textContent=t.fetchUniqueLoading;
+    try{
+      const text=await file.text();
+      const names=parseKml(text);
+      if(!names.length) throw new Error('empty');
+      parseAndStoreUniqueZones(names);
+      statusEl.textContent=t.fetchUniqueSuccess(uniqueZoneNames.size);
+      if(kmlFallback) kmlFallback.hidden=true;
+      setTimeout(()=>{statusEl.textContent='';},5000);
+      if(allZonesSorted.length) renderZoneSlice();
+    }catch(e){
+      statusEl.textContent=t.fetchUniqueError;
+    }
+  });
+
   async function fetchFriendsStats(){
     if(!friendsList.length) return;
     try{
@@ -1915,6 +2064,11 @@
         return;
       }
       friendsList.push(confirmedName);
+      /* If they were previously hidden as a non-friend, remove that — friendship handles visibility now */
+      if(playersHiddenFromNearby.has(confirmedName)){
+        playersHiddenFromNearby.delete(confirmedName);
+        try{localStorage.setItem('turf-players-hidden-nearby',JSON.stringify([...playersHiddenFromNearby]))}catch(e){}
+      }
       try{localStorage.setItem('turf-friends',JSON.stringify(friendsList))}catch(e){}
       setFriendStatus(t.friendAddSuccess(confirmedName));
       friendInput.value='';
@@ -2284,7 +2438,11 @@
       /* Filter to radius, exclude self and friends. Distance stored in km, consistent with distStr(). */
       const nearby=allPlayers
         .filter(p=>!(savedUsername&&p.name===savedUsername))
-        .filter(p=>!friendsList.includes(p.name)||friendsShowNearby.has(p.name))
+        .filter(p=>{
+          const isFriend=friendsList.includes(p.name);
+          if(isFriend) return friendsShowNearby.has(p.name);
+          return !playersHiddenFromNearby.has(p.name);
+        })
         .map(p=>{
           p._dist=haversineKm(userLat,userLon,p.latitude,p.longitude); /* km */
           return p;
@@ -2663,12 +2821,20 @@
     const blockDisplay=isMyZone?t.myZone:block.label;
     const blockCss=isMyZone?'free':block.css;
 
+    /* Unique zone detection — zone not in user's already-taken unique list */
+    const isUnique=!isMyZone&&uniqueZoneNames.size>0&&isUniqueZone(zone.name);
+    const uniqueBadge=isUnique
+      ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${escHtml(t.uniqueBadge??'Unik')}</span>`
+      :'';
+    /* Append unique suffix to spoken label */
+    const spokenLabel=isUnique?buildLabel(block)+(t.uniqueZoneSuffix??' Unik.'):buildLabel(block);
+
     const li=document.createElement('li');
     li.className='zone-card';
     li.innerHTML=`
-      <button class="zone-btn" aria-label="${escAttr(buildLabel(block))}">
+      <button class="zone-btn" aria-label="${escAttr(spokenLabel)}">
         <div aria-hidden="true">
-          <div class="zv-name" style="${nameColor}"><span class="zv-rank">#${rank}</span>${escHtml(zone.name)}<span class="zv-arrow">&#8594;</span></div>
+          <div class="zv-name" style="${nameColor}"><span class="zv-rank">#${rank}</span>${escHtml(zone.name)}${uniqueBadge}<span class="zv-arrow">&#8594;</span></div>
           <div class="zv-strip">
             <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
             <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock.split(',')[0]}</span></div>
@@ -3094,9 +3260,18 @@
   document.getElementById('btn-show-nearby-friend').addEventListener('click',()=>{
     if(!playerDetailCurrentName) return;
     const name=playerDetailCurrentName;
-    if(friendsShowNearby.has(name)) friendsShowNearby.delete(name);
-    else friendsShowNearby.add(name);
-    try{localStorage.setItem('turf-friends-show-nearby',JSON.stringify([...friendsShowNearby]))}catch(e){}
+    const isFriend=friendsList.includes(name);
+    if(isFriend){
+      /* Friends: toggle opt-in to appearing in nearby */
+      if(friendsShowNearby.has(name)) friendsShowNearby.delete(name);
+      else friendsShowNearby.add(name);
+      try{localStorage.setItem('turf-friends-show-nearby',JSON.stringify([...friendsShowNearby]))}catch(e){}
+    } else {
+      /* Non-friends: toggle opt-out from appearing in nearby */
+      if(playersHiddenFromNearby.has(name)) playersHiddenFromNearby.delete(name);
+      else playersHiddenFromNearby.add(name);
+      try{localStorage.setItem('turf-players-hidden-nearby',JSON.stringify([...playersHiddenFromNearby]))}catch(e){}
+    }
     updateShowNearbyBtn(name);
   });
 
