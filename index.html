@@ -255,6 +255,7 @@
         <h3 id="tips-h-friends">Vänner</h3>
         <ul>
           <li id="tip-11">Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem som standard. Om en vän är aktiv i spelet visas Aktiv-märket bredvid deras namn. Tryck på en väns namn för att se deras profil. Där kan du slå på Visa i spelare i närheten om du vill se just den vännen i listan trots att ni är vänner, eller ta bort dem som vän längst ner på sidan.</li>
+          <li id="tip-11b">Du kan också dölja enskilda spelare som inte är vänner från listan över spelare i närheten via knappen Visa i spelare i närheten på deras profilsida.</li>
         </ul>
         <h3 id="tips-h-profile">Profil och användarnamn</h3>
         <ul>
@@ -429,7 +430,7 @@
     <div id="lang-bar">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-03 20:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-03 23:00</span>
     </div>
   </div>
 
@@ -496,26 +497,6 @@
       <li id="pi-place">—</li>
     </ul>
 
-    <!-- Unique zones section -->
-    <div id="unique-zones-section">
-      <h2 id="unique-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Unikazoner</h2>
-      <p id="unique-zones-count" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.75rem">Inga unikazoner inlästa ännu.</p>
-      <button id="btn-fetch-unique" aria-describedby="unique-zones-status"
-        style="display:block;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
-        Hämta unikazoner
-      </button>
-      <div id="unique-zones-status" aria-live="polite" aria-atomic="true"
-        style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
-      <!-- KML fallback — shown if CORS blocks direct fetch -->
-      <div id="unique-zones-kml-fallback" hidden>
-        <p id="unique-zones-kml-instructions" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;line-height:1.5;">
-          Direkthämtning blockerades. Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.
-        </p>
-        <input type="file" id="unique-zones-file" accept=".kml,.xml"
-          aria-label="Ladda upp KML-fil med unikazoner"
-          style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted);margin-bottom:.5rem;width:100%;"/>
-      </div>
-    </div>
     <div id="my-zones-section">
       <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
@@ -538,6 +519,30 @@
         <button class="stepper-btn" id="btn-add-friend" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
       </div>
     </div>
+
+    <!-- Unique zones section — at the very end of profile page -->
+    <div id="unique-zones-section">
+      <h2 id="unique-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Unikazoner</h2>
+      <p id="unique-zones-count" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.75rem">Inga unikazoner inlästa ännu.</p>
+      <p style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;line-height:1.6;">
+        Ladda upp din zonlista som du exporterat från turf.lundkvist.com.
+        <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic"
+          target="_blank" rel="noopener"
+          style="color:var(--accent2);">Se extern guide för hur du begär din lista.</a>
+      </p>
+      <div id="unique-zones-file-wrap" style="margin-bottom:.5rem">
+        <label for="unique-zones-file" id="lbl-unique-zones-file"
+          style="display:block;font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.35rem;">
+          Ladda upp fil (.txt, .kml):
+        </label>
+        <input type="file" id="unique-zones-file" accept=".txt,.kml,.xml"
+          aria-labelledby="lbl-unique-zones-file"
+          style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted);width:100%;"/>
+      </div>
+      <div id="unique-zones-status" role="status" aria-live="assertive" aria-atomic="true"
+        style="font-family:var(--font-mono);font-size:.8rem;color:var(--accent);margin-bottom:.5rem;min-height:1.4em;font-weight:700;"></div>
+    </div>
+
     </div><!-- end profile-stats-section -->
 
     <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
@@ -547,6 +552,12 @@
   <div id="player-detail-view" class="view">
     <button id="btn-back-player-detail" class="btn-back" aria-label="Tillbaka till listan">&#8592; <span id="lbl-back-player-detail">Tillbaka till listan</span></button>
     <h1 id="player-detail-heading" tabindex="-1">—</h1>
+    <!-- Add/Remove friend toggle — directly after name, first action available -->
+    <button id="btn-toggle-friend"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:.75rem;margin-bottom:.35rem;text-align:left;">
+      Lägg till som vän
+    </button>
+    <div id="player-detail-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
     <button id="btn-show-nearby-friend" aria-pressed="true"
       style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.75rem;text-align:left;transition:background .15s,color .15s,border-color .15s;">
       Visa i spelare i närheten
@@ -568,12 +579,6 @@
       <h2 id="player-owned-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">—</h2>
       <ul id="player-owned-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
-    <!-- Add/Remove friend toggle — label reflects current friend status -->
-    <button id="btn-toggle-friend"
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:1rem;margin-bottom:.35rem;text-align:left;">
-      Lägg till som vän
-    </button>
-    <div id="player-detail-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
     <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
 
@@ -681,6 +686,7 @@
       showNearbyOnAria:(n)=>`${n} visas i spelare i närheten. Tryck för att dölja.`,
       showNearbyOffAria:(n)=>`${n} döljs från spelare i närheten. Tryck för att visa.`,
       uniqueZonesHeading:'Unikazoner',
+      uniqueZonesFileLabel:'Ladda upp fil (.txt, .kml):',
       uniqueZonesNone:'Inga unikazoner inlästa ännu.',
       uniqueZonesCount:(n)=>`${n} unikazoner inlästa.`,
       fetchUniqueBtn:'Hämta unikazoner',
@@ -887,6 +893,7 @@
       showNearbyOnAria:(n)=>`${n} is shown in nearby players. Tap to hide.`,
       showNearbyOffAria:(n)=>`${n} is hidden from nearby players. Tap to show.`,
       uniqueZonesHeading:'Unique zones',
+      uniqueZonesFileLabel:'Upload file (.txt, .kml):',
       uniqueZonesNone:'No unique zones loaded yet.',
       uniqueZonesCount:(n)=>`${n} unique zones loaded.`,
       fetchUniqueBtn:'Fetch unique zones',
@@ -1586,8 +1593,8 @@
     /* Unique zones labels */
     const uzhEl=document.getElementById('unique-zones-heading');
     if(uzhEl) uzhEl.textContent=t.uniqueZonesHeading;
-    const bfuEl=document.getElementById('btn-fetch-unique');
-    if(bfuEl) bfuEl.textContent=t.fetchUniqueBtn;
+    const lblFileEl=document.getElementById('lbl-unique-zones-file');
+    if(lblFileEl) lblFileEl.textContent=t.uniqueZonesFileLabel??'Ladda upp fil (.txt, .kml):';
     if(typeof updateUniqueZonesUI==='function') updateUniqueZonesUI();
     const lblPlayerFreq=document.getElementById('lbl-player-freq');
     if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
@@ -1962,40 +1969,18 @@
     }catch(e){return[];}
   }
 
-  async function fetchUniqueZones(){
-    if(!savedUsername) return;
-    const statusEl=document.getElementById('unique-zones-status');
-    const kmlFallback=document.getElementById('unique-zones-kml-fallback');
-    const btnFetch=document.getElementById('btn-fetch-unique');
-    statusEl.textContent=t.fetchUniqueLoading;
-    if(kmlFallback) kmlFallback.hidden=true;
-    btnFetch.disabled=true;
-    try{
-      /* Try direct fetch with CORS — public page, may or may not allow it */
-      const url=`https://turf.lundkvist.com/?user=${encodeURIComponent(savedUsername)}&country=%23ALLA%23`;
-      const r=await fetch(url,{mode:'cors'});
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const html=await r.text();
-      /* Parse zone names from the HTML table — each row contains the zone name as text */
-      const doc=new DOMParser().parseFromString(html,'text/html');
-      const names=[...doc.querySelectorAll('td:first-child')].map(td=>td.textContent.trim()).filter(Boolean);
-      if(!names.length) throw new Error('parse');
-      parseAndStoreUniqueZones(names);
-      statusEl.textContent=t.fetchUniqueSuccess(uniqueZoneNames.size);
-      setTimeout(()=>{statusEl.textContent='';},5000);
-      /* Re-render zone list to apply unique badges */
-      if(allZonesSorted.length) renderZoneSlice();
-    }catch(e){
-      /* CORS or parse failure — show KML fallback */
-      statusEl.textContent=t.fetchUniqueCorsError;
-      if(kmlFallback) kmlFallback.hidden=false;
-    }finally{
-      btnFetch.disabled=false;
+  function parseUniqueZonesFile(text, filename){
+    const isKml=filename&&(filename.endsWith('.kml')||filename.endsWith('.xml'));
+    if(isKml){
+      return parseKml(text);
     }
+    /* Tab-separated text file — zone name is first column, rest ignored */
+    return text.split('\n')
+      .map(line=>line.split('\t')[0].trim())
+      .filter(Boolean);
   }
 
-  /* Hook up the fetch button and KML file upload */
-  document.getElementById('btn-fetch-unique')?.addEventListener('click',fetchUniqueZones);
+  /* Hook up only the file input — no direct fetch button needed */
   document.getElementById('unique-zones-file')?.addEventListener('change',async e=>{
     const file=e.target.files?.[0];
     if(!file) return;
@@ -2003,12 +1988,12 @@
     statusEl.textContent=t.fetchUniqueLoading;
     try{
       const text=await file.text();
-      const names=parseKml(text);
+      const names=parseUniqueZonesFile(text,file.name);
       if(!names.length) throw new Error('empty');
       parseAndStoreUniqueZones(names);
       statusEl.textContent=t.fetchUniqueSuccess(uniqueZoneNames.size);
-      if(kmlFallback) kmlFallback.hidden=true;
-      setTimeout(()=>{statusEl.textContent='';},5000);
+      setTimeout(()=>{statusEl.textContent='';},6000);
+      updateUniqueZonesUI();
       if(allZonesSorted.length) renderZoneSlice();
     }catch(e){
       statusEl.textContent=t.fetchUniqueError;
