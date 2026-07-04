@@ -479,7 +479,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-04 13:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-04 17:00</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -1945,9 +1945,13 @@
   usernameInput.addEventListener('keydown',e=>{if(e.key==='Enter') loadUser();});
   btnProfile.addEventListener('click',()=>{
     lastFocusedBtn=btnProfile;
-    /* If we have a cached profile use it, otherwise fetch fresh */
+    /* Show cached profile immediately for a fast response, if available */
     if(savedUserProfile) showProfile();
     else fetchAndShowProfile();
+    /* Always fetch a fresh copy in the background too — the main auto-refresh
+       cycle may be paused (Pausa, or Sök zoner active), which would otherwise
+       leave the profile page showing stale data indefinitely. */
+    if(savedUserProfile) refreshProfileStats();
   });
 
   async function fetchAndShowProfile(){
@@ -2354,6 +2358,12 @@
       clearInterval(countdownTimer);countdownTimer=null;
       clearInterval(playerMonitorTimer);playerMonitorTimer=null;
     }
+    /* Clear the current zone list — stale GPS-based results shouldn't remain visible until a search is made */
+    allZonesSorted=[];
+    zoneList.innerHTML='';
+    emptyState.hidden=true;
+    btnLoadMore.hidden=true;
+    setStatus('','');
     /* Update search heading text */
     document.getElementById('search-zone-heading').textContent=t.searchHeading;
     document.getElementById('search-results-heading').textContent=t.searchResultsHeading;
@@ -3134,7 +3144,7 @@
       </button>`;
     const btn=li.querySelector('.zone-btn');
     btn.addEventListener('click',()=>{lastFocusedBtn=btn;showDetail(zone)});
-    li._zone=zone;li._buildLabel=buildLabel;
+    li._zone=zone;li._buildLabel=buildLabelWithUnique;
     return li;
   }
 
@@ -3256,21 +3266,36 @@
     const combinedLabel=`${z.name}. ${distStr(km)} ${t.awaySuffix}. ${dirPart}${block.label}.`;
     detailHeading.setAttribute('aria-label',combinedLabel);
 
-    /* Owner line — tappable button when there's an actual owner */
+    /* Owner line — tappable button when there's an actual owner.
+       Only recreate the button element when the owner identity actually changes;
+       otherwise just update its text and aria-label in place. Recreating it every
+       second (this function runs on a 1s timer) could destroy the element mid-tap
+       and cause VoiceOver activations to silently fail. */
     const ownerWrap=document.getElementById('di-owner-wrap');
     const visibleOwnerText=`${t.dkOwner} ${ownerName??t.unownedLabel}${rankStr}${btStr}`;
     if(ownerName){
       const isSelf=savedUsername&&ownerName===savedUsername;
       const ariaLabel=isSelf?t.openMyProfile:t.openProfileFor(ownerName);
-      ownerWrap.innerHTML=`<button class="zone-btn" id="btn-open-owner" style="width:100%;text-align:left;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem;color:var(--text);font-family:var(--font-mono);cursor:pointer;" aria-label="${escAttr(ariaLabel)}"><span aria-hidden="true">${escHtml(visibleOwnerText)}</span></button>`;
-      const ownerBtn=document.getElementById('btn-open-owner');
-      ownerBtn.addEventListener('click',()=>{
-        lastFocusedBtn=ownerBtn;
-        if(isSelf){ showProfile(); }
-        else { playerDetailReturnView='detail'; showPlayerDetail({name:ownerName}); }
-      });
+      const existingBtn=document.getElementById('btn-open-owner');
+      if(existingBtn&&ownerWrap._ownerName===ownerName){
+        /* Same owner as last tick — update text only, keep the same element and listener */
+        existingBtn.setAttribute('aria-label',ariaLabel);
+        const span=existingBtn.querySelector('span');
+        if(span) span.textContent=visibleOwnerText;
+      } else {
+        /* Owner changed (or first render) — safe to rebuild */
+        ownerWrap.innerHTML=`<button class="zone-btn" id="btn-open-owner" style="width:100%;text-align:left;background:transparent;border:1px solid var(--border);border-radius:var(--radius);padding:.5rem .75rem;color:var(--text);font-family:var(--font-mono);cursor:pointer;" aria-label="${escAttr(ariaLabel)}"><span aria-hidden="true">${escHtml(visibleOwnerText)}</span></button>`;
+        ownerWrap._ownerName=ownerName;
+        const ownerBtn=document.getElementById('btn-open-owner');
+        ownerBtn.addEventListener('click',()=>{
+          lastFocusedBtn=ownerBtn;
+          if(isSelf){ showProfile(); }
+          else { playerDetailReturnView='detail'; showPlayerDetail({name:ownerName}); }
+        });
+      }
     } else {
       ownerWrap.textContent=visibleOwnerText;
+      ownerWrap._ownerName=null;
     }
     di('di-taken').textContent=`${t.dkLasttaken} ${formatDate(z.dateLastTaken)}, ${t.dkElapsed} ${elapsed!==null?`${formatDuration(elapsed)} ${t.agoSuffix}`:t.unknown}`;
   }
