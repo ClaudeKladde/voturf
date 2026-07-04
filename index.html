@@ -217,12 +217,6 @@
 
     <!-- Skip links and profile button appear after navigation starts -->
 
-    <!-- Language selection — first choice on the start page -->
-    <div id="lang-bar-start" role="group" aria-label="Välj språk" style="display:flex;gap:.4rem;margin-bottom:.75rem;">
-      <button class="lang-btn" id="btn-lang-sv-start" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
-      <button class="lang-btn" id="btn-lang-en-start" aria-pressed="false" aria-label="Switch to English">EN</button>
-    </div>
-
     <!-- Start section with collapsible tips -->
     <div id="start-section">
       <!-- Collapsible tips toggle button -->
@@ -342,10 +336,10 @@
 
     <div id="status-msg">Hämtar navigationsposition…</div>
 
-    <!-- Search zone area — shown only when Sökzoner filter is active -->
-    <section id="search-zone-section" hidden aria-labelledby="search-zone-heading">
-      <h2 id="search-zone-heading" tabindex="-1" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:.75rem 0 .5rem;">Sökzoner</h2>
-      <div role="search" aria-label="Sök på adress">
+    <!-- Search zone area — shown only when Sök zoner filter is active -->
+    <div id="search-zone-section" hidden>
+      <h2 id="search-zone-heading" tabindex="-1" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:.75rem 0 .5rem;">Sök zoner</h2>
+      <div>
         <div class="settings-control" style="gap:.4rem">
           <input type="text" id="search-address-input"
             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
@@ -358,15 +352,15 @@
             Sök
           </button>
         </div>
-        <div id="search-address-status" role="status" aria-live="polite" aria-atomic="true"
+        <div id="search-address-status" aria-live="polite" aria-atomic="true"
           style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin:.35rem 0;min-height:1.2em;"></div>
       </div>
       <!-- Address candidate results -->
-      <section id="search-results-section" hidden aria-labelledby="search-results-heading">
+      <div id="search-results-section" hidden>
         <h2 id="search-results-heading" style="font-family:var(--font-mono);font-size:.9rem;font-weight:700;color:var(--accent);margin:.5rem 0 .35rem;">Sökresultat</h2>
         <ul id="search-results-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
-      </section>
-    </section>
+      </div>
+    </div>
 
     <!-- Real h2 heading so it appears in VoiceOver's heading rotor, matching nearby players section -->
     <h2 id="nearby-zones-heading" tabindex="-1">Närliggande zoner</h2>
@@ -388,15 +382,17 @@
     </ul>
 
     <!-- Settings section -->
-    <!-- Settings — collapsible panel, closed by default -->
+    <!-- Settings — collapsible panel, closed by default, h2 level for rotor navigation -->
     <div id="settings-section" style="margin-top:.5rem">
-      <button id="btn-settings-toggle"
-        aria-expanded="false"
-        aria-controls="settings-panel"
-        style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
-        <span id="lbl-settings-toggle">Inställningar</span>
-        <span class="tips-chevron" aria-hidden="true">▼</span>
-      </button>
+      <h2 style="margin:0;padding:0;border:none;">
+        <button id="btn-settings-toggle"
+          aria-expanded="false"
+          aria-controls="settings-panel"
+          style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
+          <span id="lbl-settings-toggle">Inställningar</span>
+          <span class="tips-chevron" aria-hidden="true">▼</span>
+        </button>
+      </h2>
       <div id="settings-panel" hidden>
     <h2 id="settings-heading" tabindex="-1">Inställningar</h2>
 
@@ -708,6 +704,7 @@
       playerNearbyPrefix:'Spelare. ',
       newPlayerNearbyPrefix:'Ny spelare. ',
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
+      playerDistDirBare:(dist,dir)=>`${dist} meter bort. ${dir}.`,
       playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
       playerLoadError:'Kunde inte ladda spelaren.',
       nearbyZonesHeading:'Närliggande zoner',
@@ -928,6 +925,7 @@
       playerNearbyPrefix:'Player. ',
       newPlayerNearbyPrefix:'New player. ',
       playerDistDir:(name,dist,dir)=>`${name}. ${dist} meters away. ${dir}.`,
+      playerDistDirBare:(dist,dir)=>`${dist} meters away. ${dir}.`,
       playerTotalCount:(n)=>` Total of ${n} players nearby.`,
       playerLoadError:'Could not load player.',
       nearbyZonesHeading:'Nearby zones',
@@ -1148,6 +1146,7 @@
   let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players
   let playersHiddenFromNearby=new Set(); // non-friends explicitly hidden from nearby players
   let uniqueZoneNames=new Set(); // zone names the user has previously taken (loaded from turf.lundkvist.com or KML)
+  let uniqueZoneNamesNormalized=new Set(); // lowercase trimmed version for safe matching
 
   /* ═══ Player detail navigation context ═══ */
   let playerDetailReturnView='list';   /* 'list' if opened from nearby players, 'profile' if opened from friends */
@@ -1277,8 +1276,11 @@
       }catch(e){playersHiddenFromNearby=new Set();}
       try{
         const savedUnique=JSON.parse(localStorage.getItem('turf-unique-zones')||'[]');
-        if(Array.isArray(savedUnique)) uniqueZoneNames=new Set(savedUnique);
-      }catch(e){uniqueZoneNames=new Set();}
+        if(Array.isArray(savedUnique)){
+          uniqueZoneNames=new Set(savedUnique);
+          uniqueZoneNamesNormalized=new Set(savedUnique.map(n=>n.trim().toLowerCase()));
+        }
+      }catch(e){uniqueZoneNames=new Set();uniqueZoneNamesNormalized=new Set();}
     }catch(e){}
   }
   loadPrefs();
@@ -1467,8 +1469,8 @@
 
     if(isMyZone){
       msg=lang==='sv'
-        ?`${zone.name}. ${ds} bort. ${clock}. ${t.myZone}.`
-        :`${zone.name}. ${ds} away. ${clock}. ${t.myZone}.`;
+        ?`${zone.name}. ${t.myZone}. ${ds} bort. ${clock}.`
+        :`${zone.name}. ${t.myZone}. ${ds} away. ${clock}.`;
     } else if(block.blocked===true&&owner){
       const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
       msg=lang==='sv'
@@ -1486,9 +1488,12 @@
         :`${zone.name}. ${ds} away. ${clock}. ${ownerPart}`;
     }
 
-    /* Append unique zone indicator if zone is not in user's taken unique list */
+    /* "Unik zon." placed directly after zone name for natural listening order */
     if(!isMyZone&&isUniqueZone(zone.name)){
-      msg+=lang==='sv'?' Unik zon.'  :' Unique zone.';
+      const unikSuffix=lang==='sv'?' Unik zon.'  :' Unique zone.';
+      const firstDot=msg.indexOf('. ');
+      if(firstDot!==-1) msg=msg.slice(0,firstDot+1)+unikSuffix+' '+msg.slice(firstDot+2);
+      else msg+=unikSuffix;
     }
 
     const langCode=lang==='sv'?'sv-SE':'en-GB';
@@ -1828,6 +1833,18 @@
   /* Start-page language buttons — mirror the settings ones */
   document.getElementById('btn-lang-sv-start')?.addEventListener('click',()=>switchLang('sv'));
   document.getElementById('btn-lang-en-start')?.addEventListener('click',()=>switchLang('en'));
+  /* Skip to settings — auto-opens panel if closed, then moves focus */
+  document.getElementById('skip-to-settings')?.addEventListener('click',e=>{
+    e.preventDefault();
+    const panel=document.getElementById('settings-panel');
+    if(panel&&panel.hidden){
+      panel.hidden=false;
+      btnSettingsToggle.setAttribute('aria-expanded','true');
+      btnSettingsToggle.querySelector('.tips-chevron').textContent='▲';
+    }
+    document.getElementById('settings-heading')?.focus();
+  });
+
   /* Settings expandable panel */
   const btnSettingsToggle=document.getElementById('btn-settings-toggle');
   const settingsPanel=document.getElementById('settings-panel');
@@ -2030,8 +2047,9 @@
       const stats=friendsStatsCache[name];
       const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph,stats.points):'';
       const statsBadge=stats?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(statsText)}</span>`:'';
-      const onlineLabel=isOnline?` ${t.friendOnline??'Aktiv'}.`:'';
-      const ariaLabel=`${name}. ${statsText}${onlineLabel}`.trim();
+      const onlineStr=isOnline?` ${t.friendOnline??'Aktiv'}.`:'';
+      /* "Aktiv." placed directly after name */
+      const ariaLabel=`${name}.${onlineStr}${statsText?' '+statsText:''}`.trim();
       const onlineBadge=isOnline
         ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}</span>`
         :'';
@@ -2054,9 +2072,12 @@
   /* ════════════════════════════════════════
      UNIQUE ZONES — fetch from turf.lundkvist.com or KML upload
   ════════════════════════════════════════ */
+
   function isUniqueZone(zoneName){
-    /* Returns true if the zone is NOT in the user's unique list — meaning it's a new unique opportunity */
-    return uniqueZoneNames.size>0&&!uniqueZoneNames.has(zoneName);
+    /* Returns true if zone is NOT in user's taken list — meaning new unique opportunity */
+    if(!uniqueZoneNames.size) return false;
+    const normalized=zoneName.trim().toLowerCase();
+    return !uniqueZoneNamesNormalized.has(normalized);
   }
 
   function updateUniqueZonesUI(){
@@ -2066,8 +2087,11 @@
 
   function parseAndStoreUniqueZones(zoneNames){
     uniqueZoneNames=new Set(zoneNames.map(n=>n.trim()).filter(Boolean));
+    uniqueZoneNamesNormalized=new Set([...uniqueZoneNames].map(n=>n.toLowerCase()));
     try{localStorage.setItem('turf-unique-zones',JSON.stringify([...uniqueZoneNames]))}catch(e){}
     updateUniqueZonesUI();
+    /* Always re-render zone list when unique data changes */
+    if(allZonesSorted.length) renderZoneSlice();
   }
 
   function parseKml(text){
@@ -2724,9 +2748,8 @@
         const ds=Math.round(closest._dist*1000);
         const clock=directionToZone(closest.latitude,closest.longitude);
         const nearZone=nearestZoneToPlayer(closest);
-        announcementText=prefix+t.playerDistDir(closest.name,ds,clock||'');
-        /* Add Aktiv indicator if this player is in the user's friends and currently visible */
-        if(activeFriends.has(closest.name)) announcementText+=' '+(t.friendOnline??'Aktiv')+'.';
+        const aktivSuffix=activeFriends.has(closest.name)?' '+(t.friendOnline??'Aktiv')+'.':'';
+        announcementText=prefix+closest.name+'.'+aktivSuffix+' '+t.playerDistDirBare(ds,clock||'');
         if(nearZone) announcementText+=t.playerNearZone(nearZone.name);
         if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
       }
@@ -3082,8 +3105,18 @@
     const uniqueBadge=isUnique
       ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${escHtml(t.uniqueBadge??'Unik')}</span>`
       :'';
-    /* Append unique suffix to spoken label */
-    const spokenLabel=isUnique?buildLabel(block)+(t.uniqueZoneSuffix??' Unik.'):buildLabel(block);
+    /* "Unik zon." placed directly after name for natural VoiceOver reading order */
+    const uniqueSuffix=isUnique?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
+    function buildLabelWithUnique(b){
+      const base=buildLabel(b);
+      /* Insert unique suffix after first sentence (zone name) */
+      const firstDot=base.indexOf('. ');
+      if(isUnique&&firstDot!==-1){
+        return base.slice(0,firstDot+1)+uniqueSuffix+' '+base.slice(firstDot+2);
+      }
+      return base+uniqueSuffix;
+    }
+    const spokenLabel=buildLabelWithUnique(block);
 
     const li=document.createElement('li');
     li.className='zone-card';
@@ -3316,16 +3349,19 @@
           let announcementText='';
           const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
           if(isMyZone){
-            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
+            announcementText=`${prefix}${z.name}. ${t.myZone}. ${ds} bort. ${dirPart}`.trimEnd();
           } else if(block.blocked===true&&owner){
             const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
-            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
+            const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
           } else if(block.label===t.neverTaken){
             const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
+            const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
           } else {
             const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-            announcementText=`${prefix}${z.name}. ${ds} bort. ${dirPart}${ownerPart}`;
+            const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${ownerPart}`;
           }
           /* Voice Mode — Speech Synthesis */
           if(isMonitorActive()) announceZone(z);
