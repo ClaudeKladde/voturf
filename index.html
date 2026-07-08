@@ -481,7 +481,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-08 14:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-08 16:00</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -536,6 +536,26 @@
 
     <!-- Profile stats — shown when username is set -->
     <div id="profile-stats-section">
+
+    <!-- Friends section — moved to the top of the profile page -->
+    <div id="friends-section">
+      <h2 id="friends-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:.75rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Turf-vänner</h2>
+      <ul id="friends-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
+        <li id="friends-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga vänner tillagda.</li>
+      </ul>
+      <div id="friend-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-top:.5rem;min-height:1.2em;"></div>
+      <div class="settings-control" id="friend-input-control" style="margin-top:.5rem">
+        <input type="text" id="friend-input"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="Användarnamn"
+          aria-label="Användarnamn att lägga till som vän"
+          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
+        />
+        <button class="stepper-btn" id="btn-add-friend" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
+      </div>
+    </div>
+
+    <h2 id="my-stats-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Min statistik</h2>
     <ul id="profile-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pi-rank">—</li>
       <li id="pi-next-rank">—</li>
@@ -553,24 +573,6 @@
     <div id="my-zones-section">
       <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
       <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
-    </div>
-
-    <!-- Friends section — bottom of profile page, list first then add form -->
-    <div id="friends-section">
-      <h2 id="friends-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Turf-vänner</h2>
-      <ul id="friends-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
-        <li id="friends-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga vänner tillagda.</li>
-      </ul>
-      <div id="friend-status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-top:.5rem;min-height:1.2em;"></div>
-      <div class="settings-control" id="friend-input-control" style="margin-top:.5rem">
-        <input type="text" id="friend-input"
-          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-          placeholder="Användarnamn"
-          aria-label="Användarnamn att lägga till som vän"
-          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
-        />
-        <button class="stepper-btn" id="btn-add-friend" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Lägg till</button>
-      </div>
     </div>
 
     <!-- Unique zones section — at the very end of profile page -->
@@ -719,6 +721,7 @@
       gpsWeakMsg:'Svag GPS-signal. Positionen kan vara mindre exakt.',
       compassCalibrationMsg:'Kompassen behöver kalibreras. Rör telefonen i en åtta-rörelse för bättre precision.',
       friendsHeading:'Turf-vänner',
+      myStatsHeading:'Min statistik',
       friendInputAria:'Användarnamn att lägga till som vän',
       friendInputPlaceholder:'Användarnamn',
       friendAddBtn:'Lägg till',
@@ -736,6 +739,7 @@
       removeFriendAria:(n)=>`Ta bort ${n} som vän.`,
       friendRemovedMsg:(n)=>`${n} borttagen som vän.`,
       friendOnline:'Aktiv',
+      friendNoZoneFound:'Kunde inte avläsa närmsta zon.',
       friendStatsText:(zones,pph,pts)=>`Äger ${zones} zon${zones===1?'':'er'}. +${pph}. Poäng ${pts.toLocaleString('sv-SE')}.`,
       showNearbyLabel:'Visa i spelare i närheten',
       showNearbyOnAria:(n)=>`${n} visas i spelare i närheten. Tryck för att dölja.`,
@@ -940,6 +944,7 @@
       gpsWeakMsg:'Weak GPS signal. Position may be less accurate.',
       compassCalibrationMsg:'Compass needs calibration. Move your phone in a figure-eight motion for better accuracy.',
       friendsHeading:'Turf friends',
+      myStatsHeading:'My statistics',
       friendInputAria:'Username to add as a friend',
       friendInputPlaceholder:'Username',
       friendAddBtn:'Add',
@@ -957,6 +962,7 @@
       removeFriendAria:(n)=>`Remove ${n} as a friend.`,
       friendRemovedMsg:(n)=>`${n} removed as a friend.`,
       friendOnline:'Active',
+      friendNoZoneFound:'Could not determine nearest zone.',
       friendStatsText:(zones,pph,pts)=>`Owns ${zones} zone${zones===1?'':'s'}. +${pph}. Points ${pts.toLocaleString('en-GB')}.`,
       showNearbyLabel:'Show in nearby players',
       showNearbyOnAria:(n)=>`${n} is shown in nearby players. Tap to hide.`,
@@ -1146,7 +1152,6 @@
   let activeFriends=new Set(); // friends currently visible in the location feed
   let friendsNearZone={}; // name -> nearest zone object, for active friends only
   let lastNearbyPlayers=[]; // cached players list, re-rendered once zone data becomes available
-  let lastAllPlayers=[]; // cached unfiltered location feed, used to look up friends regardless of nearby filter
   let friendsStatsCache={}; // name -> {zonesCount, pph}
   let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players
   let playersHiddenFromNearby=new Set(); // non-friends explicitly hidden from nearby players
@@ -1701,6 +1706,8 @@
     /* Friends section */
     const friendsHeadingEl=document.getElementById('friends-heading');
     if(friendsHeadingEl) friendsHeadingEl.textContent=t.friendsHeading;
+    const myStatsHeadingEl=document.getElementById('my-stats-heading');
+    if(myStatsHeadingEl) myStatsHeadingEl.textContent=t.myStatsHeading;
     const friendInputEl=document.getElementById('friend-input');
     if(friendInputEl){
       friendInputEl.placeholder=t.friendInputPlaceholder;
@@ -2057,9 +2064,13 @@
       const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph,stats.points):'';
       const statsBadge=stats?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(statsText)}</span>`:'';
       const nearZone=isOnline?friendsNearZone[name]:null;
-      const nearZoneStr=nearZone?t.playerNearZone(nearZone.name):'';
-      const onlineStr=isOnline?` ${t.friendOnline??'Aktiv'}.${nearZoneStr}`:'';
-      /* "Aktiv." and near-zone placed directly after name */
+      /* Spoken label: near-zone alone implies activity, so "Aktiv" is only spoken
+         as a fallback when no reliable near-zone could be found. The visual badge
+         always shows "Aktiv" regardless, since sighted users benefit from the label. */
+      let onlineStr='';
+      if(isOnline){
+        onlineStr=nearZone?t.playerNearZone(nearZone.name):` ${t.friendOnline??'Aktiv'}. ${t.friendNoZoneFound}`;
+      }
       const ariaLabel=`${name}.${onlineStr}${statsText?' '+statsText:''}`.trim();
       const onlineBadge=isOnline
         ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}${nearZone?' — '+escHtml(nearZone.name):''}</span>`
@@ -2684,6 +2695,28 @@
     return best;
   }
 
+  /* Find the closest zone to a friend's OWN position — fetches a small zone box
+     centered on the friend's coordinates rather than reusing the user's own
+     already-loaded zone list, which is often irrelevant if the friend is far away. */
+  async function fetchNearestZoneForFriend(player){
+    try{
+      const half=BBOX_DEG/2;
+      const body=JSON.stringify([{northEast:{latitude:player.latitude+half,longitude:player.longitude+half},southWest:{latitude:player.latitude-half,longitude:player.longitude-half}}]);
+      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
+      if(!r.ok) return null;
+      const zones=await r.json();
+      if(!zones.length) return null;
+      let best=null,bestDist=Infinity;
+      for(const z of zones){
+        const d=haversineKm(player.latitude,player.longitude,z.latitude,z.longitude);
+        if(d<bestDist){bestDist=d;best=z;}
+      }
+      return best;
+    }catch(e){
+      return null;
+    }
+  }
+
   function buildPlayerItem(player){
     const ds=distStr(player._dist);
     const clock=directionToZone(player.latitude,player.longitude);
@@ -2747,19 +2780,19 @@
 
       renderNearbyPlayersList(nearby);
       lastNearbyPlayers=nearby; /* cache for re-render once zones finish loading */
-      lastAllPlayers=allPlayers; /* cache unfiltered feed for friend lookups */
 
       /* ── Track which friends are online (visible in location feed) ── */
       const onlineNames=new Set(allPlayers.map(p=>p.name));
       activeFriends=new Set(friendsList.filter(name=>onlineNames.has(name)));
-      /* ── Compute nearest zone for each active friend, even if excluded from "nearby" ── */
+      /* ── Fetch nearest zone for each active friend, based on THEIR own position ──
+         (not the user's loaded zone list, which is often irrelevant if the friend is far away) */
+      const activeFriendPlayers=allPlayers.filter(p=>activeFriends.has(p.name));
+      const results=await Promise.all(activeFriendPlayers.map(async p=>{
+        const nz=await fetchNearestZoneForFriend(p);
+        return{name:p.name,zone:nz};
+      }));
       friendsNearZone={};
-      allPlayers.forEach(p=>{
-        if(activeFriends.has(p.name)){
-          const nz=nearestZoneToPlayer(p);
-          if(nz) friendsNearZone[p.name]=nz;
-        }
-      });
+      results.forEach(({name,zone})=>{ if(zone) friendsNearZone[name]=zone; });
       /* Re-render friends list to reflect updated online status and near-zone info */
       if(document.getElementById('profile-view').classList.contains('active')) renderFriendsList();
 
@@ -3378,16 +3411,11 @@
       refreshProfileStats();
       /* Zone data just became available — re-render the already-fetched nearby players list
          so "Nära [zon]" info gets backfilled if it was fetched before zones were ready
-         (a race condition that could otherwise leave it missing until the next player poll). */
+         (a race condition that could otherwise leave it missing until the next player poll).
+         Note: this only applies to regular nearby players, who are close to the user by
+         definition. Active friends use their own independent position-based zone lookup
+         (see fetchNearestZoneForFriend), which does not depend on the user's zone list. */
       if(lastNearbyPlayers.length) renderNearbyPlayersList(lastNearbyPlayers);
-      if(Object.keys(friendsNearZone).length===0&&activeFriends.size>0){
-        /* Zones weren't ready when friend near-zone was last computed — recompute now */
-        activeFriends.forEach(name=>{
-          const p=lastAllPlayers.find(pl=>pl.name===name);
-          if(p){const nz=nearestZoneToPlayer(p);if(nz) friendsNearZone[name]=nz;}
-        });
-        if(document.getElementById('profile-view').classList.contains('active')) renderFriendsList();
-      }
       /* Announcements — only on auto-refresh, use filtered list so it matches what is shown */
       if(isAuto){
         const filteredFirst=getFilteredZones()[0];
