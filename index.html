@@ -86,7 +86,7 @@
 
     /* ── Sticky toolbar: yellow background, profile row + 2 rows of 3 ── */
     #toolbar{
-      position:sticky;top:0;top:env(safe-area-inset-top,0);z-index:10;
+      position:sticky;top:calc(env(safe-area-inset-top,0px) - 1px);z-index:10;
       background:var(--accent);
       display:flex;flex-direction:column;gap:.35rem;
       padding:.4rem;
@@ -174,6 +174,8 @@
     #btn-load-more:hover{border-color:var(--accent2);color:var(--accent2)}
     #btn-load-more:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
     #btn-load-more[hidden]{display:none}
+    .back-to-live-btn{display:block}
+    .back-to-live-btn[hidden]{display:none}
     #empty-state{color:var(--muted);font-family:var(--font-mono);font-size:.9rem;padding:2rem 0}
 
     /* ── Settings section ── */
@@ -369,9 +371,9 @@
     <button id="btn-load-more" hidden>Ladda fler zoner</button>
 
     <!-- Back to live mode — shown at bottom of zone list when search filter is active -->
-    <button id="btn-back-to-live" hidden
+    <button id="btn-back-to-live" class="back-to-live-btn" hidden
       aria-label="Återgå till live-läge. Återupptar automatiska uppdateringar från din GPS-position."
-      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.6rem 1rem;cursor:pointer;background:transparent;color:var(--accent);margin-top:1rem;margin-bottom:.5rem;text-align:left;">
+      style="width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.6rem 1rem;cursor:pointer;background:transparent;color:var(--accent);margin-top:1rem;margin-bottom:.5rem;text-align:left;">
       ↩ Återgå till live-läge
     </button>
 
@@ -479,7 +481,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-04 17:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-08 14:00</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -1142,6 +1144,9 @@
   let savedUserProfile=null;  // full API user object
   let friendsList=[];  // array of friend usernames, excluded from nearby players
   let activeFriends=new Set(); // friends currently visible in the location feed
+  let friendsNearZone={}; // name -> nearest zone object, for active friends only
+  let lastNearbyPlayers=[]; // cached players list, re-rendered once zone data becomes available
+  let lastAllPlayers=[]; // cached unfiltered location feed, used to look up friends regardless of nearby filter
   let friendsStatsCache={}; // name -> {zonesCount, pph}
   let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players
   let playersHiddenFromNearby=new Set(); // non-friends explicitly hidden from nearby players
@@ -2051,11 +2056,13 @@
       const stats=friendsStatsCache[name];
       const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph,stats.points):'';
       const statsBadge=stats?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(statsText)}</span>`:'';
-      const onlineStr=isOnline?` ${t.friendOnline??'Aktiv'}.`:'';
-      /* "Aktiv." placed directly after name */
+      const nearZone=isOnline?friendsNearZone[name]:null;
+      const nearZoneStr=nearZone?t.playerNearZone(nearZone.name):'';
+      const onlineStr=isOnline?` ${t.friendOnline??'Aktiv'}.${nearZoneStr}`:'';
+      /* "Aktiv." and near-zone placed directly after name */
       const ariaLabel=`${name}.${onlineStr}${statsText?' '+statsText:''}`.trim();
       const onlineBadge=isOnline
-        ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}</span>`
+        ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}${nearZone?' — '+escHtml(nearZone.name):''}</span>`
         :'';
       const li=document.createElement('li');
       li.className='zone-card';
@@ -2739,11 +2746,21 @@
         .sort((a,b)=>a._dist-b._dist);
 
       renderNearbyPlayersList(nearby);
+      lastNearbyPlayers=nearby; /* cache for re-render once zones finish loading */
+      lastAllPlayers=allPlayers; /* cache unfiltered feed for friend lookups */
 
       /* ── Track which friends are online (visible in location feed) ── */
       const onlineNames=new Set(allPlayers.map(p=>p.name));
       activeFriends=new Set(friendsList.filter(name=>onlineNames.has(name)));
-      /* Re-render friends list to reflect updated online status */
+      /* ── Compute nearest zone for each active friend, even if excluded from "nearby" ── */
+      friendsNearZone={};
+      allPlayers.forEach(p=>{
+        if(activeFriends.has(p.name)){
+          const nz=nearestZoneToPlayer(p);
+          if(nz) friendsNearZone[p.name]=nz;
+        }
+      });
+      /* Re-render friends list to reflect updated online status and near-zone info */
       if(document.getElementById('profile-view').classList.contains('active')) renderFriendsList();
 
       /* ── Announcement logic ── */
@@ -3359,6 +3376,18 @@
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
       /* Keep "Mina zoner" and the Min profil button stats in sync with the same refresh cadence */
       refreshProfileStats();
+      /* Zone data just became available — re-render the already-fetched nearby players list
+         so "Nära [zon]" info gets backfilled if it was fetched before zones were ready
+         (a race condition that could otherwise leave it missing until the next player poll). */
+      if(lastNearbyPlayers.length) renderNearbyPlayersList(lastNearbyPlayers);
+      if(Object.keys(friendsNearZone).length===0&&activeFriends.size>0){
+        /* Zones weren't ready when friend near-zone was last computed — recompute now */
+        activeFriends.forEach(name=>{
+          const p=lastAllPlayers.find(pl=>pl.name===name);
+          if(p){const nz=nearestZoneToPlayer(p);if(nz) friendsNearZone[name]=nz;}
+        });
+        if(document.getElementById('profile-view').classList.contains('active')) renderFriendsList();
+      }
       /* Announcements — only on auto-refresh, use filtered list so it matches what is shown */
       if(isAuto){
         const filteredFirst=getFilteredZones()[0];
