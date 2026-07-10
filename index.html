@@ -481,7 +481,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-10 16:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-10 17:00</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -715,7 +715,7 @@
       playerNotifyLabel:'Avisera spelare:',
       playerNotifyOnAria:'Avisera spelare på',
       playerNotifyOffAria:'Avisera spelare av',
-      playerNearZone:(name)=>` Nära ${name}.`,
+      playerNearZone:(dist,name)=>` ${dist} till ${name}.`,
       gpsLostMsg:'Platssignal förlorad. Kontrollera att GPS är aktiverat.',
       gpsRestoredMsg:'Platssignal återställd.',
       gpsWeakMsg:'Svag GPS-signal. Positionen kan vara mindre exakt.',
@@ -938,7 +938,7 @@
       playerNotifyLabel:'Notify players:',
       playerNotifyOnAria:'Notify players on',
       playerNotifyOffAria:'Notify players off',
-      playerNearZone:(name)=>` Near ${name}.`,
+      playerNearZone:(dist,name)=>` ${dist} to ${name}.`,
       gpsLostMsg:'Location signal lost. Check that GPS is enabled.',
       gpsRestoredMsg:'Location signal restored.',
       gpsWeakMsg:'Weak GPS signal. Position may be less accurate.',
@@ -1173,7 +1173,7 @@
   let savedUserProfile=null;  // full API user object
   let friendsList=[];  // array of friend usernames, excluded from nearby players
   let activeFriends=new Set(); // friends currently visible in the location feed
-  let friendsNearZone={}; // name -> nearest zone object, for active friends only
+  let friendsNearZone={}; // name -> {zone, distKm}, for active friends only
   let lastNearbyPlayers=[]; // cached players list, re-rendered once zone data becomes available
   let friendsStatsCache={}; // name -> {zonesCount, pph}
   let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players
@@ -2104,17 +2104,17 @@
       const stats=friendsStatsCache[name];
       const statsText=stats?t.friendStatsText(stats.zonesCount,stats.pph,stats.points):'';
       const statsBadge=stats?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(statsText)}</span>`:'';
-      const nearZone=isOnline?friendsNearZone[name]:null;
+      const nearZoneInfo=isOnline?friendsNearZone[name]:null;
       /* Spoken label: near-zone alone implies activity, so "Aktiv" is only spoken
          as a fallback when no reliable near-zone could be found. The visual badge
          always shows "Aktiv" regardless, since sighted users benefit from the label. */
       let onlineStr='';
       if(isOnline){
-        onlineStr=nearZone?t.playerNearZone(nearZone.name):` ${t.friendOnline??'Aktiv'}. ${t.friendNoZoneFound}`;
+        onlineStr=nearZoneInfo?t.playerNearZone(distStr(nearZoneInfo.distKm),nearZoneInfo.zone.name):` ${t.friendOnline??'Aktiv'}. ${t.friendNoZoneFound}`;
       }
       const ariaLabel=`${name}.${onlineStr}${statsText?' '+statsText:''}`.trim();
       const onlineBadge=isOnline
-        ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}${nearZone?' — '+escHtml(nearZone.name):''}</span>`
+        ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${t.friendOnline??'Aktiv'}${nearZoneInfo?' — '+escHtml(distStr(nearZoneInfo.distKm))+' '+escHtml(nearZoneInfo.zone.name):''}</span>`
         :'';
       const li=document.createElement('li');
       li.className='zone-card';
@@ -2735,7 +2735,7 @@
         const d=haversineKm(player.latitude,player.longitude,z.latitude,z.longitude);
         if(d<bestDist){bestDist=d;best=z;}
       }
-      return best;
+      return best?{zone:best,distKm:bestDist}:null;
     }catch(e){
       return null;
     }
@@ -2746,7 +2746,8 @@
     const clock=directionToZone(player.latitude,player.longitude);
     const dirPart=clock?` ${clock}.`:'';
     const nearZone=nearestZoneToPlayer(player);
-    const nearZonePart=nearZone?t.playerNearZone(nearZone.name):'';
+    const nearZoneDistKm=nearZone?haversineKm(player.latitude,player.longitude,nearZone.latitude,nearZone.longitude):null;
+    const nearZonePart=nearZone?t.playerNearZone(distStr(nearZoneDistKm),nearZone.name):'';
     const label=`${player.name}. ${ds} bort.${dirPart}${nearZonePart}`;
     const li=document.createElement('li');
     li.className='zone-card';
@@ -2837,9 +2838,10 @@
         const ds=Math.round(closest._dist*1000);
         const clock=directionToZone(closest.latitude,closest.longitude);
         const nearZone=nearestZoneToPlayer(closest);
+        const nearZoneDistKm=nearZone?haversineKm(closest.latitude,closest.longitude,nearZone.latitude,nearZone.longitude):null;
         const aktivSuffix=activeFriends.has(closest.name)?' '+(t.friendOnline??'Aktiv')+'.':'';
         announcementText=prefix+closest.name+'.'+aktivSuffix+' '+t.playerDistDirBare(ds,clock||'');
-        if(nearZone) announcementText+=t.playerNearZone(nearZone.name);
+        if(nearZone) announcementText+=t.playerNearZone(distStr(nearZoneDistKm),nearZone.name);
         if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
       }
       previousNearbyPlayerIds=currentIds;
