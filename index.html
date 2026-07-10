@@ -481,7 +481,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-10 17:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-10 17:30</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -707,8 +707,7 @@
       playerRadiusPlusAria:(m)=>`Öka avstånd till ${m} meter.`,
       playerNearbyPrefix:'Spelare. ',
       newPlayerNearbyPrefix:'Ny spelare. ',
-      playerDistDir:(name,dist,dir)=>`${name}. ${dist} meter bort. ${dir}.`,
-      playerDistDirBare:(dist,dir)=>`${dist} meter bort. ${dir}.`,
+
       playerTotalCount:(n)=>` Totalt ${n} spelare i närheten.`,
       playerLoadError:'Kunde inte ladda spelaren.',
       nearbyZonesHeading:'Närliggande zoner',
@@ -930,8 +929,7 @@
       playerRadiusPlusAria:(m)=>`Increase distance to ${m} meters.`,
       playerNearbyPrefix:'Player. ',
       newPlayerNearbyPrefix:'New player. ',
-      playerDistDir:(name,dist,dir)=>`${name}. ${dist} meters away. ${dir}.`,
-      playerDistDirBare:(dist,dir)=>`${dist} meters away. ${dir}.`,
+
       playerTotalCount:(n)=>` Total of ${n} players nearby.`,
       playerLoadError:'Could not load player.',
       nearbyZonesHeading:'Nearby zones',
@@ -2742,23 +2740,17 @@
   }
 
   function buildPlayerItem(player){
-    const ds=distStr(player._dist);
-    const clock=directionToZone(player.latitude,player.longitude);
-    const dirPart=clock?` ${clock}.`:'';
     const nearZone=nearestZoneToPlayer(player);
     const nearZoneDistKm=nearZone?haversineKm(player.latitude,player.longitude,nearZone.latitude,nearZone.longitude):null;
     const nearZonePart=nearZone?t.playerNearZone(distStr(nearZoneDistKm),nearZone.name):'';
-    const label=`${player.name}. ${ds} bort.${dirPart}${nearZonePart}`;
+    const label=`${player.name}.${nearZonePart}`.trim();
+    const nearZoneBadge=nearZone
+      ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--muted);margin-left:.5rem;" aria-hidden="true">${escHtml(distStr(nearZoneDistKm))} ${escHtml(nearZone.name)}</span>`
+      :'';
     const li=document.createElement('li');
     li.className='zone-card';
     li.innerHTML=`<button class="zone-btn" aria-label="${escAttr(label)}">
-      <div aria-hidden="true">
-        <div class="zv-name">${escHtml(player.name)}<span class="zv-arrow">&#8594;</span></div>
-        <div class="zv-strip">
-          <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
-          <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock?clock.split(',')[0]:'—'}</span></div>
-        </div>
-      </div>
+      <div aria-hidden="true"><div class="zv-name">${escHtml(player.name)}${nearZoneBadge}<span class="zv-arrow">&#8594;</span></div></div>
     </button>`;
     const btn=li.querySelector('.zone-btn');
     btn.addEventListener('click',()=>{lastFocusedBtn=btn;playerDetailReturnView='list';showPlayerDetail(player)});
@@ -2835,12 +2827,10 @@
         const closest=nearby[0];
         const isNew=!previousNearbyPlayerIds.has(closest.id);
         const prefix=isNew?t.newPlayerNearbyPrefix:t.playerNearbyPrefix;
-        const ds=Math.round(closest._dist*1000);
-        const clock=directionToZone(closest.latitude,closest.longitude);
         const nearZone=nearestZoneToPlayer(closest);
         const nearZoneDistKm=nearZone?haversineKm(closest.latitude,closest.longitude,nearZone.latitude,nearZone.longitude):null;
         const aktivSuffix=activeFriends.has(closest.name)?' '+(t.friendOnline??'Aktiv')+'.':'';
-        announcementText=prefix+closest.name+'.'+aktivSuffix+' '+t.playerDistDirBare(ds,clock||'');
+        announcementText=(prefix+closest.name+'.'+aktivSuffix).trim();
         if(nearZone) announcementText+=t.playerNearZone(distStr(nearZoneDistKm),nearZone.name);
         if(nearby.length>1) announcementText+=t.playerTotalCount(nearby.length);
       }
