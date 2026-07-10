@@ -214,7 +214,7 @@
   <!-- ══ LIST VIEW ══ -->
   <div id="list-view" class="view active">
     <h1>VO Turf List</h1>
-    <p id="app-description" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.4rem;">Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.</p>
+    <p id="app-description" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.4rem;">Din tillgängliga hjälpreda i Turf. Byggd för skärmläsare.</p>
     <p id="gps-reminder" style="font-family:var(--font-mono);font-size:.82rem;color:var(--muted);margin-bottom:.75rem;">Se till att tillåta GPS och kompass för att appen ska fungera korrekt.</p>
 
     <!-- Skip links and profile button appear after navigation starts -->
@@ -481,7 +481,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-08 16:00</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-10 16:30</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -661,7 +661,7 @@
   const T={
     sv:{
       htmlLang:'sv',
-      appDescription:'Din tillgängliga Turf-hjälpreda. Realtidsinformation om zoner, byggd för skärmläsare.',
+      appDescription:'Din tillgängliga hjälpreda i Turf. Byggd för skärmläsare.',
       startBtn:'Starta navigering',startBtnAria:'Starta navigering och ladda zoner i närheten',
       tipsLabel:'Tips &amp; instruktioner',
       tipsHeadings:['Närliggande zoner','Verktygsfält','Röstläge och VO-aviseringar','Spelare i närheten','Vänner','Profil och användarnamn','GPS och kompass','Inställningar','Tips och övrigt'],
@@ -884,7 +884,7 @@
     },
     en:{
       htmlLang:'en',
-      appDescription:'Your accessible Turf companion. Real-time zone info built for screen reader users.',
+      appDescription:'Your accessible companion in Turf. Built for screen reader users.',
       startBtn:'Start navigation',startBtnAria:'Start navigation and load nearby zones',
       tipsLabel:'Tips &amp; instructions',
       tipsHeadings:['Nearby zones','Toolbar','Voice mode and VO alerts','Nearby players','Friends','Profile and username','GPS and compass','Settings','Tips and misc'],
@@ -1114,6 +1114,29 @@
   const PAGE_SIZE=10,INITIAL_MAX=30,BBOX_DEG=0.045,GEO_TIMEOUT=10000;
   const INTERVAL_MIN=5,INTERVAL_MAX=60,INTERVAL_STEP=5,INTERVAL_DEFAULT=30;
   const SPEED_MIN=1.0,SPEED_MAX=2.5,SPEED_STEP=0.1,SPEED_DEFAULT=1.4;
+
+  function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
+  /* Shared POST helper for api.turfgame.com — automatically retries once if the
+     API's "one request per second" limit is hit, instead of failing outright.
+     This is the same safety net already used for zone search, applied consistently
+     everywhere the app talks to the Turf API to avoid collisions between concurrent
+     background refreshes (main list, players, profile, friends). */
+  async function fetchJsonWithRetry(url,body,attempt=0){
+    try{
+      const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
+      if(!r.ok){
+        const e=await r.json().catch(()=>({}));
+        throw new Error(e.errorMessage||`HTTP ${r.status}`);
+      }
+      return await r.json();
+    }catch(e){
+      if(attempt<1&&/one request per second/i.test(e.message)){
+        await sleep(1500);
+        return fetchJsonWithRetry(url,body,attempt+1);
+      }
+      throw e;
+    }
+  }
 
   let lang='sv',t=T.sv;
   let userLat=null,userLon=null;
@@ -1904,24 +1927,6 @@
     }
   }
 
-  /* Refresh own profile stats on the same cadence as the main zone refresh —
-     updates the Min profil button label always, and re-renders the full
-     Profile page (including Mina zoner) if it happens to be open. */
-  async function refreshProfileStats(){
-    if(!savedUsername) return;
-    try{
-      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
-      if(!r.ok) return;
-      const data=await r.json();
-      if(!data.length) return;
-      savedUserProfile=data[0];
-      applyUsernameUI();
-      if(profileView.classList.contains('active')) renderProfile();
-    }catch(e){
-      /* fail silently — stale stats are better than a broken refresh cycle */
-    }
-  }
-
   async function loadUser(){
     const name=usernameInput.value.trim();
     if(!name) return;
@@ -1957,13 +1962,11 @@
   usernameInput.addEventListener('keydown',e=>{if(e.key==='Enter') loadUser();});
   btnProfile.addEventListener('click',()=>{
     lastFocusedBtn=btnProfile;
-    /* Show cached profile immediately for a fast response, if available */
+    /* Show cached profile immediately for a fast response, if available.
+       showProfile() -> renderProfile() automatically kicks off a rate-limit-safe
+       sequential background refresh (Vänner, Min statistik, Mina zoner in order). */
     if(savedUserProfile) showProfile();
     else fetchAndShowProfile();
-    /* Always fetch a fresh copy in the background too — the main auto-refresh
-       cycle may be paused (Pausa, or Sök zoner active), which would otherwise
-       leave the profile page showing stale data indefinitely. */
-    if(savedUserProfile) refreshProfileStats();
   });
 
   async function fetchAndShowProfile(){
@@ -1981,11 +1984,25 @@
   ════════════════════════════════════════ */
   function renderProfile(){
     const u=savedUserProfile; if(!u) return;
+    document.getElementById('profile-heading').textContent=u.name;
+    document.getElementById('friends-heading').textContent=t.friendsHeading;
+    document.getElementById('my-zones-heading').textContent=t.myZonesHeading;
+    /* Instant paint from whatever is cached */
+    renderProfileStatsOnly();
+    renderFriendsList();
+    updateUniqueZonesUI();
+    /* Background refresh — fetches in the same order the sections appear on the
+       page (Vänner, Min statistik, Mina zoner), one at a time with spacing and
+       automatic retry, to avoid colliding with the Turf API's one-request-per-second
+       limit and with other concurrent background refreshes. */
+    refreshProfilePageSequential();
+  }
+
+  function renderProfileStatsOnly(){
+    const u=savedUserProfile; if(!u) return;
     const rn=rankName(u.rank);
     const next=nextRankInfo(u.rank,u.totalPoints);
     const totalMedals=(u.medals||[]).filter(m=>m>0).length;
-
-    document.getElementById('profile-heading').textContent=u.name;
     document.getElementById('pi-rank').textContent=t.piRank(u.rank,rn);
     document.getElementById('pi-next-rank').textContent=next
       ?t.piNextRank(next.pointsNeeded,next.name)
@@ -1999,43 +2016,67 @@
     document.getElementById('pi-zones-count').textContent=t.piZonesCount((u.zones||[]).length);
     document.getElementById('pi-region').textContent=t.piRegion(u.region?.name??t.unknown);
     document.getElementById('pi-place').textContent=t.piPlace(u.place??'—');
-    document.getElementById('my-zones-heading').textContent=t.myZonesHeading;
+  }
 
-    /* Fetch and render owned zones */
-    fetchAndRenderMyZones(u.zones||[]);
+  let profileRefreshInFlight=false;
+  async function refreshProfilePageSequential(){
+    if(!savedUsername||profileRefreshInFlight) return;
+    profileRefreshInFlight=true;
+    const isOpen=()=>profileView.classList.contains('active');
+    try{
+      /* 1. Vänner — first in visual order */
+      if(isOpen()&&friendsList.length){
+        try{
+          const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify(friendsList.map(name=>({name}))));
+          data.forEach(u=>{
+            friendsStatsCache[u.name]={zonesCount:(u.zones||[]).length,pph:u.pointsPerHour??0,points:u.points??0};
+          });
+          if(isOpen()) renderFriendsList();
+        }catch(e){ /* keep old cache, list still shows names */ }
+        await sleep(1100);
+      }
 
-    /* Render friends list */
-    document.getElementById('friends-heading').textContent=t.friendsHeading;
-    renderFriendsList();
-    fetchFriendsStats();
-    updateUniqueZonesUI();
+      /* 2. Min statistik — always refreshed, also drives the toolbar Min profil label */
+      try{
+        const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify([{name:savedUsername}]));
+        if(data.length){
+          savedUserProfile=data[0];
+          applyUsernameUI();
+          if(isOpen()) renderProfileStatsOnly();
+        }
+      }catch(e){ /* keep stale profile data rather than showing an error */ }
+
+      /* 3. Mina zoner — last, heaviest payload */
+      if(isOpen()&&savedUserProfile){
+        await sleep(1100);
+        await fetchAndRenderMyZones(savedUserProfile.zones||[]);
+      }
+    } finally {
+      profileRefreshInFlight=false;
+    }
   }
 
   async function fetchAndRenderMyZones(zoneIds){
     const ul=document.getElementById('my-zones-list');
-    ul.innerHTML='';
     if(!zoneIds.length){
       ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">${t.myZonesEmpty}</li>`;
       return;
     }
     try{
-      const r=await fetch(`${API_BASE}/zones`,{
-        method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},
-        body:JSON.stringify(zoneIds.map(id=>({id})))
-      });
-      if(!r.ok) throw new Error();
-      const zones=await r.json();
+      const zones=await fetchJsonWithRetry(`${API_BASE}/zones`,JSON.stringify(zoneIds.map(id=>({id}))));
       if(userLat!==null){
         zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});
         zones.sort((a,b)=>a._dist-b._dist);
       } else { zones.sort((a,b)=>a.name.localeCompare(b.name)); }
       const frag=document.createDocumentFragment();
       zones.forEach((z,i)=>frag.appendChild(buildOwnedZoneItem(z,i+1,false,true)));
+      ul.innerHTML='';
       ul.appendChild(frag);
     }catch(e){
       ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
     }
   }
+
 
   /* ════════════════════════════════════════
      FRIENDS — added from the bottom of the Profile page.
@@ -2156,21 +2197,6 @@
       statusEl.textContent=t.fetchUniqueError;
     }
   });
-
-  async function fetchFriendsStats(){
-    if(!friendsList.length) return;
-    try{
-      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(friendsList.map(name=>({name})))});
-      if(!r.ok) throw new Error();
-      const data=await r.json();
-      data.forEach(u=>{
-        friendsStatsCache[u.name]={zonesCount:(u.zones||[]).length,pph:u.pointsPerHour??0,points:u.points??0};
-      });
-      renderFriendsList();
-    }catch(e){
-      /* fail silently — list just shows names without stats */
-    }
-  }
 
   let friendStatusTimer=null;
   function setFriendStatus(msg){
@@ -2702,9 +2728,7 @@
     try{
       const half=BBOX_DEG/2;
       const body=JSON.stringify([{northEast:{latitude:player.latitude+half,longitude:player.longitude+half},southWest:{latitude:player.latitude-half,longitude:player.longitude-half}}]);
-      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
-      if(!r.ok) return null;
-      const zones=await r.json();
+      const zones=await fetchJsonWithRetry(`${API_BASE}/zones`,body);
       if(!zones.length) return null;
       let best=null,bestDist=Infinity;
       for(const z of zones){
@@ -2785,14 +2809,19 @@
       const onlineNames=new Set(allPlayers.map(p=>p.name));
       activeFriends=new Set(friendsList.filter(name=>onlineNames.has(name)));
       /* ── Fetch nearest zone for each active friend, based on THEIR own position ──
-         (not the user's loaded zone list, which is often irrelevant if the friend is far away) */
+         (not the user's loaded zone list, which is often irrelevant if the friend is far away).
+         Fetched one at a time with spacing, not in parallel, to avoid colliding with the
+         Turf API's one-request-per-second limit when multiple friends are active at once. */
       const activeFriendPlayers=allPlayers.filter(p=>activeFriends.has(p.name));
-      const results=await Promise.all(activeFriendPlayers.map(async p=>{
-        const nz=await fetchNearestZoneForFriend(p);
-        return{name:p.name,zone:nz};
-      }));
       friendsNearZone={};
-      results.forEach(({name,zone})=>{ if(zone) friendsNearZone[name]=zone; });
+      for(let i=0;i<activeFriendPlayers.length;i++){
+        /* Small gap before the first one too, since it follows the location feed
+           request on the same API host — and the usual 1100ms gap between the rest. */
+        await sleep(i===0?400:1100);
+        const p=activeFriendPlayers[i];
+        const nz=await fetchNearestZoneForFriend(p);
+        if(nz) friendsNearZone[p.name]=nz;
+      }
       /* Re-render friends list to reflect updated online status and near-zone info */
       if(document.getElementById('profile-view').classList.contains('active')) renderFriendsList();
 
@@ -3378,7 +3407,6 @@
   /* ════════════════════════════════════════
      FETCH ZONES
   ════════════════════════════════════════ */
-  function sleep(ms){return new Promise(resolve=>setTimeout(resolve,ms))}
   const BBOX_TIERS=[BBOX_DEG,BBOX_DEG*2,BBOX_DEG*4,BBOX_DEG*8]; /* ~5km / ~10km / ~20km / ~40km */
   async function fetchNearbyZones(isAuto=false,attempt=0){
     if(isFetching||userLat===null)return;
@@ -3407,8 +3435,9 @@
       shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
       renderZoneSlice();
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
-      /* Keep "Mina zoner" and the Min profil button stats in sync with the same refresh cadence */
-      refreshProfileStats();
+      /* Keep "Min profil" button, and if open the full Profile page (Vänner, Min
+         statistik, Mina zoner in order), in sync with the same refresh cadence */
+      refreshProfilePageSequential();
       /* Zone data just became available — re-render the already-fetched nearby players list
          so "Nära [zon]" info gets backfilled if it was fetched before zones were ready
          (a race condition that could otherwise leave it missing until the next player poll).
