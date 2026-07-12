@@ -481,7 +481,7 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-10 17:30</span>
+      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-12 21:00</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
@@ -773,6 +773,8 @@
       available:'Tillgänglig',neverTaken:'Neutral zon',
       blocked:(d)=>`Blockerad — ${d} kvar`,
       blockedBy:(name,d)=>`Blockerad av ${name} — ${d} kvar.`,
+      blockedSpoken:(d)=>`Blockerad i ${d}.`,
+      blockedBySpoken:(name,d)=>`Blockerad av ${name} i ${d}.`,
       checkingBlock:'Kontrollerar blocktid…',
       takenAgo:(d)=>`Tagen ${d} sedan`,agoSuffix:'sedan',
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
@@ -995,6 +997,8 @@
       available:'Available',neverTaken:'Neutral zone',
       blocked:(d)=>`Blocked — ${d} remaining`,
       blockedBy:(name,d)=>`Blocked by ${name} — ${d} remaining.`,
+      blockedSpoken:(d)=>`Blocked for ${d}.`,
+      blockedBySpoken:(name,d)=>`Blocked by ${name} for ${d}.`,
       checkingBlock:'Checking block time…',
       takenAgo:(d)=>`Taken ${d} ago`,agoSuffix:'ago',
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
@@ -1503,10 +1507,10 @@
         ?`${zone.name}. ${t.myZone}. ${ds} bort. ${clock}.`
         :`${zone.name}. ${t.myZone}. ${ds} away. ${clock}.`;
     } else if(block.blocked===true&&owner){
-      const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+      const dur=formatDurationSpoken(block.remainingSec);
       msg=lang==='sv'
-        ?`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBy(owner,dur)}`
-        :`${zone.name}. ${ds} away. ${clock}. ${t.blockedBy(owner,dur)}`;
+        ?`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBySpoken(owner,dur)}`
+        :`${zone.name}. ${ds} away. ${clock}. ${t.blockedBySpoken(owner,dur)}`;
     } else if(block.label===t.neverTaken){
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
       msg=lang==='sv'
@@ -3093,6 +3097,25 @@
     if(sec>=60)return`${Math.floor(sec/60)}m ${(sec%60).toString().padStart(2,'0')}s`;
     return`${sec}s`;
   }
+  /* Spoken-only duration formatting — spells out full words so screen readers
+     never confuse minutes with the "m" abbreviation used for meters elsewhere.
+     Under 1 minute: "45 sekunder". 1 min–1h: "12 minuter och 35". 1h+: "1 timme, 12 minuter och 35". */
+  function formatDurationSpoken(sec){
+    if(sec===null||sec===undefined) return lang==='sv'?'okänd tid':'unknown time';
+    const totalSec=Math.round(sec);
+    const h=Math.floor(totalSec/3600);
+    const m=Math.floor((totalSec%3600)/60);
+    const s=totalSec%60;
+    if(lang==='sv'){
+      if(totalSec<60) return`${s} sekund${s===1?'':'er'}`;
+      if(h>0) return`${h} timme${h===1?'':'r'}, ${m} minut${m===1?'':'er'} och ${s}`;
+      return`${m} minut${m===1?'':'er'} och ${s}`;
+    } else {
+      if(totalSec<60) return`${s} second${s===1?'':'s'}`;
+      if(h>0) return`${h} hour${h===1?'':'s'}, ${m} minute${m===1?'':'s'} and ${s}`;
+      return`${m} minute${m===1?'':'s'} and ${s}`;
+    }
+  }
   function formatDate(iso){
     if(!iso)return t.unknown;
     return new Date(iso).toLocaleString(lang==='sv'?'sv-SE':'en-GB',{year:'numeric',month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'});
@@ -3113,7 +3136,7 @@
     if(entry===null)return{blocked:null,label:t.takenAgo(formatDuration(elapsed)),css:'pending'};
     const remaining=entry.blocktime-elapsed;
     if(remaining<=0)return{blocked:false,label:t.available,css:'free'};
-    return{blocked:true,label:t.blocked(formatDuration(remaining)),css:'blocked'};
+    return{blocked:true,label:t.blocked(formatDuration(remaining)),css:'blocked',remainingSec:remaining};
   }
 
   /* ════════════════════════════════════════
@@ -3158,16 +3181,16 @@
       if(isMyZone) return`${zone.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
       if(skipOwner){
         if(b.blocked===true){
-          const dur=b.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
-          return`${zone.name}. ${ds} bort. ${dirPart}${t.blocked(dur)}.`;
+          const dur=formatDurationSpoken(b.remainingSec);
+          return`${zone.name}. ${ds} bort. ${dirPart}${t.blockedSpoken(dur)}`;
         }
         if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${dirPart}${t.neverTaken}.`;
         return`${zone.name}. ${ds} bort. ${dirPart}`.trimEnd().replace(/\.$/, '')+'.';
       }
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
       if(b.blocked===true&&owner){
-        const dur=b.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
-        return`${zone.name}. ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
+        const dur=formatDurationSpoken(b.remainingSec);
+        return`${zone.name}. ${ds} bort. ${dirPart}${t.blockedBySpoken(owner,dur)}`;
       }
       if(b.label===t.neverTaken){
         return`${zone.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
@@ -3454,9 +3477,9 @@
           if(isMyZone){
             announcementText=`${prefix}${z.name}. ${t.myZone}. ${ds} bort. ${dirPart}`.trimEnd();
           } else if(block.blocked===true&&owner){
-            const dur=block.label.replace(/^Blocked — |^Blockerad — /,'').replace(/ remaining\.?$| kvar\.?$/,'');
+            const dur=formatDurationSpoken(block.remainingSec);
             const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${t.blockedBy(owner,dur)}`;
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${t.blockedBySpoken(owner,dur)}`;
           } else if(block.label===t.neverTaken){
             const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
             const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
