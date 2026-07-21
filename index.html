@@ -481,10 +481,12 @@
     <div id="lang-bar" role="group" aria-label="Välj språk">
       <button class="lang-btn" id="btn-lang-sv" aria-pressed="true"  aria-label="Byt till svenska">SV</button>
       <button class="lang-btn" id="btn-lang-en" aria-pressed="false" aria-label="Switch to English">EN</button>
-      <span class="update-line">Vibe coded with Claude by Conejo, last updated 2026-07-12 21:00</span>
     </div>
       </div><!-- end settings-panel -->
     </div><!-- end settings-section -->
+
+    <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-22 01:18</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -555,6 +557,11 @@
       </div>
     </div>
 
+    <div id="my-zones-section">
+      <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
+      <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
+
     <h2 id="my-stats-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Min statistik</h2>
     <ul id="profile-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pi-rank">—</li>
@@ -569,11 +576,6 @@
       <li id="pi-region">—</li>
       <li id="pi-place">—</li>
     </ul>
-
-    <div id="my-zones-section">
-      <h2 id="my-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina zoner</h2>
-      <ul id="my-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
-    </div>
 
     <!-- Unique zones section — at the very end of profile page -->
     <div id="unique-zones-section">
@@ -618,6 +620,10 @@
       style="display:block;width:100%;font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.4rem .75rem;cursor:pointer;background:transparent;color:var(--muted);margin-bottom:.75rem;text-align:left;transition:background .15s,color .15s,border-color .15s;">
       Visa i spelare i närheten
     </button>
+    <div id="player-owned-zones-section">
+      <h2 id="player-owned-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">—</h2>
+      <ul id="player-owned-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
     <ul id="player-detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="pdi-rank">—</li>
       <li id="pdi-next-rank">—</li>
@@ -631,10 +637,6 @@
       <li id="pdi-region">—</li>
       <li id="pdi-place">—</li>
     </ul>
-    <div id="player-owned-zones-section">
-      <h2 id="player-owned-zones-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">—</h2>
-      <ul id="player-owned-zones-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
-    </div>
     <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
 
