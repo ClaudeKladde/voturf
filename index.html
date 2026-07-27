@@ -243,8 +243,9 @@
           <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny med fem alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner och Sök zoner. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med sex alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner och Avancerad visning. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
           <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
+          <li id="tip-7c">Avancerad visning fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad) och zontyp direkt efter zonens namn för zoner med en specifik karaktär, till exempel Monument eller Bro. Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -322,6 +323,7 @@
             <li><button role="option" data-filter="blocked"      aria-checked="false">Blockerade</button></li>
             <li><button role="option" data-filter="notunique"    aria-checked="false">Närmsta unikazoner</button></li>
             <li><button role="option" data-filter="search"       aria-checked="false">Sök zoner</button></li>
+            <li><button role="option" data-filter="advanced"     aria-checked="false">Avancerad visning</button></li>
           </ul>
         </div>
         <div id="voice-menu-wrap">
@@ -338,6 +340,8 @@
     </div>
 
     <div id="status-msg">Hämtar navigationsposition…</div>
+    <div id="elevation-status" role="status" aria-live="polite" aria-atomic="true"
+      style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
 
     <!-- Search zone area — shown only when Sök zoner filter is active -->
     <div id="search-zone-section" hidden>
@@ -487,7 +491,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-27 16:08</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-27 16:44</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -681,8 +685,9 @@
         'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
-        'Filter-knappen öppnar en meny med fem alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner och Sök zoner. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
+        'Filter-knappen öppnar en meny med sex alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner och Avancerad visning. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
         'Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
+        'Avancerad visning fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad) och zontyp direkt efter zonens namn för zoner med en specifik karaktär, till exempel Monument eller Bro. Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.',
@@ -797,8 +802,12 @@
       ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
       filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
       filterNotUnique:'Närmsta unikazoner',filterSearch:'Sök zoner',
+      filterAdvanced:'Avancerad visning',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
+      elevUp:(m)=>`${m} m upp.`,elevDown:(m)=>`${m} m ner.`,
+      elevationStatusOk:'Höjdinformation kunde hämtas.',
+      elevationStatusFail:'Höjdinformation kunde inte hämtas den här gången.',
       searchPlaceholder:'Adress, stad — t.ex. Drottninggatan 1, Stockholm',
       searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress',
       searchHeading:'Sök zoner',searchResultsHeading:'Sökresultat',
@@ -884,7 +893,7 @@
       speedPlusAria:(s)=>`Öka talhastighet till ${s}.`,
       tipsCloseTop:'Stäng instruktioner',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
-      dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',
+      dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',dkHeight:'Höjd',
       awaySuffix:'bort',
       dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
       dkOwner:'Nuvarande ägare',dkLasttaken:'Senast tagen',
@@ -912,8 +921,9 @@
         'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Voice mode.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
-        'The Filter button opens a menu with five options: All zones, Available, Blocked, Nearest unique zones, and Search zones. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
+        'The Filter button opens a menu with six options: All zones, Available, Blocked, Nearest unique zones, Search zones, and Advanced view. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
         'The Search zones filter lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
+        'Advanced view works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more) and the zone type right after the zone\'s name for zones with a specific character, such as Monument or Bridge. Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'The Voice mode button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
         'Tap a player in the list to open their profile with stats and owned zones. Right after the player\'s name are the Add as friend and Show in nearby players buttons.',
@@ -1028,8 +1038,12 @@
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
       filterNotUnique:'Nearest unique zones',filterSearch:'Zone search',
+      filterAdvanced:'Advanced view',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
+      elevUp:(m)=>`${m} m up.`,elevDown:(m)=>`${m} m down.`,
+      elevationStatusOk:'Elevation data could be fetched.',
+      elevationStatusFail:'Elevation data could not be fetched this time.',
       searchPlaceholder:'Address, city — e.g. King Street 1, London',
       searchBtn:'Search',searchBtnAria:'Search zones near the given address',
       searchHeading:'Zone search',searchResultsHeading:'Search results',
@@ -1115,7 +1129,7 @@
       speedPlusAria:(s)=>`Increase voice rate to ${s}.`,
       tipsCloseTop:'Close instructions',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
-      dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',
+      dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',dkHeight:'Height',
       awaySuffix:'away',
       dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
       dkOwner:'Current owner',dkLasttaken:'Last taken',
@@ -1169,6 +1183,15 @@
   let compassEnabled=true;   /* toggled by compass settings button */
   let allZonesSorted=[],shownCount=INITIAL_MAX;
   let activeFilter='all';
+  /* Advanced view — elevation lookups via Open-Elevation (open, key-free, batchable),
+     used the same way for the user's own position and every zone so both sides of the
+     height comparison come from the same data source instead of mixing it with the
+     device's own (often missing/noisy) GPS altitude. Session-only, never persisted —
+     coordinates are re-looked-up fresh each session, and the diagnostic below only
+     needs to reassure the user once per session that the feature is working. */
+  let elevationCache=new Map(); // "lat.toFixed(4),lon.toFixed(4)" -> elevation in meters
+  let elevationFetchInFlight=false;
+  let elevationDiagnosticShown=false;
   const ownerCache={};
   let refreshInterval=INTERVAL_DEFAULT;
   let voiceSpeed=SPEED_DEFAULT;
@@ -1839,7 +1862,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[3,5,1,2,2,3,2,1,3];
+      const sectionSizes=[3,6,1,2,2,3,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -1861,6 +1884,7 @@
     if(opts[2]) opts[2].textContent=t.filterBlocked;
     if(opts[3]) opts[3].textContent=t.filterNotUnique;
     if(opts[4]) opts[4].textContent=t.filterSearch;
+    if(opts[5]) opts[5].textContent=t.filterAdvanced;
     /* Search section labels */
     const szh=document.getElementById('search-zone-heading');
     if(szh) szh.textContent=t.searchHeading;
@@ -2436,6 +2460,7 @@
     if(activeFilter==='blocked')   return t.filterBlocked;
     if(activeFilter==='notunique') return t.filterNotUnique;
     if(activeFilter==='search')    return t.filterSearch;
+    if(activeFilter==='advanced')  return t.filterAdvanced;
     return t.filterAll;
   }
   function updateFilterLabel(){
@@ -2482,6 +2507,83 @@
     if(activeFilter==='notunique') return zones.filter(z=>isUniqueZone(z.name));
     /* search mode — zones already loaded for the searched address, no extra filter */
     return zones;
+  }
+
+  /* ════════════════════════════════════════
+     ADVANCED VIEW — elevation via Open-Elevation
+  ════════════════════════════════════════ */
+  function elevKey(lat,lon){return `${lat.toFixed(4)},${lon.toFixed(4)}`}
+
+  /* Fetches elevation for the user's own position plus any zone not already
+     cached, in a single batched request. Only ever active in Avancerad visning.
+     Re-renders once new data lands so heights backfill without waiting for the
+     next full refresh cycle. Failures are silent for the zone list itself —
+     zones keep showing normally, just without a height line — the one-time
+     aria-live diagnostic is the only user-visible sign of success or failure. */
+  async function ensureElevationData(zones){
+    if(activeFilter!=='advanced'||elevationFetchInFlight) return;
+    if(userLat===null||userLon===null) return;
+    const points=[{lat:userLat,lon:userLon}, ...zones.map(z=>({lat:z.latitude,lon:z.longitude}))];
+    const needed=points.filter(p=>!elevationCache.has(elevKey(p.lat,p.lon)));
+    if(!needed.length) return;
+    elevationFetchInFlight=true;
+    try{
+      const body=JSON.stringify({locations:needed.map(p=>({latitude:p.lat,longitude:p.lon}))});
+      const r=await fetch('https://api.open-elevation.com/api/v1/lookup',{method:'POST',headers:{'Content-Type':'application/json'},body});
+      if(!r.ok) throw new Error();
+      const data=await r.json();
+      (data.results||[]).forEach((res,i)=>{
+        elevationCache.set(elevKey(needed[i].lat,needed[i].lon),res.elevation);
+      });
+      if(!elevationDiagnosticShown){
+        elevationDiagnosticShown=true;
+        const elEl=document.getElementById('elevation-status');
+        if(elEl){elEl.textContent=t.elevationStatusOk;setTimeout(()=>{elEl.textContent='';},6000);}
+      }
+      if(activeFilter==='advanced') renderZoneSlice();
+    }catch(e){
+      if(!elevationDiagnosticShown){
+        elevationDiagnosticShown=true;
+        const elEl=document.getElementById('elevation-status');
+        if(elEl){elEl.textContent=t.elevationStatusFail;setTimeout(()=>{elEl.textContent='';},6000);}
+      }
+    }finally{
+      elevationFetchInFlight=false;
+    }
+  }
+
+  /* Rounded to the nearest 5 m and only spoken/shown at all above a 10 m
+     threshold — both device and dataset are approximate, so small differences
+     would just be noise dressed up as false precision. */
+  function elevationDiffFor(zone){
+    if(activeFilter!=='advanced'||userLat===null||userLon===null) return null;
+    const userElev=elevationCache.get(elevKey(userLat,userLon));
+    const zoneElev=elevationCache.get(elevKey(zone.latitude,zone.longitude));
+    if(userElev==null||zoneElev==null) return null;
+    const rounded=Math.round((zoneElev-userElev)/5)*5;
+    if(Math.abs(rounded)<10) return null;
+    return rounded;
+  }
+  function elevationSentence(zone){
+    const diff=elevationDiffFor(zone);
+    if(diff===null) return '';
+    return diff>0?t.elevUp(diff):t.elevDown(Math.abs(diff));
+  }
+  function elevationVisual(zone){
+    const diff=elevationDiffFor(zone);
+    if(diff===null) return null;
+    return diff>0?`↑ ${diff} m`:`↓ ${Math.abs(diff)} m`;
+  }
+
+  /* Zone type — only spoken/shown in Avancerad visning, and only when it says
+     something more specific than the generic "Okänd"/"Unknown" the API returns
+     for ordinary zones. */
+  function zoneTypeName(zone){
+    if(activeFilter!=='advanced') return '';
+    const name=zone.type?.name?.trim();
+    if(!name) return '';
+    const generic=name.toLowerCase()==='okänd'||name.toLowerCase()==='unknown';
+    return generic?'':name;
   }
 
   /* ════════════════════════════════════════
@@ -3282,24 +3384,26 @@
 
     function buildLabel(b){
       const dirPart=clock?`${clock}. `:'';
-      if(isMyZone) return`${zone.name}. ${ds} bort. ${dirPart}${t.myZone}.`;
+      const elevSentence=elevationSentence(zone);
+      const dirElevPart=elevSentence?`${dirPart}${elevSentence} `:dirPart;
+      if(isMyZone) return`${zone.name}. ${ds} bort. ${dirElevPart}${t.myZone}.`;
       if(skipOwner){
         if(b.blocked===true){
           const dur=formatDurationSpoken(b.remainingSec);
-          return`${zone.name}. ${ds} bort. ${dirPart}${t.blockedSpoken(dur)}`;
+          return`${zone.name}. ${ds} bort. ${dirElevPart}${t.blockedSpoken(dur)}`;
         }
-        if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${dirPart}${t.neverTaken}.`;
-        return`${zone.name}. ${ds} bort. ${dirPart}`.trimEnd().replace(/\.$/, '')+'.';
+        if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${dirElevPart}${t.neverTaken}.`;
+        return`${zone.name}. ${ds} bort. ${dirElevPart}`.trimEnd().replace(/\.$/, '')+'.';
       }
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
       if(b.blocked===true&&owner){
         const dur=formatDurationSpoken(b.remainingSec);
-        return`${zone.name}. ${ds} bort. ${dirPart}${t.blockedBySpoken(owner,dur)}`;
+        return`${zone.name}. ${ds} bort. ${dirElevPart}${t.blockedBySpoken(owner,dur)}`;
       }
       if(b.label===t.neverTaken){
-        return`${zone.name}. ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
+        return`${zone.name}. ${ds} bort. ${dirElevPart}${ownerPart} ${t.neverTaken}.`;
       }
-      return`${zone.name}. ${ds} bort. ${dirPart}${ownerPart}`;
+      return`${zone.name}. ${ds} bort. ${dirElevPart}${ownerPart}`;
     }
 
     const ownerField=(skipOwner||isMyZone)?'':
@@ -3313,28 +3417,41 @@
     const uniqueBadge=isUnique
       ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:#000;background:var(--accent);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${escHtml(t.uniqueBadge??'Unik')}</span>`
       :'';
-    /* "Unik zon." placed directly after name for natural VoiceOver reading order */
-    const uniqueSuffix=isUnique?(lang==='sv'?' Unik zon.':' Unique zone.'):'';
-    function buildLabelWithUnique(b){
+    /* Zone type (Avancerad visning only) — shown as its own badge/sentence directly
+       after the name, same reading-order principle as "Unik zon." below. Order
+       confirmed with the user: type first, then unique. */
+    const typeName=zoneTypeName(zone);
+    const typeBadge=typeName
+      ?`<span style="font-family:var(--font-mono);font-size:.72rem;color:var(--text);background:var(--surface);border:1px solid var(--border);border-radius:.25rem;padding:.05rem .35rem;margin-left:.4rem;" aria-hidden="true">${escHtml(typeName)}</span>`
+      :'';
+    const typeSentence=typeName?`${typeName}.`:'';
+    const uniqueSentence=isUnique?(lang==='sv'?'Unik zon.':'Unique zone.'):'';
+    function buildLabelWithExtras(b){
       const base=buildLabel(b);
-      /* Insert unique suffix after first sentence (zone name) */
+      const extras=[typeSentence,uniqueSentence].filter(Boolean).join(' ');
+      if(!extras) return base;
+      /* Insert extras after first sentence (zone name) */
       const firstDot=base.indexOf('. ');
-      if(isUnique&&firstDot!==-1){
-        return base.slice(0,firstDot+1)+uniqueSuffix+' '+base.slice(firstDot+2);
-      }
-      return base+uniqueSuffix;
+      if(firstDot===-1) return base+' '+extras;
+      return base.slice(0,firstDot+1)+' '+extras+' '+base.slice(firstDot+2);
     }
-    const spokenLabel=buildLabelWithUnique(block);
+    const spokenLabel=buildLabelWithExtras(block);
+
+    const heightVal=elevationVisual(zone);
+    const heightField=heightVal
+      ?`<div class="zv-field"><span class="zv-label">${t.dkHeight}</span><span class="zv-value">${escHtml(heightVal)}</span></div>`
+      :'';
 
     const li=document.createElement('li');
     li.className='zone-card';
     li.innerHTML=`
       <button class="zone-btn" aria-label="${escAttr(spokenLabel)}">
         <div aria-hidden="true">
-          <div class="zv-name" style="${nameColor}"><span class="zv-rank">#${rank}</span>${escHtml(zone.name)}${uniqueBadge}<span class="zv-arrow">&#8594;</span></div>
+          <div class="zv-name" style="${nameColor}"><span class="zv-rank">#${rank}</span>${escHtml(zone.name)}${typeBadge}${uniqueBadge}<span class="zv-arrow">&#8594;</span></div>
           <div class="zv-strip">
             <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
             <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock.split(',')[0]}</span></div>
+            ${heightField}
             ${ownerField}
             <div class="zv-field"><span class="zv-label">${t.dkStatus}</span><span class="zv-value ${blockCss} js-block-val">${escHtml(blockDisplay)}</span></div>
           </div>
@@ -3342,7 +3459,7 @@
       </button>`;
     const btn=li.querySelector('.zone-btn');
     btn.addEventListener('click',()=>{lastFocusedBtn=btn;showDetail(zone)});
-    li._zone=zone;li._buildLabel=buildLabelWithUnique;
+    li._zone=zone;li._buildLabel=buildLabelWithExtras;
     return li;
   }
 
@@ -3393,6 +3510,7 @@
       btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(visible);startBlockTicker();
+    if(activeFilter==='advanced') ensureElevationData(visible);
   }
 
   function loadMore(){
@@ -3410,6 +3528,7 @@
       btnLoadMore.textContent=t.loadMore(n);btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(slice);
+    if(activeFilter==='advanced') ensureElevationData(slice);
     zoneList.querySelectorAll('.zone-card')[prev]?.querySelector('.zone-btn')?.focus();
   }
   btnLoadMore.addEventListener('click',loadMore);

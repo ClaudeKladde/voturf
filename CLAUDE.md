@@ -246,11 +246,29 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 
 ### Filter
 
-Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner.
+Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning.
 
 **Sök zoner** använder Nominatim för adressgeokodning, pausar automatiska
 uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar.
 Avstånd och riktning beräknas relativt adressen, inte GPS-positionen.
+
+**Avancerad visning** fungerar som Alla zoner (`getFilteredZones()` gör ingen
+extra filtrering för den) men berikar varje zons text med två extra fält:
+
+- **Höjdskillnad** relativt din position, direkt efter riktningen (`"15 m upp."`
+  / `"20 m ner."`). Hämtas från **Open-Elevation** (`api.open-elevation.com`,
+  öppen, nyckelfri, SRTM-baserad) — samma tjänst används för både din egen
+  position och varje zon, så att jämförelsen inte blandar telefonens egen
+  (ofta opålitliga) GPS-höjd med en separat datakälla. Ett enda batch-anrop
+  per uppdatering (`ensureElevationData()`), cachas i `elevationCache` keyed på
+  `lat.toFixed(4),lon.toFixed(4)`. Avrundas till närmaste 5 m, meddelas bara
+  vid minst 10 m skillnad — annars visas inget höjdfält alls. Misslyckas
+  anropet visas zonen ändå, bara utan höjd. En engångsdiagnos via `aria-live`
+  (`#elevation-status`) meddelar en gång per app-session om hämtningen
+  fungerade — session-scoped i minnet, sparas inte i localStorage.
+- **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
+  inga extra anrop) direkt efter zonens namn, före "Unik zon." om båda gäller.
+  Visas bara när namnet inte är det generiska `"Okänd"`/`"Unknown"`.
 
 ### Röstläge
 
