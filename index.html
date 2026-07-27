@@ -486,7 +486,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-22 01:00</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-27 10:13</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -588,6 +588,10 @@
           target="_blank" rel="noopener"
           style="color:var(--accent2);">Se extern guide för hur du begär din lista.</a>
       </p>
+      <button id="btn-fetch-unique"
+        style="display:block;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem .75rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
+        Hämta unikazoner
+      </button>
       <div id="unique-zones-file-wrap" style="margin-bottom:.5rem">
         <label for="unique-zones-file" id="lbl-unique-zones-file"
           style="display:block;font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.35rem;">
@@ -1718,6 +1722,8 @@
     if(uzhEl) uzhEl.textContent=t.uniqueZonesHeading;
     const lblFileEl=document.getElementById('lbl-unique-zones-file');
     if(lblFileEl) lblFileEl.textContent=t.uniqueZonesFileLabel??'Ladda upp fil (.txt, .kml):';
+    const btnFetchUnique=document.getElementById('btn-fetch-unique');
+    if(btnFetchUnique) btnFetchUnique.textContent=t.fetchUniqueBtn;
     if(typeof updateUniqueZonesUI==='function') updateUniqueZonesUI();
     const lblPlayerFreq=document.getElementById('lbl-player-freq');
     if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
@@ -2201,6 +2207,30 @@
       statusEl.textContent=t.fetchUniqueError;
     }
   });
+
+  /* Automatic unique-zones fetch — GetZonefile.php on turf.lundkvist.com,
+     added by that site's webmaster specifically for this app (country=voturf
+     returns all of the user's unique zones across every region in one call).
+     File upload above remains the fallback if this fetch fails (e.g. CORS). */
+  async function fetchUniqueZonesAuto(){
+    if(!savedUsername) return;
+    const statusEl=document.getElementById('unique-zones-status');
+    statusEl.textContent=t.fetchUniqueLoading;
+    try{
+      const url=`https://turf.lundkvist.com/GetZonefile.php?user=${encodeURIComponent(savedUsername)}&country=voturf`;
+      const r=await fetch(url);
+      if(!r.ok) throw new Error();
+      const text=await r.text();
+      const names=parseKml(text);
+      if(!names.length) throw new Error('empty');
+      parseAndStoreUniqueZones(names);
+      statusEl.textContent=t.fetchUniqueSuccess(uniqueZoneNames.size);
+      setTimeout(()=>{statusEl.textContent='';},6000);
+    }catch(e){
+      statusEl.textContent=t.fetchUniqueCorsError;
+    }
+  }
+  document.getElementById('btn-fetch-unique')?.addEventListener('click',fetchUniqueZonesAuto);
 
   let friendStatusTimer=null;
   function setFriendStatus(msg){

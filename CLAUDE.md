@@ -310,31 +310,21 @@ Instruktionerna (tips) finns både som statisk HTML **och** som JS-arrayer.
 
 ## 9. Pågående arbete
 
-### Automatisk hämtning av unikazoner (ej klart)
+### Automatisk hämtning av unikazoner (klar)
 
-Användaren måste idag manuellt ladda ner en fil från turf.lundkvist.com och ladda
-upp den i appen.
+Webbmastern för turf.lundkvist.com har lagt till stöd specifikt för den här appen:
+`GetZonefile.php?user=NAMN&country=voturf` returnerar samtliga unikazoner för
+användaren, över alla regioner/länder, i ett enda KML-anrop.
 
-**Status:** Webbmastern för turf.lundkvist.com har enligt användaren nyligen lagt
-till stöd för att hämta listan direkt. Detta är **ännu inte verifierat**.
+Knappen "Hämta unikazoner" i unikazoner-sektionen på profilsidan (ovanför
+filuppladdningsfältet) gör ett `fetch()` mot den URL:en och tolkar svaret med
+samma `parseKml()`-funktion som filuppladdning redan använder. Vid fel (t.ex.
+CORS) visas `fetchUniqueCorsError` via `aria-live`, och filuppladdning finns
+kvar som fallback.
 
-**Nästa steg:** bygg in en testknapp i unikazoner-sektionen på profilsidan,
-ovanför filuppladdningsfältet:
-
-- Etikett: "Testa automatisk hämtning"
-- Bygger URL med sparat användarnamn mot `GetZonefile.php`:
-  `?user=NAMN&country=%23ALLA%23&countryFTT=se&regionFTT=%23ALLA%23&showMe=on&zones=unika`
-- Gör ett riktigt `fetch()`-anrop
-- Vid lyckat svar: tolka och fyll listan som vid filuppladdning
-- Vid CORS-fel: visa tydligt felmeddelande via `aria-live`
-- Filuppladdning ska finnas kvar som fallback oavsett
-
-**Öppen fråga:** filformatet från "Spara tagna"-länken är inte bekräftat. Fråga
-användaren om det är samma tabb-separerade textformat (kolumn 1 = zonnamn) som
-redan fungerar, eller något annat.
-
-**Bakgrund:** filuppladdning stödjer idag `.txt` (tabb-separerad) och `.kml`.
-KML-export från sidan gav tidigare tomma filer — textformatet fungerade.
+**Bakgrund:** filuppladdning stödjer `.txt` (tabb-separerad) och `.kml`.
+Ett verkligt exportfilexempel (944 zoner, `Placemark`-struktur, alla regioner
+i Sverige) har verifierats fungera med befintlig `parseKml()` utan ändringar.
 
 ---
 
