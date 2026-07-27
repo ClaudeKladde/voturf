@@ -266,7 +266,8 @@ turf-lang, turf-interval, turf-speed, turf-volume, turf-voice-mode,
 turf-compass, turf-username, turf-hide-taken, turf-player-notify,
 turf-player-freq, turf-player-radius, turf-friends,
 turf-friends-show-nearby, turf-players-hidden-nearby,
-turf-unique-zones, turf-pause
+turf-unique-zones, turf-pause, turf-unique-auto-fetch,
+turf-unique-count-baseline
 ```
 
 ---
@@ -316,11 +317,24 @@ Webbmastern för turf.lundkvist.com har lagt till stöd specifikt för den här 
 `GetZonefile.php?user=NAMN&country=voturf` returnerar samtliga unikazoner för
 användaren, över alla regioner/länder, i ett enda KML-anrop.
 
-Knappen "Hämta unikazoner" i unikazoner-sektionen på profilsidan (ovanför
-filuppladdningsfältet) gör ett `fetch()` mot den URL:en och tolkar svaret med
-samma `parseKml()`-funktion som filuppladdning redan använder. Vid fel (t.ex.
-CORS) visas `fetchUniqueCorsError` via `aria-live`, och filuppladdning finns
-kvar som fallback.
+Knappen "Aktivera automatisk hämtning" i unikazoner-sektionen på profilsidan
+(ovanför filuppladdningsfältet) gör ett `fetch()` mot den URL:en och tolkar
+svaret med samma `parseKml()`-funktion som filuppladdning redan använder. Vid
+fel (t.ex. CORS) visas `fetchUniqueCorsError` via `aria-live`, och
+filuppladdning finns kvar som fallback. Knappen är en engångsaktivering, inte
+en toggle — efter lyckad aktivering visas den som en inaktiv statusbekräftelse
+("Automatisk hämtning aktiverad") istället för att gå att stänga av igen.
+
+**Automatisk uppdatering efter aktivering:** Turfs officiella API exponerar
+bara ett antal (`u.uniqueZonesTaken`), inte namnen, men det antalet hämtas
+redan på varje ordinarie uppdateringscykel i `refreshProfilePageSequential()`.
+Så fort aktiveringen skett sparas det antalet som baslinje
+(`turf-unique-count-baseline`). Vid varje efterföljande cykel jämförs nytt
+antal mot baslinjen — har det ökat hämtas listan om igen tyst (`silent=true`,
+ingen `aria-live`-avbrott) och baslinjen uppdateras. Misslyckas den tysta
+hämtningen lämnas baslinjen orörd så nästa cykel försöker igen automatiskt.
+Detta undviker att belasta turf.lundkvist.com med ett eget separat
+pollningsintervall.
 
 **Bakgrund:** filuppladdning stödjer `.txt` (tabb-separerad) och `.kml`.
 Ett verkligt exportfilexempel (944 zoner, `Placemark`-struktur, alla regioner
