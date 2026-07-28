@@ -246,7 +246,7 @@
           <li id="tip-7">Filter-knappen öppnar en meny med sju alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd och Avancerat läge med hinder. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
           <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
           <li id="tip-7c">Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
-          <li id="tip-7d">Avancerat läge med hinder fungerar som Alla zoner men kollar om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
+          <li id="tip-7d">Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -493,7 +493,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 15:24</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 20:24</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -690,7 +690,7 @@
         'Filter-knappen öppnar en meny med sju alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd och Avancerat läge med hinder. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
         'Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
         'Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
-        'Avancerat läge med hinder fungerar som Alla zoner men kollar om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
+        'Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
         'Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.',
@@ -932,7 +932,7 @@
         'The Filter button opens a menu with seven options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, and Advanced mode with obstacles. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
         'The Search zones filter lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
         'Advanced view with height works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
-        'Advanced mode with obstacles works like All zones but checks whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
+        'Advanced mode with obstacles works like All zones but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
         'The Voice mode button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
         'Tap a player in the list to open their profile with stats and owned zones. Right after the player\'s name are the Add as friend and Show in nearby players buttons.',
@@ -2537,7 +2537,7 @@
      zones keep showing normally, just without a height line — the one-time
      aria-live diagnostic is the only user-visible sign of success or failure. */
   async function ensureElevationData(zones){
-    if(activeFilter!=='advanced'||elevationFetchInFlight) return;
+    if((activeFilter!=='advanced'&&activeFilter!=='advancedObstacle')||elevationFetchInFlight) return;
     if(userLat===null||userLon===null) return;
     const points=[{lat:userLat,lon:userLon}, ...zones.map(z=>({lat:z.latitude,lon:z.longitude}))];
     const needed=points.filter(p=>!elevationCache.has(coordKey(p.lat,p.lon)));
@@ -2556,7 +2556,7 @@
         const elEl=document.getElementById('advanced-status');
         if(elEl){elEl.textContent=t.elevationStatusOk;setTimeout(()=>{elEl.textContent='';},6000);}
       }
-      if(activeFilter==='advanced') renderZoneSlice();
+      if(activeFilter==='advanced'||activeFilter==='advancedObstacle') renderZoneSlice();
     }catch(e){
       if(!elevationDiagnosticShown){
         elevationDiagnosticShown=true;
@@ -2571,8 +2571,11 @@
   /* Rounded to the nearest 5 m and only spoken/shown at all above a 10 m
      threshold — both device and dataset are approximate, so small differences
      would just be noise dressed up as false precision. */
+  /* Shown in both advanced filters — Avancerad visning med höjd on its own,
+     and Avancerat läge med hinder alongside obstacle info, since height is
+     useful context when judging whether an obstacle is actually a problem. */
   function elevationDiffFor(zone){
-    if(activeFilter!=='advanced'||userLat===null||userLon===null) return null;
+    if((activeFilter!=='advanced'&&activeFilter!=='advancedObstacle')||userLat===null||userLon===null) return null;
     const userElev=elevationCache.get(coordKey(userLat,userLon));
     const zoneElev=elevationCache.get(coordKey(zone.latitude,zone.longitude));
     if(userElev==null||zoneElev==null) return null;
@@ -3511,9 +3514,8 @@
 
     function buildLabel(b){
       const dirPart=clock?`${clock}. `:'';
-      /* Elevation (Avancerad visning med höjd) and obstacle (Avancerat läge med
-         hinder) are two mutually exclusive filter modes, so at most one of
-         these ever contributes text — see elevationSentence/obstacleSentence. */
+      /* Height is shown in both advanced filters; obstacle only in Avancerat
+         läge med hinder — so both can appear together there, height first. */
       const pathInfo=[elevationSentence(zone),obstacleSentence(zone)].filter(Boolean).join(' ');
       const dirElevPart=pathInfo?`${dirPart}${pathInfo} `:dirPart;
       if(isMyZone) return`${zone.name}. ${ds} bort. ${dirElevPart}${t.myZone}.`;
@@ -3645,7 +3647,7 @@
       btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(visible);startBlockTicker();
-    if(activeFilter==='advanced') ensureElevationData(visible);
+    if(activeFilter==='advanced'||activeFilter==='advancedObstacle') ensureElevationData(visible);
     if(activeFilter==='advancedObstacle') ensureObstacleData(visible);
   }
 
@@ -3664,7 +3666,7 @@
       btnLoadMore.textContent=t.loadMore(n);btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(slice);
-    if(activeFilter==='advanced') ensureElevationData(slice);
+    if(activeFilter==='advanced'||activeFilter==='advancedObstacle') ensureElevationData(slice);
     if(activeFilter==='advancedObstacle') ensureObstacleData(slice);
     zoneList.querySelectorAll('.zone-card')[prev]?.querySelector('.zone-btn')?.focus();
   }

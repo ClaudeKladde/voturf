@@ -272,10 +272,12 @@ anropet visas zonen ändå, bara utan höjd. En engångsdiagnos via `aria-live`
 (`#advanced-status`) meddelar en gång per app-session om hämtningen
 fungerade — session-scoped i minnet, sparas inte i localStorage.
 
-**Avancerat läge med hinder** — kollar om fågelvägen (samma linje som
-avstånd/riktning redan räknas från) mellan dig och zonen korsar vatten
-(`natural=water`/`waterway`), motorväg (**bara** `highway=motorway`, inte
-trunk-vägar) eller järnväg (`railway=rail`), direkt efter riktningen.
+**Avancerat läge med hinder** — visar både höjdskillnad (samma logik och
+`#advanced-status`-diagnos som Avancerad visning med höjd ovan) och en koll på
+om fågelvägen (samma linje som avstånd/riktning redan räknas från) mellan dig
+och zonen korsar vatten (`natural=water`/`waterway`), motorväg (**bara**
+`highway=motorway`, inte trunk-vägar) eller järnväg (`railway=rail`), båda
+direkt efter riktningen.
 Hämtas via **Overpass API** (`overpass.kumi.systems` — bytt från
 `overpass-api.de` efter att den instansen gav "Load failed"/nätverksfel i
 praktiken; samma öppna OpenStreetMap-familj som Nominatim), ett anrop per
