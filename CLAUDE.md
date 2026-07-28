@@ -135,7 +135,7 @@ inte för lite. Konkreta lärdomar:
 
 Viktig information ska komma **direkt efter namnet**, inte i slutet:
 
-- Zoner: `"Plattan. Unik zon. 150 m bort. Klockan 5. Ägd av X."`
+- Zoner: `"Plattan. Unik. 150 m bort. Klockan 5. Ägd av X."`
 - Vänner: `"TurferX. 80 m till Plattan. Äger 4 zoner. +15. Poäng 12450."`
 
 ### Meter kontra minuter
@@ -293,19 +293,29 @@ skiljer på "korsar" och "går över/under".
 
 **Cykling** — till skillnad från de två filtren ovan (som bara berikar text på
 den redan fågelvägs-sorterade listan) **sorterar om** listan efter faktiskt
-cykelruttavstånd. Tar de `CYCLING_POOL_SIZE` (15) närmaste zonerna enligt
-fågelvägen som kandidater och gör ett enda batchat matris-anrop
-(`ensureCyclingData()`) mot **`routing.openstreetmap.de/routed-bike`** (OSRM,
-samma öppna OpenStreetMap-familj), med användarens position som källa och
-kandidaterna som mål (`/table/v1/bike/...?sources=0&destinations=1;2;...`).
+cykelruttavstånd. `getFilteredZones()` gör ingen egen filtrering/slicing för
+Cykling (returnerar hela fågelvägs-sorterade listan, som för Alla zoner) —
+istället är det bara den vanliga `shownCount`/"Ladda fler"-sidnumreringen som
+avgör kandidatpoolen. Vid filterbyte till Cykling sätts `shownCount` till
+`CYCLING_POOL_SIZE` (15) istället för det vanliga `INITIAL_MAX`, och varje
+tryck på "Ladda fler" utökar poolen med `PAGE_SIZE` precis som alla andra
+filter. Skillnaden är att `renderZoneSlice()` kör den synliga delen genom
+`sortCyclingPool()` innan den ritas, och att `loadMore()` för Cykling anropar
+`renderZoneSlice()` i sin helhet istället för att bara lägga till nya kort
+längst ner — eftersom omsorteringen kan flytta om redan synliga zoner också.
+Ett enda batchat matris-anrop per uppdatering (`ensureCyclingData()`) mot
+**`routing.openstreetmap.de/routed-bike`** (OSRM, samma öppna
+OpenStreetMap-familj), med användarens position som källa och den synliga
+poolen som mål (`/table/v1/bike/...?sources=0&destinations=1;2;...`).
 Detta var den "ruttberäkningsvariant" som tidigare diskuterats men inte
 byggts — en fungerande nyckelfri tjänst hittades till slut.
 Höjdskillnad visas kvar (samma `elevationSentence()`), men hinderkollen
 (linjekorsning) utesluts medvetet — en riktig beräknad cykelrutt kan redan
 inte gå genom vatten eller en motorväg, så den gissningen blir överflödig.
 Cykelavstånd och fågelvägsavstånd visas båda (`"850 m cykling, cirka 3
-minuter. 300 m bort."`). Zoner utan hittad rutt (`durations[i]` är `null` i
-OSRM-svaret) taggas `t.cyclingUncertain` ("Tveksam cykling.") och sorteras
+minuter. 300 m."` — ordet "bort" utelämnas här eftersom det redan sagts i
+cykelmeningen precis innan). Zoner utan hittad rutt (`durations[i]` är `null`
+i OSRM-svaret) taggas `t.cyclingUncertain` ("Tveksam cykling.") och sorteras
 sist istället för att döljas — ordningen dem emellan är stabil (bevarar
 fågelvägs-ordningen). Ett request-nivå-fel (nätverk/HTTP) lämnar `needed`
 ocachat så nästa uppdateringscykel försöker igen automatiskt, samma mönster
@@ -313,7 +323,7 @@ som höjd. Samma engångsdiagnos-princip via `aria-live` (`#advanced-status`).
 
 **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
 inga extra anrop) visas i **alla** vyer, inte bara de avancerade filtren,
-direkt efter zonens namn, före "Unik zon." om båda gäller (`zoneTypeName()` i
+direkt efter zonens namn, före "Unik." om båda gäller (`zoneTypeName()` i
 `buildZoneItem`, återanvänds av `buildOwnedZoneItem`). Visas bara när namnet
 inte är det generiska `"Okänd"`/`"Unknown"`.
 
@@ -373,7 +383,7 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
   vid filuppladdning **och** vid inläsning från localStorage.
 - **`refreshAllBlockLabels()`** körs varje sekund och skriver över `aria-label`.
   Den måste använda samma etikettbyggare som den ursprungliga renderingen,
-  annars försvinner t.ex. "Unik zon." inom en sekund.
+  annars försvinner t.ex. "Unik." inom en sekund.
 
 ---
 
