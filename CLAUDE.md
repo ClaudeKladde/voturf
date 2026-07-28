@@ -253,7 +253,7 @@ uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar
 Avstånd och riktning beräknas relativt adressen, inte GPS-positionen.
 
 **Avancerad visning** fungerar som Alla zoner (`getFilteredZones()` gör ingen
-extra filtrering för den) men berikar varje zons text med två extra fält:
+extra filtrering för den) men berikar varje zons text med ett extra fält:
 
 - **Höjdskillnad** relativt din position, direkt efter riktningen (`"15 m upp."`
   / `"20 m ner."`). Hämtas från **Open-Elevation** (`api.open-elevation.com`,
@@ -266,9 +266,12 @@ extra filtrering för den) men berikar varje zons text med två extra fält:
   anropet visas zonen ändå, bara utan höjd. En engångsdiagnos via `aria-live`
   (`#elevation-status`) meddelar en gång per app-session om hämtningen
   fungerade — session-scoped i minnet, sparas inte i localStorage.
-- **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
-  inga extra anrop) direkt efter zonens namn, före "Unik zon." om båda gäller.
-  Visas bara när namnet inte är det generiska `"Okänd"`/`"Unknown"`.
+
+**Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
+inga extra anrop) visas i **alla** vyer, inte bara Avancerad visning, direkt
+efter zonens namn, före "Unik zon." om båda gäller (`zoneTypeName()` i
+`buildZoneItem`, återanvänds av `buildOwnedZoneItem`). Visas bara när namnet
+inte är det generiska `"Okänd"`/`"Unknown"`.
 
 ### Röstläge
 

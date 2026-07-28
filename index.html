@@ -234,7 +234,7 @@
       <div id="tips-list">
         <h3 id="tips-h-zones">Närliggande zoner</h3>
         <ul>
-          <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.</li>
+          <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.</li>
           <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.</li>
           <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.</li>
         </ul>
@@ -245,7 +245,7 @@
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
           <li id="tip-7">Filter-knappen öppnar en meny med sex alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner och Avancerad visning. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
           <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
-          <li id="tip-7c">Avancerad visning fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad) och zontyp direkt efter zonens namn för zoner med en specifik karaktär, till exempel Monument eller Bro. Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
+          <li id="tip-7c">Avancerad visning fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -491,7 +491,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-27 16:44</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 14:27</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -679,7 +679,7 @@
       tipsLabel:'Tips &amp; instruktioner',
       tipsHeadings:['Närliggande zoner','Verktygsfält','Röstläge och VO-aviseringar','Spelare i närheten','Vänner','Profil och användarnamn','GPS och kompass','Inställningar','Tips och övrigt'],
       tips:[
-        'Varje zon i listan läses upp i ett svep — namn, avstånd, riktning, ägare och blockstatus.',
+        'Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
         'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.',
@@ -687,7 +687,7 @@
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
         'Filter-knappen öppnar en meny med sex alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner och Avancerad visning. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
         'Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
-        'Avancerad visning fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad) och zontyp direkt efter zonens namn för zoner med en specifik karaktär, till exempel Monument eller Bro. Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
+        'Avancerad visning fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.',
@@ -915,7 +915,7 @@
       tipsLabel:'Tips &amp; instructions',
       tipsHeadings:['Nearby zones','Toolbar','Voice mode and VO alerts','Nearby players','Friends','Profile and username','GPS and compass','Settings','Tips and misc'],
       tips:[
-        'Each zone in the list is one swipe — name, distance, direction, owner, and block status.',
+        'Each zone in the list is one swipe — name, zone type when known (e.g. Monument or Bridge), distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver, or swipe from the left edge in Safari.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
         'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Voice mode.',
@@ -923,7 +923,7 @@
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
         'The Filter button opens a menu with six options: All zones, Available, Blocked, Nearest unique zones, Search zones, and Advanced view. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
         'The Search zones filter lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
-        'Advanced view works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more) and the zone type right after the zone\'s name for zones with a specific character, such as Monument or Bridge. Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
+        'Advanced view works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'The Voice mode button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
         'Tap a player in the list to open their profile with stats and owned zones. Right after the player\'s name are the Add as friend and Show in nearby players buttons.',
@@ -2578,8 +2578,10 @@
   /* Zone type — only spoken/shown in Avancerad visning, and only when it says
      something more specific than the generic "Okänd"/"Unknown" the API returns
      for ordinary zones. */
+  /* Shown in every view, not just Avancerad visning — the data is already
+     fetched with each zone regardless of active filter, so there is no extra
+     cost to always including it. */
   function zoneTypeName(zone){
-    if(activeFilter!=='advanced') return '';
     const name=zone.type?.name?.trim();
     if(!name) return '';
     const generic=name.toLowerCase()==='okänd'||name.toLowerCase()==='unknown';
