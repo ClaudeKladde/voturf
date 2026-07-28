@@ -243,10 +243,11 @@
           <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny med sju alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd och Avancerat läge med hinder. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med åtta alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder och Cykling. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
           <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
           <li id="tip-7c">Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7d">Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
+          <li id="tip-7e">Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -326,6 +327,7 @@
             <li><button role="option" data-filter="search"       aria-checked="false">Sök zoner</button></li>
             <li><button role="option" data-filter="advanced"         aria-checked="false">Avancerad visning med höjd</button></li>
             <li><button role="option" data-filter="advancedObstacle" aria-checked="false">Avancerat läge med hinder</button></li>
+            <li><button role="option" data-filter="cycling"          aria-checked="false">Cykling</button></li>
           </ul>
         </div>
         <div id="voice-menu-wrap">
@@ -493,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 20:24</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 20:53</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -687,10 +689,11 @@
         'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
-        'Filter-knappen öppnar en meny med sju alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd och Avancerat läge med hinder. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
+        'Filter-knappen öppnar en meny med åtta alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder och Cykling. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
         'Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
         'Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
+        'Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
         'Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.',
@@ -807,6 +810,7 @@
       filterNotUnique:'Närmsta unikazoner',filterSearch:'Sök zoner',
       filterAdvanced:'Avancerad visning med höjd',
       filterAdvancedObstacle:'Avancerat läge med hinder',
+      filterCycling:'Cykling',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
       elevUp:(m)=>`${m} m högre.`,elevDown:(m)=>`${m} m lägre.`,
@@ -816,6 +820,10 @@
       obstacleSentence:(list)=>`${list.join(' och ')} i vägen.`,
       obstacleStatusOk:'Hinderinformation kunde hämtas.',
       obstacleStatusFail:'Hinderinformation kunde inte hämtas den här gången.',
+      cyclingSentence:(m,min)=>`${m} m cykling, cirka ${min} minut${min===1?'':'er'}.`,
+      cyclingUncertain:'Tveksam cykling.',
+      cyclingStatusOk:'Cykelinformation kunde hämtas.',
+      cyclingStatusFail:'Cykelinformation kunde inte hämtas den här gången.',
       searchPlaceholder:'Adress, stad — t.ex. Drottninggatan 1, Stockholm',
       searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress',
       searchHeading:'Sök zoner',searchResultsHeading:'Sökresultat',
@@ -901,7 +909,7 @@
       speedPlusAria:(s)=>`Öka talhastighet till ${s}.`,
       tipsCloseTop:'Stäng instruktioner',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
-      dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',dkHeight:'Höjd',dkObstacle:'Hinder',
+      dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',dkHeight:'Höjd',dkObstacle:'Hinder',dkCycling:'Cykling',
       awaySuffix:'bort',
       dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
       dkOwner:'Nuvarande ägare',dkLasttaken:'Senast tagen',
@@ -929,10 +937,11 @@
         'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Voice mode.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
-        'The Filter button opens a menu with seven options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, and Advanced mode with obstacles. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
+        'The Filter button opens a menu with eight options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, Advanced mode with obstacles, and Cycling. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
         'The Search zones filter lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
         'Advanced view with height works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'Advanced mode with obstacles works like All zones but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
+        'Cycling takes the 15 nearest zones and re-sorts them by actual bike-route distance instead of the straight line, keeping the height difference but dropping the obstacle check (a real bike route can\'t already run through water or a motorway). Zones with no bike route found are tagged "Uncertain cycling" and moved to the end instead of being hidden. Cycling data is fetched from an external service (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
         'The Voice mode button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
         'Tap a player in the list to open their profile with stats and owned zones. Right after the player\'s name are the Add as friend and Show in nearby players buttons.',
@@ -1049,6 +1058,7 @@
       filterNotUnique:'Nearest unique zones',filterSearch:'Zone search',
       filterAdvanced:'Advanced view with height',
       filterAdvancedObstacle:'Advanced mode with obstacles',
+      filterCycling:'Cycling',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
       elevUp:(m)=>`${m} m higher.`,elevDown:(m)=>`${m} m lower.`,
@@ -1058,6 +1068,10 @@
       obstacleSentence:(list)=>`${list.join(' and ')} in the way.`,
       obstacleStatusOk:'Obstacle data could be fetched.',
       obstacleStatusFail:'Obstacle data could not be fetched this time.',
+      cyclingSentence:(m,min)=>`${m} m cycling, about ${min} minute${min===1?'':'s'}.`,
+      cyclingUncertain:'Uncertain cycling.',
+      cyclingStatusOk:'Cycling data could be fetched.',
+      cyclingStatusFail:'Cycling data could not be fetched this time.',
       searchPlaceholder:'Address, city — e.g. King Street 1, London',
       searchBtn:'Search',searchBtnAria:'Search zones near the given address',
       searchHeading:'Zone search',searchResultsHeading:'Search results',
@@ -1143,7 +1157,7 @@
       speedPlusAria:(s)=>`Increase voice rate to ${s}.`,
       tipsCloseTop:'Close instructions',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
-      dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',dkHeight:'Height',dkObstacle:'Obstacle',
+      dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',dkHeight:'Height',dkObstacle:'Obstacle',dkCycling:'Cycling',
       awaySuffix:'away',
       dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
       dkOwner:'Current owner',dkLasttaken:'Last taken',
@@ -1876,7 +1890,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[3,7,1,2,2,3,2,1,3];
+      const sectionSizes=[3,8,1,2,2,3,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -1900,6 +1914,7 @@
     if(opts[4]) opts[4].textContent=t.filterSearch;
     if(opts[5]) opts[5].textContent=t.filterAdvanced;
     if(opts[6]) opts[6].textContent=t.filterAdvancedObstacle;
+    if(opts[7]) opts[7].textContent=t.filterCycling;
     /* Search section labels */
     const szh=document.getElementById('search-zone-heading');
     if(szh) szh.textContent=t.searchHeading;
@@ -2477,6 +2492,7 @@
     if(activeFilter==='search')    return t.filterSearch;
     if(activeFilter==='advanced')  return t.filterAdvanced;
     if(activeFilter==='advancedObstacle') return t.filterAdvancedObstacle;
+    if(activeFilter==='cycling') return t.filterCycling;
     return t.filterAll;
   }
   function updateFilterLabel(){
@@ -2521,6 +2537,10 @@
     if(activeFilter==='available') return zones.filter(z=>getBlockStatus(z).blocked===false);
     if(activeFilter==='blocked')   return zones.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
     if(activeFilter==='notunique') return zones.filter(z=>isUniqueZone(z.name));
+    if(activeFilter==='cycling'){
+      const pool=zones.slice(0,CYCLING_POOL_SIZE);
+      return sortCyclingPool(pool);
+    }
     /* search mode — zones already loaded for the searched address, no extra filter */
     return zones;
   }
@@ -2537,7 +2557,7 @@
      zones keep showing normally, just without a height line — the one-time
      aria-live diagnostic is the only user-visible sign of success or failure. */
   async function ensureElevationData(zones){
-    if((activeFilter!=='advanced'&&activeFilter!=='advancedObstacle')||elevationFetchInFlight) return;
+    if(!ELEVATION_FILTERS.includes(activeFilter)||elevationFetchInFlight) return;
     if(userLat===null||userLon===null) return;
     const points=[{lat:userLat,lon:userLon}, ...zones.map(z=>({lat:z.latitude,lon:z.longitude}))];
     const needed=points.filter(p=>!elevationCache.has(coordKey(p.lat,p.lon)));
@@ -2556,7 +2576,7 @@
         const elEl=document.getElementById('advanced-status');
         if(elEl){elEl.textContent=t.elevationStatusOk;setTimeout(()=>{elEl.textContent='';},6000);}
       }
-      if(activeFilter==='advanced'||activeFilter==='advancedObstacle') renderZoneSlice();
+      if(ELEVATION_FILTERS.includes(activeFilter)) renderZoneSlice();
     }catch(e){
       if(!elevationDiagnosticShown){
         elevationDiagnosticShown=true;
@@ -2574,8 +2594,9 @@
   /* Shown in both advanced filters — Avancerad visning med höjd on its own,
      and Avancerat läge med hinder alongside obstacle info, since height is
      useful context when judging whether an obstacle is actually a problem. */
+  const ELEVATION_FILTERS=['advanced','advancedObstacle','cycling'];
   function elevationDiffFor(zone){
-    if((activeFilter!=='advanced'&&activeFilter!=='advancedObstacle')||userLat===null||userLon===null) return null;
+    if(!ELEVATION_FILTERS.includes(activeFilter)||userLat===null||userLon===null) return null;
     const userElev=elevationCache.get(coordKey(userLat,userLon));
     const zoneElev=elevationCache.get(coordKey(zone.latitude,zone.longitude));
     if(userElev==null||zoneElev==null) return null;
@@ -2714,6 +2735,100 @@
   function obstacleVisual(zone){
     const kinds=obstacleKindsFor(zone);
     return kinds.length?kinds.map(obstacleLabel).join(', '):null;
+  }
+
+  /* ════════════════════════════════════════
+     CYKLING — real bike routes via routing.openstreetmap.de (OSRM, same
+     open OpenStreetMap family as Nominatim/Overpass). Unlike height/obstacle,
+     this filter re-sorts the list by actual bike-route distance instead of
+     just enriching the text, since the whole point is that straight-line
+     distance can be a misleading stand-in for how far a zone actually is by
+     bike. Height is still shown (relevant for cycling too); the obstacle
+     line-crossing check is dropped here — a real computed route already
+     can't run through water or a motorway, so that guess becomes redundant.
+  ════════════════════════════════════════ */
+  const CYCLING_POOL_SIZE=15;
+  let cyclingDataCache=new Map(); // coordKey(zone) -> {distance,duration} | 'uncertain'
+  let cyclingFetchInFlight=false;
+  let cyclingDiagnosticShown=false;
+
+  /* Only the candidate pool (nearest 15 by straight line) is ever routed —
+     one batched /table request (1 source, up to 15 destinations) per
+     refresh, instead of one request per zone. */
+  async function ensureCyclingData(zones){
+    if(activeFilter!=='cycling'||cyclingFetchInFlight) return;
+    if(userLat===null||userLon===null||!zones.length) return;
+    const needed=zones.filter(z=>!cyclingDataCache.has(coordKey(z.latitude,z.longitude)));
+    if(!needed.length) return;
+    cyclingFetchInFlight=true;
+    try{
+      const coordList=[`${userLon},${userLat}`,...needed.map(z=>`${z.longitude},${z.latitude}`)].join(';');
+      const destIdx=needed.map((_,i)=>i+1).join(';');
+      const url=`https://routing.openstreetmap.de/routed-bike/table/v1/bike/${coordList}?sources=0&destinations=${destIdx}&annotations=distance,duration`;
+      const r=await fetch(url);
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data=await r.json();
+      if(data.code!=='Ok') throw new Error(data.code||'error');
+      const durations=data.durations?.[0]||[];
+      const distances=data.distances?.[0]||[];
+      needed.forEach((z,i)=>{
+        const key=coordKey(z.latitude,z.longitude);
+        const dur=durations[i],dist=distances[i];
+        cyclingDataCache.set(key,(dur==null||dist==null)?'uncertain':{distance:dist,duration:dur});
+      });
+      if(!cyclingDiagnosticShown){
+        cyclingDiagnosticShown=true;
+        const stEl=document.getElementById('advanced-status');
+        if(stEl){stEl.textContent=t.cyclingStatusOk;setTimeout(()=>{stEl.textContent='';},6000);}
+      }
+      if(activeFilter==='cycling') renderZoneSlice();
+    }catch(e){
+      /* Leave "needed" uncached on a request-level failure (network/HTTP
+         error) so the next refresh cycle retries automatically, same as
+         elevation — only a successful response's per-zone null becomes
+         "uncertain". */
+      if(!cyclingDiagnosticShown){
+        cyclingDiagnosticShown=true;
+        const stEl=document.getElementById('advanced-status');
+        const detail=e&&e.message?` (${e.message})`:'';
+        if(stEl){stEl.textContent=t.cyclingStatusFail+detail;setTimeout(()=>{stEl.textContent='';},10000);}
+      }
+    }finally{
+      cyclingFetchInFlight=false;
+    }
+  }
+
+  function cyclingInfoFor(zone){
+    if(activeFilter!=='cycling') return null;
+    return cyclingDataCache.get(coordKey(zone.latitude,zone.longitude))??null;
+  }
+  function cyclingSentence(zone){
+    const info=cyclingInfoFor(zone);
+    if(!info) return '';
+    if(info==='uncertain') return t.cyclingUncertain;
+    const mins=Math.max(1,Math.round(info.duration/60));
+    return t.cyclingSentence(Math.round(info.distance),mins);
+  }
+  function cyclingVisual(zone){
+    const info=cyclingInfoFor(zone);
+    if(!info) return null;
+    if(info==='uncertain') return t.cyclingUncertain;
+    const mins=Math.max(1,Math.round(info.duration/60));
+    return `${Math.round(info.distance)} m, ca ${mins} min`;
+  }
+  /* Successful routes sorted by actual bike distance; zones without a usable
+     route pushed to the end, keeping their existing (straight-line) relative
+     order via a stable sort rather than being hidden entirely. */
+  function sortCyclingPool(pool){
+    return pool.slice().sort((a,b)=>{
+      const infoA=cyclingDataCache.get(coordKey(a.latitude,a.longitude));
+      const infoB=cyclingDataCache.get(coordKey(b.latitude,b.longitude));
+      const okA=infoA&&infoA!=='uncertain',okB=infoB&&infoB!=='uncertain';
+      if(okA&&okB) return infoA.distance-infoB.distance;
+      if(okA&&!okB) return -1;
+      if(!okA&&okB) return 1;
+      return 0;
+    });
   }
 
   /* ════════════════════════════════════════
@@ -3514,28 +3629,33 @@
 
     function buildLabel(b){
       const dirPart=clock?`${clock}. `:'';
-      /* Height is shown in both advanced filters; obstacle only in Avancerat
-         läge med hinder — so both can appear together there, height first. */
+      /* Height is shown in all three advanced filters; obstacle only in
+         Avancerat läge med hinder — so both can appear together there,
+         height first. */
       const pathInfo=[elevationSentence(zone),obstacleSentence(zone)].filter(Boolean).join(' ');
       const dirElevPart=pathInfo?`${dirPart}${pathInfo} `:dirPart;
-      if(isMyZone) return`${zone.name}. ${ds} bort. ${dirElevPart}${t.myZone}.`;
+      /* Cykling: bike distance/time comes before the usual straight-line
+         "X m bort." sentence, which stays as a secondary reference. */
+      const cycSentence=cyclingSentence(zone);
+      const distPart=cycSentence?`${cycSentence} ${ds} bort. `:`${ds} bort. `;
+      if(isMyZone) return`${zone.name}. ${distPart}${dirElevPart}${t.myZone}.`;
       if(skipOwner){
         if(b.blocked===true){
           const dur=formatDurationSpoken(b.remainingSec);
-          return`${zone.name}. ${ds} bort. ${dirElevPart}${t.blockedSpoken(dur)}`;
+          return`${zone.name}. ${distPart}${dirElevPart}${t.blockedSpoken(dur)}`;
         }
-        if(b.label===t.neverTaken) return`${zone.name}. ${ds} bort. ${dirElevPart}${t.neverTaken}.`;
-        return`${zone.name}. ${ds} bort. ${dirElevPart}`.trimEnd().replace(/\.$/, '')+'.';
+        if(b.label===t.neverTaken) return`${zone.name}. ${distPart}${dirElevPart}${t.neverTaken}.`;
+        return`${zone.name}. ${distPart}${dirElevPart}`.trimEnd().replace(/\.$/, '')+'.';
       }
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
       if(b.blocked===true&&owner){
         const dur=formatDurationSpoken(b.remainingSec);
-        return`${zone.name}. ${ds} bort. ${dirElevPart}${t.blockedBySpoken(owner,dur)}`;
+        return`${zone.name}. ${distPart}${dirElevPart}${t.blockedBySpoken(owner,dur)}`;
       }
       if(b.label===t.neverTaken){
-        return`${zone.name}. ${ds} bort. ${dirElevPart}${ownerPart} ${t.neverTaken}.`;
+        return`${zone.name}. ${distPart}${dirElevPart}${ownerPart} ${t.neverTaken}.`;
       }
-      return`${zone.name}. ${ds} bort. ${dirElevPart}${ownerPart}`;
+      return`${zone.name}. ${distPart}${dirElevPart}${ownerPart}`;
     }
 
     const ownerField=(skipOwner||isMyZone)?'':
@@ -3577,6 +3697,10 @@
     const obstacleField=obstacleVal
       ?`<div class="zv-field"><span class="zv-label">${t.dkObstacle}</span><span class="zv-value">${escHtml(obstacleVal)}</span></div>`
       :'';
+    const cyclingVal=cyclingVisual(zone);
+    const cyclingField=cyclingVal
+      ?`<div class="zv-field"><span class="zv-label">${t.dkCycling}</span><span class="zv-value">${escHtml(cyclingVal)}</span></div>`
+      :'';
 
     const li=document.createElement('li');
     li.className='zone-card';
@@ -3585,6 +3709,7 @@
         <div aria-hidden="true">
           <div class="zv-name" style="${nameColor}"><span class="zv-rank">#${rank}</span>${escHtml(zone.name)}${typeBadge}${uniqueBadge}<span class="zv-arrow">&#8594;</span></div>
           <div class="zv-strip">
+            ${cyclingField}
             <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
             <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock.split(',')[0]}</span></div>
             ${heightField}
@@ -3647,8 +3772,9 @@
       btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(visible);startBlockTicker();
-    if(activeFilter==='advanced'||activeFilter==='advancedObstacle') ensureElevationData(visible);
+    if(activeFilter==='advanced'||activeFilter==='advancedObstacle'||activeFilter==='cycling') ensureElevationData(visible);
     if(activeFilter==='advancedObstacle') ensureObstacleData(visible);
+    if(activeFilter==='cycling') ensureCyclingData(filtered);
   }
 
   function loadMore(){
@@ -3666,8 +3792,9 @@
       btnLoadMore.textContent=t.loadMore(n);btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(slice);
-    if(activeFilter==='advanced'||activeFilter==='advancedObstacle') ensureElevationData(slice);
+    if(activeFilter==='advanced'||activeFilter==='advancedObstacle'||activeFilter==='cycling') ensureElevationData(slice);
     if(activeFilter==='advancedObstacle') ensureObstacleData(slice);
+    if(activeFilter==='cycling') ensureCyclingData(filtered);
     zoneList.querySelectorAll('.zone-card')[prev]?.querySelector('.zone-btn')?.focus();
   }
   btnLoadMore.addEventListener('click',loadMore);

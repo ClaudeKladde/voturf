@@ -247,7 +247,7 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 ### Filter
 
 Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner,
-Avancerad visning med höjd, Avancerat läge med hinder.
+Avancerad visning med höjd, Avancerat läge med hinder, Cykling.
 
 **Sök zoner** använder Nominatim för adressgeokodning, pausar automatiska
 uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar.
@@ -289,9 +289,27 @@ mot varje hämtad väg. Hittas inget hinder sägs **inget alls** om det — inge
 `aria-live` (`#advanced-status`, samma element som höjd) meddelar en gång per
 session om hämtningen lyckades. **Känd begränsning:** en bro eller tunnel vid
 korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte
-skiljer på "korsar" och "går över/under". En separat ruttberäkningsvariant
-(jämföra faktisk gångväg mot fågelvägen) har diskuterats men inte byggts —
-ingen tillförlitlig nyckelfri gångruttstjänst har hittats än.
+skiljer på "korsar" och "går över/under".
+
+**Cykling** — till skillnad från de två filtren ovan (som bara berikar text på
+den redan fågelvägs-sorterade listan) **sorterar om** listan efter faktiskt
+cykelruttavstånd. Tar de `CYCLING_POOL_SIZE` (15) närmaste zonerna enligt
+fågelvägen som kandidater och gör ett enda batchat matris-anrop
+(`ensureCyclingData()`) mot **`routing.openstreetmap.de/routed-bike`** (OSRM,
+samma öppna OpenStreetMap-familj), med användarens position som källa och
+kandidaterna som mål (`/table/v1/bike/...?sources=0&destinations=1;2;...`).
+Detta var den "ruttberäkningsvariant" som tidigare diskuterats men inte
+byggts — en fungerande nyckelfri tjänst hittades till slut.
+Höjdskillnad visas kvar (samma `elevationSentence()`), men hinderkollen
+(linjekorsning) utesluts medvetet — en riktig beräknad cykelrutt kan redan
+inte gå genom vatten eller en motorväg, så den gissningen blir överflödig.
+Cykelavstånd och fågelvägsavstånd visas båda (`"850 m cykling, cirka 3
+minuter. 300 m bort."`). Zoner utan hittad rutt (`durations[i]` är `null` i
+OSRM-svaret) taggas `t.cyclingUncertain` ("Tveksam cykling.") och sorteras
+sist istället för att döljas — ordningen dem emellan är stabil (bevarar
+fågelvägs-ordningen). Ett request-nivå-fel (nätverk/HTTP) lämnar `needed`
+ocachat så nästa uppdateringscykel försöker igen automatiskt, samma mönster
+som höjd. Samma engångsdiagnos-princip via `aria-live` (`#advanced-status`).
 
 **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
 inga extra anrop) visas i **alla** vyer, inte bara de avancerade filtren,
