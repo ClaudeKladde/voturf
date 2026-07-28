@@ -495,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 21:17</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 21:29</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -820,7 +820,7 @@
       obstacleSentence:(list)=>`${list.join(' och ')} i vägen.`,
       obstacleStatusOk:'Hinderinformation kunde hämtas.',
       obstacleStatusFail:'Hinderinformation kunde inte hämtas den här gången.',
-      cyclingSentence:(m,min)=>`${m} m, cirka ${min} minut${min===1?'':'er'}, cykling.`,
+      cyclingSentence:(m,min)=>`${m} m, cirka ${min} minut${min===1?'':'er'} cykling.`,
       cyclingUncertain:'Tveksam cykling.',
       cyclingStatusOk:'Cykelinformation kunde hämtas.',
       cyclingStatusFail:'Cykelinformation kunde inte hämtas den här gången.',
@@ -1067,7 +1067,7 @@
       obstacleSentence:(list)=>`${list.join(' and ')} in the way.`,
       obstacleStatusOk:'Obstacle data could be fetched.',
       obstacleStatusFail:'Obstacle data could not be fetched this time.',
-      cyclingSentence:(m,min)=>`${m} m, about ${min} minute${min===1?'':'s'}, cycling.`,
+      cyclingSentence:(m,min)=>`${m} m, about ${min} minute${min===1?'':'s'} cycling.`,
       cyclingUncertain:'Uncertain cycling.',
       cyclingStatusOk:'Cycling data could be fetched.',
       cyclingStatusFail:'Cycling data could not be fetched this time.',
@@ -1560,8 +1560,13 @@
     });
   }
 
-  async function announceZone(zone){
-    if(!isMonitorActive()||!zone) return;
+  /* msg is supplied by the caller (the nearest zone's own already-built
+     label, read straight from its rendered card) rather than recomputed here
+     — a second, separate template drifted out of sync with what VO alerts
+     and the visible cards actually said (missing zontyp/Unik/height/obstacle/
+     cycling info, and picking the wrong zone in Cykling mode). */
+  async function announceZone(zone,msg){
+    if(!isMonitorActive()||!zone||!msg) return;
     if(!window.speechSynthesis) return;
     /* Resume audio context if suspended after inactivity */
     try{if(audioCtx&&audioCtx.state==='suspended') await audioCtx.resume();}catch(e){}
@@ -1571,35 +1576,6 @@
 
     /* Wait for voices to be available */
     await waitForVoices();
-
-    const ds=distStr(zone._dist??0);
-    const clock=directionToZone(zone.latitude,zone.longitude);
-    const block=getBlockStatus(zone);
-    const owner=zone.currentOwner?.name??null;
-    const isUnowned=!owner;
-    const isMyZone=!!(savedUsername&&owner&&owner===savedUsername);
-    let msg='';
-
-    if(isMyZone){
-      msg=`${zone.name}. ${t.myZone}. ${ds}. ${clock}.`;
-    } else if(block.blocked===true&&owner){
-      const dur=formatDurationSpoken(block.remainingSec);
-      msg=`${zone.name}. ${ds}. ${clock}. ${t.blockedBySpoken(owner,dur)}`;
-    } else if(block.label===t.neverTaken){
-      const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-      msg=`${zone.name}. ${ds}. ${clock}. ${ownerPart} ${t.neverTaken}.`;
-    } else {
-      const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-      msg=`${zone.name}. ${ds}. ${clock}. ${ownerPart}`;
-    }
-
-    /* "Unik." placed directly after zone name for natural listening order */
-    if(!isMyZone&&isUniqueZone(zone.name)){
-      const unikSuffix=lang==='sv'?' Unik.'  :' Unique.';
-      const firstDot=msg.indexOf('. ');
-      if(firstDot!==-1) msg=msg.slice(0,firstDot+1)+unikSuffix+' '+msg.slice(firstDot+2);
-      else msg+=unikSuffix;
-    }
 
     const langCode=lang==='sv'?'sv-SE':'en-GB';
 
@@ -3953,39 +3929,24 @@
          definition. Active friends use their own independent position-based zone lookup
          (see fetchNearestZoneForFriend), which does not depend on the user's zone list. */
       if(lastNearbyPlayers.length) renderNearbyPlayersList(lastNearbyPlayers);
-      /* Announcements — only on auto-refresh, use filtered list so it matches what is shown */
+      /* Announcements — only on auto-refresh. Reads the actual first rendered
+         card's own label (already built by buildZoneItem, including zontyp,
+         Unik, height/obstacle/cycling for the advanced filters) instead of
+         recomputing a separate, simpler text from getFilteredZones()[0] —
+         that used to pick the fågelväg-nearest zone even in Cykling mode,
+         which could disagree with what was actually shown as the first card
+         once the pool got re-sorted by bike distance. */
       if(isAuto){
-        const filteredFirst=getFilteredZones()[0];
-        if(filteredFirst){
-          const z=filteredFirst;
-          const ds=distStr(z._dist??0);
-          const clock=directionToZone(z.latitude,z.longitude);
-          const dirPart=clock?`${clock}. `:'';
-          const owner=z.currentOwner?.name??null;
-          const isUnowned=!owner;
-          const isMyZone=!!(savedUsername&&owner&&owner===savedUsername);
-          const block=getBlockStatus(z);
-          let announcementText='';
+        const firstCard=zoneList.querySelector('.zone-card');
+        const z=firstCard?._zone;
+        const ownLabel=firstCard?.querySelector('.zone-btn')?.getAttribute('aria-label');
+        if(z&&ownLabel){
           const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
-          if(isMyZone){
-            announcementText=`${prefix}${z.name}. ${t.myZone}. ${ds}. ${dirPart}`.trimEnd();
-          } else if(block.blocked===true&&owner){
-            const dur=formatDurationSpoken(block.remainingSec);
-            const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik.':' Unique.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds}. ${dirPart}${t.blockedBySpoken(owner,dur)}`;
-          } else if(block.label===t.neverTaken){
-            const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-            const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik.':' Unique.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds}. ${dirPart}${ownerPart} ${t.neverTaken}.`;
-          } else {
-            const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-            const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik.':' Unique.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds}. ${dirPart}${ownerPart}`;
-          }
+          const announcementText=`${prefix}${ownLabel}`;
           /* Voice Mode — Speech Synthesis */
-          if(isMonitorActive()) announceZone(z);
+          if(isMonitorActive()) announceZone(z,announcementText);
           /* VO alerts — aria-live region, delay to let list render first */
-          if(isVoAlertsActive()&&announcementText){
+          if(isVoAlertsActive()){
             setTimeout(()=>{
               voAlertRegion.textContent='';
               requestAnimationFrame(()=>{voAlertRegion.textContent=announcementText;});

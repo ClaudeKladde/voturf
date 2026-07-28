@@ -317,7 +317,7 @@ Höjdskillnad visas kvar (samma `elevationSentence()`), men hinderkollen
 (linjekorsning) utesluts medvetet — en riktig beräknad cykelrutt kan redan
 inte gå genom vatten eller en motorväg, så den gissningen blir överflödig.
 Cykelavstånd och fågelvägsavstånd visas båda (`"850 m, cirka 3
-minuter, cykling. 300 m."` — ordet "bort" utelämnas här eftersom det redan sagts i
+minuter cykling. 300 m."` — ordet "bort" utelämnas här eftersom det redan sagts i
 cykelmeningen precis innan). Zoner utan hittad rutt (`durations[i]` är `null`
 i OSRM-svaret) taggas `t.cyclingUncertain` ("Tveksam cykling.") och sorteras
 sist istället för att döljas — ordningen dem emellan är stabil (bevarar
@@ -335,8 +335,22 @@ inte är det generiska `"Okänd"`/`"Unknown"`.
 
 `voiceMode` = `'vo'` (VO-aviseringar, standard) | `'voice'` (Inbyggd röst) | `'off'`.
 
-VO-aviseringar och Röstläge bygger sina texter i **separata kodvägar**. Ändrar du
+VO-aviseringar och Röstläge bygger generellt sina texter i **separata kodvägar**
+(t.ex. den löpande zonlistans `buildZoneItem` kontra `announceZone`). Ändrar du
 uppläst text måste du uppdatera båda. Detta har orsakat buggar flera gånger.
+
+**Undantag — den automatiska "närmsta zon"-aviseringen** (i `fetchNearbyZones`,
+körs vid varje auto-uppdatering): båda kanalerna läser numera **samma** text,
+hämtad direkt från det redan renderade första zonkortets `aria-label`
+(`zoneList.querySelector('.zone-card')`, `li._zone` + `.zone-btn`s
+`aria-label`) istället för att räkna om en egen förenklad mening från
+`getFilteredZones()[0]`. Detta fixade två buggar samtidigt: dels saknades
+zontyp/Unik/höjd/hinder/cykling i aviseringen eftersom den använde en äldre,
+enklare mall; dels visade Cykling-läget fel zon, eftersom `getFilteredZones()`
+för Cykling inte längre sorterar om (se ovan) — bara det redan renderade
+kortet vet den faktiska cykel-sorterade ordningen. `announceZone(zone,msg)`
+tar numera emot den färdiga texten som parameter istället för att bygga sin
+egen.
 
 ### localStorage
 
