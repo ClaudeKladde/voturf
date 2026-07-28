@@ -260,7 +260,7 @@ De är medvetet separata filter, inte en kombinerad inställning — enklare att
 hålla reda på än ett eget reglage utöver filtermenyn.
 
 **Avancerad visning med höjd** — höjdskillnad relativt din position, direkt
-efter riktningen (`"15 m upp."` / `"20 m ner."`). Hämtas från
+efter riktningen (`"15 m högre."` / `"20 m lägre."`). Hämtas från
 **Open-Elevation** (`api.open-elevation.com`, öppen, nyckelfri, SRTM-baserad)
 — samma tjänst används för både din egen position och varje zon, så att
 jämförelsen inte blandar telefonens egen (ofta opålitliga) GPS-höjd med en
