@@ -493,7 +493,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 15:16</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 15:20</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -2653,6 +2653,7 @@
       const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query)});
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const data=await r.json();
+      if(data.remark) throw new Error(data.remark);
       obstacleWays=(data.elements||[])
         .filter(el=>el.geometry&&el.geometry.length>1)
         .map(el=>{
@@ -2672,7 +2673,11 @@
       if(!obstacleDiagnosticShown){
         obstacleDiagnosticShown=true;
         const stEl=document.getElementById('advanced-status');
-        if(stEl){stEl.textContent=t.obstacleStatusFail;setTimeout(()=>{stEl.textContent='';},6000);}
+        /* Temporary — surface the actual error so we can diagnose the real
+           cause instead of guessing blind (e.g. "HTTP 400" vs "Load failed"
+           for a network/CORS failure) */
+        const detail=e&&e.message?` (${e.message})`:'';
+        if(stEl){stEl.textContent=t.obstacleStatusFail+detail;setTimeout(()=>{stEl.textContent='';},10000);}
       }
     }finally{
       obstacleFetchInFlight=false;
