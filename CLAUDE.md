@@ -135,8 +135,12 @@ inte för lite. Konkreta lärdomar:
 
 Viktig information ska komma **direkt efter namnet**, inte i slutet:
 
-- Zoner: `"Plattan. Unik. 150 m bort. Klockan 5. Ägd av X."`
+- Zoner: `"Plattan. Unik. 150 m. Klockan 5. Ägd av X."`
 - Vänner: `"TurferX. 80 m till Plattan. Äger 4 zoner. +15. Poäng 12450."`
+
+Ordet "bort"/"away" efter avstånd är medvetet borttaget överallt (zonlistan,
+VO-aviseringar, Röstläge, zonens detaljsida) — bara siffran läses upp, snabbare
+och tillräckligt tydligt i sitt sammanhang.
 
 ### Meter kontra minuter
 
@@ -312,8 +316,8 @@ byggts — en fungerande nyckelfri tjänst hittades till slut.
 Höjdskillnad visas kvar (samma `elevationSentence()`), men hinderkollen
 (linjekorsning) utesluts medvetet — en riktig beräknad cykelrutt kan redan
 inte gå genom vatten eller en motorväg, så den gissningen blir överflödig.
-Cykelavstånd och fågelvägsavstånd visas båda (`"850 m cykling, cirka 3
-minuter. 300 m."` — ordet "bort" utelämnas här eftersom det redan sagts i
+Cykelavstånd och fågelvägsavstånd visas båda (`"850 m, cirka 3
+minuter, cykling. 300 m."` — ordet "bort" utelämnas här eftersom det redan sagts i
 cykelmeningen precis innan). Zoner utan hittad rutt (`durations[i]` är `null`
 i OSRM-svaret) taggas `t.cyclingUncertain` ("Tveksam cykling.") och sorteras
 sist istället för att döljas — ordningen dem emellan är stabil (bevarar

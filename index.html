@@ -495,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 21:06</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 21:17</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -820,7 +820,7 @@
       obstacleSentence:(list)=>`${list.join(' och ')} i vägen.`,
       obstacleStatusOk:'Hinderinformation kunde hämtas.',
       obstacleStatusFail:'Hinderinformation kunde inte hämtas den här gången.',
-      cyclingSentence:(m,min)=>`${m} m cykling, cirka ${min} minut${min===1?'':'er'}.`,
+      cyclingSentence:(m,min)=>`${m} m, cirka ${min} minut${min===1?'':'er'}, cykling.`,
       cyclingUncertain:'Tveksam cykling.',
       cyclingStatusOk:'Cykelinformation kunde hämtas.',
       cyclingStatusFail:'Cykelinformation kunde inte hämtas den här gången.',
@@ -910,7 +910,6 @@
       tipsCloseTop:'Stäng instruktioner',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
       dkDist:'Avstånd',dkDir:'Riktning',dkStatus:'Status',dkHeight:'Höjd',dkObstacle:'Hinder',dkCycling:'Cykling',
-      awaySuffix:'bort',
       dkElapsed:'Tid sedan tagning',dkOwnerBt:'Ägarens blocktid',
       dkOwner:'Nuvarande ägare',dkLasttaken:'Senast tagen',
       openProfileFor:(n)=>`Öppna profil för ${n}.`,
@@ -1068,7 +1067,7 @@
       obstacleSentence:(list)=>`${list.join(' and ')} in the way.`,
       obstacleStatusOk:'Obstacle data could be fetched.',
       obstacleStatusFail:'Obstacle data could not be fetched this time.',
-      cyclingSentence:(m,min)=>`${m} m cycling, about ${min} minute${min===1?'':'s'}.`,
+      cyclingSentence:(m,min)=>`${m} m, about ${min} minute${min===1?'':'s'}, cycling.`,
       cyclingUncertain:'Uncertain cycling.',
       cyclingStatusOk:'Cycling data could be fetched.',
       cyclingStatusFail:'Cycling data could not be fetched this time.',
@@ -1158,7 +1157,6 @@
       tipsCloseTop:'Close instructions',
       langBtnSvAria:'Byt till svenska',langBtnEnAria:'Switch to English',
       dkDist:'Distance',dkDir:'Direction',dkStatus:'Status',dkHeight:'Height',dkObstacle:'Obstacle',dkCycling:'Cycling',
-      awaySuffix:'away',
       dkElapsed:'Time since taken',dkOwnerBt:"Owner's block time",
       dkOwner:'Current owner',dkLasttaken:'Last taken',
       openProfileFor:(n)=>`Open profile for ${n}.`,
@@ -1583,24 +1581,16 @@
     let msg='';
 
     if(isMyZone){
-      msg=lang==='sv'
-        ?`${zone.name}. ${t.myZone}. ${ds} bort. ${clock}.`
-        :`${zone.name}. ${t.myZone}. ${ds} away. ${clock}.`;
+      msg=`${zone.name}. ${t.myZone}. ${ds}. ${clock}.`;
     } else if(block.blocked===true&&owner){
       const dur=formatDurationSpoken(block.remainingSec);
-      msg=lang==='sv'
-        ?`${zone.name}. ${ds} bort. ${clock}. ${t.blockedBySpoken(owner,dur)}`
-        :`${zone.name}. ${ds} away. ${clock}. ${t.blockedBySpoken(owner,dur)}`;
+      msg=`${zone.name}. ${ds}. ${clock}. ${t.blockedBySpoken(owner,dur)}`;
     } else if(block.label===t.neverTaken){
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-      msg=lang==='sv'
-        ?`${zone.name}. ${ds} bort. ${clock}. ${ownerPart} ${t.neverTaken}.`
-        :`${zone.name}. ${ds} away. ${clock}. ${ownerPart} ${t.neverTaken}.`;
+      msg=`${zone.name}. ${ds}. ${clock}. ${ownerPart} ${t.neverTaken}.`;
     } else {
       const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
-      msg=lang==='sv'
-        ?`${zone.name}. ${ds} bort. ${clock}. ${ownerPart}`
-        :`${zone.name}. ${ds} away. ${clock}. ${ownerPart}`;
+      msg=`${zone.name}. ${ds}. ${clock}. ${ownerPart}`;
     }
 
     /* "Unik." placed directly after zone name for natural listening order */
@@ -3637,12 +3627,12 @@
          height first. */
       const pathInfo=[elevationSentence(zone),obstacleSentence(zone)].filter(Boolean).join(' ');
       const dirElevPart=pathInfo?`${dirPart}${pathInfo} `:dirPart;
-      /* Cykling: bike distance/time comes before the usual straight-line
-         "X m bort." sentence, which stays as a secondary reference. */
+      /* Cykling: bike distance/time comes before the plain straight-line
+         distance, which stays as a secondary reference. "Bort"/"away" is
+         dropped everywhere — a bare distance reads faster and is already
+         understood in context. */
       const cycSentence=cyclingSentence(zone);
-      /* "Bort" dropped when the cycling sentence already precedes this
-         distance — redundant once cycling distance/time has been said. */
-      const distPart=cycSentence?`${cycSentence} ${ds}. `:`${ds} bort. `;
+      const distPart=cycSentence?`${cycSentence} ${ds}. `:`${ds}. `;
       if(isMyZone) return`${zone.name}. ${distPart}${dirElevPart}${t.myZone}.`;
       if(skipOwner){
         if(b.blocked===true){
@@ -3860,7 +3850,7 @@
     const statusVal=document.getElementById('detail-heading-status');
     statusVal.textContent=block.label;
     statusVal.className=`zv-value ${block.css}`;
-    const combinedLabel=`${z.name}. ${distStr(km)} ${t.awaySuffix}. ${dirPart}${block.label}.`;
+    const combinedLabel=`${z.name}. ${distStr(km)}. ${dirPart}${block.label}.`;
     detailHeading.setAttribute('aria-label',combinedLabel);
 
     /* Owner line — tappable button when there's an actual owner.
@@ -3978,19 +3968,19 @@
           let announcementText='';
           const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
           if(isMyZone){
-            announcementText=`${prefix}${z.name}. ${t.myZone}. ${ds} bort. ${dirPart}`.trimEnd();
+            announcementText=`${prefix}${z.name}. ${t.myZone}. ${ds}. ${dirPart}`.trimEnd();
           } else if(block.blocked===true&&owner){
             const dur=formatDurationSpoken(block.remainingSec);
             const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik.':' Unique.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${t.blockedBySpoken(owner,dur)}`;
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds}. ${dirPart}${t.blockedBySpoken(owner,dur)}`;
           } else if(block.label===t.neverTaken){
             const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
             const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik.':' Unique.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${ownerPart} ${t.neverTaken}.`;
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds}. ${dirPart}${ownerPart} ${t.neverTaken}.`;
           } else {
             const ownerPart=isUnowned?`${t.unowned}.`:t.ownedBy(owner);
             const uniquePart=isUniqueZone(z.name)?(lang==='sv'?' Unik.':' Unique.'):'';
-            announcementText=`${prefix}${z.name}.${uniquePart} ${ds} bort. ${dirPart}${ownerPart}`;
+            announcementText=`${prefix}${z.name}.${uniquePart} ${ds}. ${dirPart}${ownerPart}`;
           }
           /* Voice Mode — Speech Synthesis */
           if(isMonitorActive()) announceZone(z);
