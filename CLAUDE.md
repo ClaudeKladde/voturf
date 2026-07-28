@@ -328,7 +328,10 @@ Allt gränssnitt finns på svenska och engelska i objektet `T.sv` / `T.en`.
 Missas något av dessa syns fel språk vid språkbyte eller vid sidladdning.
 
 Instruktionerna (tips) finns både som statisk HTML **och** som JS-arrayer.
-`sectionSizes` måste matcha antalet tips per sektion.
+`sectionSizes` måste matcha antalet tips per sektion. Tips renderas via
+`innerHTML`, inte `textContent`, så en tips-post kan innehålla en `<a>`-länk
+(t.ex. guiden till turf.lundkvist.com i unikazoner-tipset) — gäller bara
+statisk, utvecklarskriven text, aldrig användarinmatning.
 
 ---
 
