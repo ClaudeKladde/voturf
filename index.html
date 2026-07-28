@@ -493,7 +493,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 15:20</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 15:24</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -2650,7 +2650,10 @@
       const query=`[out:json][timeout:20];(way["natural"="water"](${bbox});way["waterway"~"river|stream|canal"](${bbox});way["highway"="motorway"](${bbox});way["railway"="rail"](${bbox}););out geom;`;
       /* Overpass's documented POST form: a "data" field, form-urlencoded —
          raw text/plain bodies are not reliably accepted by the interpreter. */
-      const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query)});
+      /* Trying an alternate public Overpass mirror — the main overpass-api.de
+         instance gave a generic "Load failed" network error (CORS/connectivity),
+         not an HTTP error from a bad query, so the query itself isn't the problem. */
+      const r=await fetch('https://overpass.kumi.systems/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query)});
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const data=await r.json();
       if(data.remark) throw new Error(data.remark);

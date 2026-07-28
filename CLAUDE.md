@@ -276,9 +276,11 @@ fungerade — session-scoped i minnet, sparas inte i localStorage.
 avstånd/riktning redan räknas från) mellan dig och zonen korsar vatten
 (`natural=water`/`waterway`), motorväg (**bara** `highway=motorway`, inte
 trunk-vägar) eller järnväg (`railway=rail`), direkt efter riktningen.
-Hämtas via **Overpass API** (`overpass-api.de`, samma öppna
-OpenStreetMap-familj som Nominatim), ett anrop per uppdatering med en
-bounding box som täcker användaren och alla synliga zoner (`ensureObstacleData()`).
+Hämtas via **Overpass API** (`overpass.kumi.systems` — bytt från
+`overpass-api.de` efter att den instansen gav "Load failed"/nätverksfel i
+praktiken; samma öppna OpenStreetMap-familj som Nominatim), ett anrop per
+uppdatering med en bounding box som täcker användaren och alla synliga zoner
+(`ensureObstacleData()`).
 Linjekorsning testas geometriskt (`segmentsIntersect()`/`lineCrossesWay()`)
 mot varje hämtad väg. Hittas inget hinder sägs **inget alls** om det — ingen
 "inget hinder"-mening, för snabbare uppläsning. En engångsdiagnos via
