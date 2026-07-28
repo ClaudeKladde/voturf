@@ -493,7 +493,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 14:53</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 15:05</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -809,7 +809,7 @@
       filterAdvancedObstacle:'Avancerat läge med hinder',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
-      elevUp:(m)=>`${m} m upp.`,elevDown:(m)=>`${m} m ner.`,
+      elevUp:(m)=>`${m} m högre.`,elevDown:(m)=>`${m} m lägre.`,
       elevationStatusOk:'Höjdinformation kunde hämtas.',
       elevationStatusFail:'Höjdinformation kunde inte hämtas den här gången.',
       obstacleWater:'Vatten',obstacleMotorway:'Motorväg',obstacleRailway:'Tågspår',
@@ -1051,7 +1051,7 @@
       filterAdvancedObstacle:'Advanced mode with obstacles',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
-      elevUp:(m)=>`${m} m up.`,elevDown:(m)=>`${m} m down.`,
+      elevUp:(m)=>`${m} m higher.`,elevDown:(m)=>`${m} m lower.`,
       elevationStatusOk:'Elevation data could be fetched.',
       elevationStatusFail:'Elevation data could not be fetched this time.',
       obstacleWater:'Water',obstacleMotorway:'Motorway',obstacleRailway:'Railway',
@@ -2648,8 +2648,10 @@
       const pad=0.002; /* small margin so edge-of-box features aren't missed */
       const bbox=`${minLat-pad},${minLon-pad},${maxLat+pad},${maxLon+pad}`;
       const query=`[out:json][timeout:20];(way["natural"="water"](${bbox});way["waterway"~"river|stream|canal"](${bbox});way["highway"="motorway"](${bbox});way["railway"="rail"](${bbox}););out geom;`;
-      const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'text/plain'},body:query});
-      if(!r.ok) throw new Error();
+      /* Overpass's documented POST form: a "data" field, form-urlencoded —
+         raw text/plain bodies are not reliably accepted by the interpreter. */
+      const r=await fetch('https://overpass-api.de/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query)});
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const data=await r.json();
       obstacleWays=(data.elements||[])
         .filter(el=>el.geometry&&el.geometry.length>1)
