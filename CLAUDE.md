@@ -246,30 +246,52 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 
 ### Filter
 
-Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning.
+Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner,
+Avancerad visning med höjd, Avancerat läge med hinder.
 
 **Sök zoner** använder Nominatim för adressgeokodning, pausar automatiska
 uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar.
 Avstånd och riktning beräknas relativt adressen, inte GPS-positionen.
 
-**Avancerad visning** fungerar som Alla zoner (`getFilteredZones()` gör ingen
-extra filtrering för den) men berikar varje zons text med ett extra fält:
+De två avancerade filtren (`activeFilter==='advanced'` respektive
+`'advancedObstacle'`) fungerar som Alla zoner (`getFilteredZones()` gör ingen
+extra filtrering för dem) men berikar varje zons text med ett extra fält var.
+De är medvetet separata filter, inte en kombinerad inställning — enklare att
+hålla reda på än ett eget reglage utöver filtermenyn.
 
-- **Höjdskillnad** relativt din position, direkt efter riktningen (`"15 m upp."`
-  / `"20 m ner."`). Hämtas från **Open-Elevation** (`api.open-elevation.com`,
-  öppen, nyckelfri, SRTM-baserad) — samma tjänst används för både din egen
-  position och varje zon, så att jämförelsen inte blandar telefonens egen
-  (ofta opålitliga) GPS-höjd med en separat datakälla. Ett enda batch-anrop
-  per uppdatering (`ensureElevationData()`), cachas i `elevationCache` keyed på
-  `lat.toFixed(4),lon.toFixed(4)`. Avrundas till närmaste 5 m, meddelas bara
-  vid minst 10 m skillnad — annars visas inget höjdfält alls. Misslyckas
-  anropet visas zonen ändå, bara utan höjd. En engångsdiagnos via `aria-live`
-  (`#elevation-status`) meddelar en gång per app-session om hämtningen
-  fungerade — session-scoped i minnet, sparas inte i localStorage.
+**Avancerad visning med höjd** — höjdskillnad relativt din position, direkt
+efter riktningen (`"15 m upp."` / `"20 m ner."`). Hämtas från
+**Open-Elevation** (`api.open-elevation.com`, öppen, nyckelfri, SRTM-baserad)
+— samma tjänst används för både din egen position och varje zon, så att
+jämförelsen inte blandar telefonens egen (ofta opålitliga) GPS-höjd med en
+separat datakälla. Ett enda batch-anrop per uppdatering
+(`ensureElevationData()`), cachas i `elevationCache` keyed på `coordKey()`
+(`lat.toFixed(4),lon.toFixed(4)`). Avrundas till närmaste 5 m, meddelas bara
+vid minst 10 m skillnad — annars visas inget höjdfält alls. Misslyckas
+anropet visas zonen ändå, bara utan höjd. En engångsdiagnos via `aria-live`
+(`#advanced-status`) meddelar en gång per app-session om hämtningen
+fungerade — session-scoped i minnet, sparas inte i localStorage.
+
+**Avancerat läge med hinder** — kollar om fågelvägen (samma linje som
+avstånd/riktning redan räknas från) mellan dig och zonen korsar vatten
+(`natural=water`/`waterway`), motorväg (**bara** `highway=motorway`, inte
+trunk-vägar) eller järnväg (`railway=rail`), direkt efter riktningen.
+Hämtas via **Overpass API** (`overpass-api.de`, samma öppna
+OpenStreetMap-familj som Nominatim), ett anrop per uppdatering med en
+bounding box som täcker användaren och alla synliga zoner (`ensureObstacleData()`).
+Linjekorsning testas geometriskt (`segmentsIntersect()`/`lineCrossesWay()`)
+mot varje hämtad väg. Hittas inget hinder sägs **inget alls** om det — ingen
+"inget hinder"-mening, för snabbare uppläsning. En engångsdiagnos via
+`aria-live` (`#advanced-status`, samma element som höjd) meddelar en gång per
+session om hämtningen lyckades. **Känd begränsning:** en bro eller tunnel vid
+korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte
+skiljer på "korsar" och "går över/under". En separat ruttberäkningsvariant
+(jämföra faktisk gångväg mot fågelvägen) har diskuterats men inte byggts —
+ingen tillförlitlig nyckelfri gångruttstjänst har hittats än.
 
 **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
-inga extra anrop) visas i **alla** vyer, inte bara Avancerad visning, direkt
-efter zonens namn, före "Unik zon." om båda gäller (`zoneTypeName()` i
+inga extra anrop) visas i **alla** vyer, inte bara de avancerade filtren,
+direkt efter zonens namn, före "Unik zon." om båda gäller (`zoneTypeName()` i
 `buildZoneItem`, återanvänds av `buildOwnedZoneItem`). Visas bara när namnet
 inte är det generiska `"Okänd"`/`"Unknown"`.
 
