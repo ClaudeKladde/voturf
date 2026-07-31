@@ -105,7 +105,7 @@
       display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
     }
     #toolbar-row2{
-      display:grid;grid-template-columns:repeat(2,1fr);gap:.35rem;
+      display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
     }
     /* All toolbar buttons share the same base style */
     #toolbar button:not(#btn-refresh){
@@ -134,23 +134,23 @@
     #btn-refresh-label{font-size:.78rem}
     .btn-countdown-vis{font-size:.7rem;opacity:.8}
     /* Filter and Voice menus */
-    #filter-wrap,#voice-menu-wrap{position:relative;width:100%}
-    #filter-wrap button,#voice-menu-wrap>button{width:100%}
-    #filter-menu,#voice-menu{
+    #filter-wrap,#voice-menu-wrap,#movement-wrap{position:relative;width:100%}
+    #filter-wrap button,#voice-menu-wrap>button,#movement-wrap>button{width:100%}
+    #filter-menu,#voice-menu,#movement-menu{
       position:absolute;top:calc(100% + .35rem);right:0;
       background:var(--surface);border:1px solid var(--border);
       border-radius:var(--radius);list-style:none;min-width:11rem;z-index:20;overflow:hidden;
     }
-    #filter-menu[hidden],#voice-menu[hidden]{display:none}
-    #filter-menu li button,#voice-menu li button{
+    #filter-menu[hidden],#voice-menu[hidden],#movement-menu[hidden]{display:none}
+    #filter-menu li button,#voice-menu li button,#movement-menu li button{
       display:block;width:100%;text-align:left;
       font-family:var(--font-mono);font-size:.85rem;
       padding:.55rem .85rem;border:none;background:transparent;color:var(--text);cursor:pointer;
     }
-    #filter-menu li button:hover,#voice-menu li button:hover{background:rgba(255,255,255,.06)}
-    #filter-menu li button[aria-checked="true"],#voice-menu li button[aria-checked="true"]{color:var(--accent)}
-    #filter-menu li button:focus-visible,#voice-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
-    #filter-menu li+li,#voice-menu li+li{border-top:1px solid var(--border)}
+    #filter-menu li button:hover,#voice-menu li button:hover,#movement-menu li button:hover{background:rgba(255,255,255,.06)}
+    #filter-menu li button[aria-checked="true"],#voice-menu li button[aria-checked="true"],#movement-menu li button[aria-checked="true"]{color:var(--accent)}
+    #filter-menu li button:focus-visible,#voice-menu li button:focus-visible,#movement-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
+    #filter-menu li+li,#voice-menu li+li,#movement-menu li+li{border-top:1px solid var(--border)}
     /* Voice menu now lives in Settings, not the toolbar — needs its own
        button styling since it no longer matches #toolbar button rules. */
     #voice-menu-wrap>button{
@@ -260,6 +260,7 @@
           <li id="tip-7c">Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7d">Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
           <li id="tip-7e">Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
+          <li id="tip-7f">Rörelse-knappen öppnar en meny med tre lägen: Gång, Cykel och Fordon. Varje läge har egna inställningar för uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, som du ställer in under Inställningar.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
@@ -280,6 +281,7 @@
           <li id="tip-12">Min profil-knappen finns alltid längst upp i verktygsfältet. Öppna den för att lägga till ditt användarnamn första gången. När du är inloggad visas stats, dina egna zoner, vänlistan och längst ner sektionen för unikazoner.</li>
           <li id="tip-12b">Unikazoner kräver att du registrerar ett konto på den fristående tjänsten turf.lundkvist.com enligt instruktionerna där, eftersom Turfs egen data bara ger ett antal, inte namnen på zonerna. <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic" target="_blank" rel="noopener" style="color:var(--accent2);">Se guiden för hur du registrerar dig och hämtar din lista.</a> Tryck sedan Aktivera automatisk hämtning under Min profil första gången — därefter uppdateras listan automatiskt i bakgrunden varje gång du tar en ny zon. Knappen blir en bekräftad status efter aktivering och går inte att stänga av igen.</li>
           <li id="tip-12c">Filuppladdning finns kvar som reserv om automatisk hämtning inte fungerar. Stödjer tabb-separerade textfiler och KML-filer. Zoner som inte finns i din lista markeras med ett U-märke visuellt och läses upp som Unik i talsyntesen.</li>
+          <li id="tip-12d">Medaljer visas som en egen knapp på profilsidan och öppnar en fullständig vy med alla dina uppnådda medaljer och vad som krävs för nästa nivå i varje serie.</li>
         </ul>
         <h3 id="tips-h-gps">GPS och kompass</h3>
         <ul>
@@ -288,7 +290,7 @@
         </ul>
         <h3 id="tips-h-settings">Inställningar</h3>
         <ul>
-          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), röstläge, talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.</li>
+          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Rörelse har tre egna profiler (Gång, Cykel och Fordon) med varsin uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under egna expanderbara rubriker. Platsknappen och kompassknappen är grupperade tillsammans.</li>
         </ul>
         <h3 id="tips-h-misc">Tips och övrigt</h3>
         <ul>
@@ -340,6 +342,16 @@
             <li><button role="option" data-filter="advanced"         aria-checked="false">Avancerad visning med höjd</button></li>
             <li><button role="option" data-filter="advancedObstacle" aria-checked="false">Avancerat läge med hinder</button></li>
             <li><button role="option" data-filter="cycling"          aria-checked="false">Cykling</button></li>
+          </ul>
+        </div>
+        <div id="movement-wrap">
+          <button id="btn-movement-menu" aria-expanded="false" aria-haspopup="listbox" aria-label="Rörelse: Gång.">
+            <span id="btn-movement-menu-label">Rörelse</span>
+          </button>
+          <ul id="movement-menu" role="listbox" aria-label="Välj rörelseläge" hidden>
+            <li><button role="option" data-mode="walking" aria-checked="true">Gång</button></li>
+            <li><button role="option" data-mode="biking"  aria-checked="false">Cykel</button></li>
+            <li><button role="option" data-mode="vehicle" aria-checked="false">Fordon</button></li>
           </ul>
         </div>
       </div>
@@ -409,14 +421,6 @@
       <div id="settings-panel" hidden>
     <h2 id="settings-heading" tabindex="-1">Inställningar</h2>
 
-    <!-- Auto update interval -->
-    <div class="settings-control">
-      <span class="settings-label" id="lbl-interval">Uppdateringsfrekvens: </span>
-      <button class="stepper-btn" id="btn-interval-minus" aria-label="Minska uppdateringsintervall">−</button>
-      <span class="stepper-val" id="interval-val" aria-live="polite" aria-atomic="true">30s</span>
-      <button class="stepper-btn" id="btn-interval-plus"  aria-label="Öka uppdateringsintervall">+</button>
-    </div>
-
     <!-- Voice mode — moved here from the toolbar -->
     <div class="settings-control">
       <div id="voice-menu-wrap">
@@ -447,21 +451,91 @@
       <button class="stepper-btn" id="btn-volume-plus" aria-label="Öka röstvolym">+</button>
     </div>
 
-    <!-- Nearby players settings group -->
-    <h3 id="nearby-players-settings-heading" style="font-family:var(--font-mono);font-size:.95rem;font-weight:700;color:var(--accent);margin:1rem 0 .5rem;">Inställningar för spelare</h3>
-
-    <div class="settings-control">
-      <span class="settings-label" id="lbl-player-freq">Uppdateringsfrekvens spelare: </span>
-      <button class="stepper-btn" id="btn-player-freq-minus" aria-label="Minska uppdateringsfrekvens">−</button>
-      <span class="stepper-val" id="player-freq-val" aria-live="polite" aria-atomic="true">60</span>
-      <button class="stepper-btn" id="btn-player-freq-plus" aria-label="Öka uppdateringsfrekvens">+</button>
+    <!-- Movement mode profiles — Gång/Cykel/Fordon, each with its own
+         update frequency / player update frequency / player distance.
+         All three always editable regardless of which is active. -->
+    <h3 style="margin:1rem 0 .5rem;padding:0;border:none;">
+      <button id="btn-walking-toggle" aria-expanded="false" aria-controls="walking-panel"
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
+        <span id="lbl-walking-toggle">Gång</span>
+        <span class="tips-chevron" aria-hidden="true">▼</span>
+      </button>
+    </h3>
+    <div id="walking-panel" hidden>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-walking-interval">Uppdateringsfrekvens: </span>
+        <button class="stepper-btn" id="btn-walking-interval-minus" aria-label="Minska uppdateringsfrekvens">−</button>
+        <span class="stepper-val" id="walking-interval-val" aria-live="polite" aria-atomic="true">30s</span>
+        <button class="stepper-btn" id="btn-walking-interval-plus" aria-label="Öka uppdateringsfrekvens">+</button>
+      </div>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-walking-player-freq">Uppdateringsfrekvens spelare: </span>
+        <button class="stepper-btn" id="btn-walking-player-freq-minus" aria-label="Minska uppdateringsfrekvens spelare">−</button>
+        <span class="stepper-val" id="walking-player-freq-val" aria-live="polite" aria-atomic="true">45s</span>
+        <button class="stepper-btn" id="btn-walking-player-freq-plus" aria-label="Öka uppdateringsfrekvens spelare">+</button>
+      </div>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-walking-player-radius">Avstånd spelare: </span>
+        <button class="stepper-btn" id="btn-walking-player-radius-minus" aria-label="Minska avstånd">−</button>
+        <span class="stepper-val" id="walking-player-radius-val" aria-live="polite" aria-atomic="true">500m</span>
+        <button class="stepper-btn" id="btn-walking-player-radius-plus" aria-label="Öka avstånd">+</button>
+      </div>
     </div>
 
-    <div class="settings-control">
-      <span class="settings-label" id="lbl-player-radius">Avstånd spelare: </span>
-      <button class="stepper-btn" id="btn-player-radius-minus" aria-label="Minska avstånd">−</button>
-      <span class="stepper-val" id="player-radius-val" aria-live="polite" aria-atomic="true">500</span>
-      <button class="stepper-btn" id="btn-player-radius-plus" aria-label="Öka avstånd">+</button>
+    <h3 style="margin:1rem 0 .5rem;padding:0;border:none;">
+      <button id="btn-biking-toggle" aria-expanded="false" aria-controls="biking-panel"
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
+        <span id="lbl-biking-toggle">Cykel</span>
+        <span class="tips-chevron" aria-hidden="true">▼</span>
+      </button>
+    </h3>
+    <div id="biking-panel" hidden>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-biking-interval">Uppdateringsfrekvens: </span>
+        <button class="stepper-btn" id="btn-biking-interval-minus" aria-label="Minska uppdateringsfrekvens">−</button>
+        <span class="stepper-val" id="biking-interval-val" aria-live="polite" aria-atomic="true">15s</span>
+        <button class="stepper-btn" id="btn-biking-interval-plus" aria-label="Öka uppdateringsfrekvens">+</button>
+      </div>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-biking-player-freq">Uppdateringsfrekvens spelare: </span>
+        <button class="stepper-btn" id="btn-biking-player-freq-minus" aria-label="Minska uppdateringsfrekvens spelare">−</button>
+        <span class="stepper-val" id="biking-player-freq-val" aria-live="polite" aria-atomic="true">35s</span>
+        <button class="stepper-btn" id="btn-biking-player-freq-plus" aria-label="Öka uppdateringsfrekvens spelare">+</button>
+      </div>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-biking-player-radius">Avstånd spelare: </span>
+        <button class="stepper-btn" id="btn-biking-player-radius-minus" aria-label="Minska avstånd">−</button>
+        <span class="stepper-val" id="biking-player-radius-val" aria-live="polite" aria-atomic="true">800m</span>
+        <button class="stepper-btn" id="btn-biking-player-radius-plus" aria-label="Öka avstånd">+</button>
+      </div>
+    </div>
+
+    <h3 style="margin:1rem 0 .5rem;padding:0;border:none;">
+      <button id="btn-vehicle-toggle" aria-expanded="false" aria-controls="vehicle-panel"
+        style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
+        <span id="lbl-vehicle-toggle">Fordon</span>
+        <span class="tips-chevron" aria-hidden="true">▼</span>
+      </button>
+    </h3>
+    <div id="vehicle-panel" hidden>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-vehicle-interval">Uppdateringsfrekvens: </span>
+        <button class="stepper-btn" id="btn-vehicle-interval-minus" aria-label="Minska uppdateringsfrekvens">−</button>
+        <span class="stepper-val" id="vehicle-interval-val" aria-live="polite" aria-atomic="true">10s</span>
+        <button class="stepper-btn" id="btn-vehicle-interval-plus" aria-label="Öka uppdateringsfrekvens">+</button>
+      </div>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-vehicle-player-freq">Uppdateringsfrekvens spelare: </span>
+        <button class="stepper-btn" id="btn-vehicle-player-freq-minus" aria-label="Minska uppdateringsfrekvens spelare">−</button>
+        <span class="stepper-val" id="vehicle-player-freq-val" aria-live="polite" aria-atomic="true">20s</span>
+        <button class="stepper-btn" id="btn-vehicle-player-freq-plus" aria-label="Öka uppdateringsfrekvens spelare">+</button>
+      </div>
+      <div class="settings-control">
+        <span class="settings-label" id="lbl-vehicle-player-radius">Avstånd spelare: </span>
+        <button class="stepper-btn" id="btn-vehicle-player-radius-minus" aria-label="Minska avstånd">−</button>
+        <span class="stepper-val" id="vehicle-player-radius-val" aria-live="polite" aria-atomic="true">1000m</span>
+        <button class="stepper-btn" id="btn-vehicle-player-radius-plus" aria-label="Öka avstånd">+</button>
+      </div>
     </div>
 
     <!-- Location and compass — grouped together -->
@@ -511,7 +585,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-01 00:37</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-01 01:02</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -745,6 +819,7 @@
         'Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
         'Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
+        'Rörelse-knappen öppnar en meny med tre lägen: Gång, Cykel och Fordon. Varje läge har egna inställningar för uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, som du ställer in under Inställningar.',
         'Röstläge hittar du under Inställningar. Knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym direkt nedanför.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.',
@@ -753,9 +828,10 @@
         'Min profil-knappen finns alltid längst upp i verktygsfältet. Öppna den för att lägga till ditt användarnamn första gången. När du är inloggad visas stats, dina egna zoner, vänlistan och längst ner sektionen för unikazoner.',
         'Unikazoner kräver att du registrerar ett konto på den fristående tjänsten turf.lundkvist.com enligt instruktionerna där, eftersom Turfs egen data bara ger ett antal, inte namnen på zonerna. <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic" target="_blank" rel="noopener" style="color:var(--accent2);">Se guiden för hur du registrerar dig och hämtar din lista.</a> Tryck sedan Aktivera automatisk hämtning under Min profil första gången — därefter uppdateras listan automatiskt i bakgrunden varje gång du tar en ny zon. Knappen blir en bekräftad status efter aktivering och går inte att stänga av igen.',
         'Filuppladdning finns kvar som reserv om automatisk hämtning inte fungerar. Stödjer tabb-separerade textfiler och KML-filer. Zoner som inte finns i din lista markeras med ett U-märke visuellt och läses upp som Unik i talsyntesen.',
+        'Medaljer visas som en egen knapp på profilsidan och öppnar en fullständig vy med alla dina uppnådda medaljer och vad som krävs för nästa nivå i varje serie.',
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt det valda aviseringsläget.',
-        'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), röstläge, talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.',
+        'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Rörelse har tre egna profiler (Gång, Cykel och Fordon) med varsin uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under egna expanderbara rubriker. Platsknappen och kompassknappen är grupperade tillsammans.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
@@ -940,7 +1016,10 @@
       voModeMenuAria:'Välj röstläge',
       voModeBtnAria:(v)=>`Röstläge: ${v}.`,
       voModeVoLabel:'VO-aviseringar',voModeVoiceLabel:'Inbyggd röst',voModeOffLabel:'Av',
-      playerSettingsHeading:'Inställningar för spelare',
+      movementBtnLabel:'Rörelse',
+      movementBtnAria:(v)=>`Rörelse: ${v}.`,
+      movementMenuAria:'Välj rörelseläge',
+      movementWalking:'Gång',movementBiking:'Cykel',movementVehicle:'Fordon',
       myZonesHeading:'Mina zoner',
       myZonesEmpty:'Du äger inga zoner just nu.',
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
@@ -1009,6 +1088,7 @@
         'Advanced view with height works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'Advanced mode with obstacles works like All zones but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
         'Cycling takes the 15 nearest zones and re-sorts them by actual bike-route distance instead of the straight line, keeping the height difference but dropping the obstacle check (a real bike route can\'t already run through water or a motorway). Zones with no bike route found are tagged "Uncertain cycling" and moved to the end instead of being hidden. Cycling data is fetched from an external service (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
+        'The Movement button opens a menu with three modes: Walking, Biking, and Vehicle. Each mode has its own settings for update frequency, player updates, and player distance, which you configure under Settings.',
         'Voice mode is found under Settings. The button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume right below it.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
         'Tap a player in the list to open their profile with stats and owned zones. Right after the player\'s name are the Add as friend and Show in nearby players buttons.',
@@ -1017,9 +1097,10 @@
         'The My profile button is always at the top of the toolbar. Open it to add your username the first time. Once logged in, your stats, owned zones, friends list, and at the bottom the unique zones section are shown.',
         'Unique zones require you to register an account on the independent service turf.lundkvist.com following the instructions there, since Turf\'s own data only gives a count, not the zone names. <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic" target="_blank" rel="noopener" style="color:var(--accent2);">See the guide for how to register and fetch your list.</a> Then tap Activate automatic fetch under My profile the first time — after that the list updates automatically in the background whenever you take a new zone. The button becomes a confirmed status after activation and cannot be turned off again.',
         'File upload remains as a fallback if automatic fetching does not work. Supports tab-separated text files and KML files. Zones not in your list are marked with a U badge visually and announced as Unique by speech.',
+        'Medals appears as its own button on the profile page and opens a full view with all your achieved medals and what is needed for the next level in each series.',
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the selected announcement mode.',
-        'Settings are at the bottom of the zone list behind an expandable button. Adjust update frequency (default 30 seconds), voice mode, speech rate, voice volume, and player distance there. The location button and compass button are grouped together.',
+        'Settings are at the bottom of the zone list behind an expandable button. Voice mode, speech rate, and voice volume are adjusted right there. Movement has three separate profiles (Walking, Biking, and Vehicle), each with their own update frequency, player updates, and player distance, grouped under their own expandable headings. The location button and compass button are grouped together.',
         'Remember to keep your screen unlocked and Safari open for the app to work properly.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
@@ -1204,7 +1285,10 @@
       voModeMenuAria:'Select voice mode',
       voModeBtnAria:(v)=>`Voice mode: ${v}.`,
       voModeVoLabel:'VO alerts',voModeVoiceLabel:'Built-in voice',voModeOffLabel:'Off',
-      playerSettingsHeading:'Player settings',
+      movementBtnLabel:'Movement',
+      movementBtnAria:(v)=>`Movement: ${v}.`,
+      movementMenuAria:'Choose movement mode',
+      movementWalking:'Walking',movementBiking:'Biking',movementVehicle:'Vehicle',
       myZonesHeading:'My zones',
       myZonesEmpty:'You do not own any zones right now.',
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
@@ -1396,6 +1480,25 @@
   let playerNotifyActive=true;  /* single toggle, follows top Voice mode/VO alerts — on by default */
   let playerUpdateFreq=PLAYER_FREQ_DEFAULT;
   let playerRadius=PLAYER_RADIUS_DEFAULT;
+
+  /* ═══ Rörelse — tre oberoende profiler (Gång/Cykel/Fordon), var och en
+     med egna värden för uppdateringsfrekvens, spelaruppdateringar och
+     spelaravstånd. Ersätter de tidigare enskilda globala reglagen för
+     dessa tre. Endast det just nu VALDA läget styr de levande värdena
+     ovan (refreshInterval/playerUpdateFreq/playerRadius) — men alla tre
+     profiler går att redigera oavsett vilket som är aktivt. ═══ */
+  const MOVEMENT_MODE_LIST=['walking','biking','vehicle'];
+  const MOVEMENT_DEFAULTS={
+    walking:{interval:30,playerFreq:45,playerRadius:500},
+    biking:{interval:15,playerFreq:35,playerRadius:800},
+    vehicle:{interval:10,playerFreq:20,playerRadius:1000},
+  };
+  let movementMode='walking';
+  let movementProfiles={
+    walking:{...MOVEMENT_DEFAULTS.walking},
+    biking:{...MOVEMENT_DEFAULTS.biking},
+    vehicle:{...MOVEMENT_DEFAULTS.vehicle},
+  };
   let previousNearbyPlayerIds=new Set();
   let playerMonitorTimer=null;
   let countdownValue=INTERVAL_DEFAULT,countdownTimer=null,refreshTimer=null;
@@ -1893,9 +1996,6 @@
   const filterMenu    =document.getElementById('filter-menu');
   const tipsToggle    =document.getElementById('tips-toggle');
   const tipsContent   =document.getElementById('tips-content');
-  const intervalVal   =document.getElementById('interval-val');
-  const btnIntervalMinus=document.getElementById('btn-interval-minus');
-  const btnIntervalPlus =document.getElementById('btn-interval-plus');
   const speedVal      =document.getElementById('speed-val');
   const btnSpeedMinus =document.getElementById('btn-speed-minus');
   const btnSpeedPlus  =document.getElementById('btn-speed-plus');
@@ -1907,9 +2007,6 @@
     try{
       const savedLang=localStorage.getItem('turf-lang');
       if(savedLang&&T[savedLang]) lang=savedLang;
-      const savedInterval=parseInt(localStorage.getItem('turf-interval'));
-      if(!isNaN(savedInterval)&&savedInterval>=INTERVAL_MIN&&savedInterval<=INTERVAL_MAX)
-        refreshInterval=savedInterval;
       const savedSpeed=parseFloat(localStorage.getItem('turf-speed'));
       if(!isNaN(savedSpeed)&&savedSpeed>=SPEED_MIN&&savedSpeed<=SPEED_MAX)
         voiceSpeed=Math.round(savedSpeed*10)/10;
@@ -1922,12 +2019,26 @@
       if(savedHideTaken==='true') hideTakenActive=true;
       const savedPlayerNotify=localStorage.getItem('turf-player-notify');
       if(savedPlayerNotify==='false') playerNotifyActive=false;  /* default true unless explicitly turned off */
-      const savedPlayerFreq=parseInt(localStorage.getItem('turf-player-freq'),10);
-      if(!isNaN(savedPlayerFreq)&&savedPlayerFreq>=PLAYER_FREQ_MIN&&savedPlayerFreq<=PLAYER_FREQ_MAX)
-        playerUpdateFreq=savedPlayerFreq;
-      const savedPlayerRadius=parseInt(localStorage.getItem('turf-player-radius'),10);
-      if(!isNaN(savedPlayerRadius)&&savedPlayerRadius>=PLAYER_RADIUS_MIN&&savedPlayerRadius<=PLAYER_RADIUS_MAX)
-        playerRadius=savedPlayerRadius;
+      try{
+        const savedProfiles=JSON.parse(localStorage.getItem('turf-movement-profiles')||'null');
+        if(savedProfiles){
+          MOVEMENT_MODE_LIST.forEach(mode=>{
+            const p=savedProfiles[mode];
+            if(!p) return;
+            if(Number.isFinite(p.interval)&&p.interval>=INTERVAL_MIN&&p.interval<=INTERVAL_MAX)
+              movementProfiles[mode].interval=p.interval;
+            if(Number.isFinite(p.playerFreq)&&p.playerFreq>=PLAYER_FREQ_MIN&&p.playerFreq<=PLAYER_FREQ_MAX)
+              movementProfiles[mode].playerFreq=p.playerFreq;
+            if(Number.isFinite(p.playerRadius)&&p.playerRadius>=PLAYER_RADIUS_MIN&&p.playerRadius<=PLAYER_RADIUS_MAX)
+              movementProfiles[mode].playerRadius=p.playerRadius;
+          });
+        }
+      }catch(e){}
+      const savedMovementMode=localStorage.getItem('turf-movement-mode');
+      if(MOVEMENT_MODE_LIST.includes(savedMovementMode)) movementMode=savedMovementMode;
+      refreshInterval=movementProfiles[movementMode].interval;
+      playerUpdateFreq=movementProfiles[movementMode].playerFreq;
+      playerRadius=movementProfiles[movementMode].playerRadius;
       const savedCompass=localStorage.getItem('turf-compass');
       if(savedCompass==='false') compassEnabled=false;
       const sUser=localStorage.getItem('turf-username');
@@ -2325,7 +2436,6 @@
     document.getElementById('btn-refresh-label').textContent=t.refreshLabel;
     setRefreshLabel(countdownValue);
     document.getElementById('settings-heading').textContent=t.settingsHeading;
-    document.getElementById('lbl-interval').textContent=t.intervalLabel;
     document.getElementById('lbl-speed').textContent=t.speedLabel;
     document.getElementById('lbl-compass').textContent=t.compassLabel;
     document.getElementById('gps-reminder').textContent=t.gpsReminder;
@@ -2335,8 +2445,6 @@
     /* Nearby players */
     const nphHeading=document.getElementById('nearby-players-heading');
     if(nphHeading) nphHeading.textContent=t.nearbyPlayersHeading;
-    const nphSettingsHeading=document.getElementById('nearby-players-settings-heading');
-    if(nphSettingsHeading) nphSettingsHeading.textContent=t.playerSettingsHeading;
     /* Unique zones labels */
     const uzhEl=document.getElementById('unique-zones-heading');
     if(uzhEl) uzhEl.textContent=t.uniqueZonesHeading;
@@ -2349,12 +2457,8 @@
     /* Player detail page — stats heading */
     const playerStatsHeadingEl=document.getElementById('player-stats-heading');
     if(playerStatsHeadingEl) playerStatsHeadingEl.textContent=t.playerStatsHeading;
-    const lblPlayerFreq=document.getElementById('lbl-player-freq');
-    if(lblPlayerFreq) lblPlayerFreq.textContent=t.playerFreqLabel;
-    const lblPlayerRadius=document.getElementById('lbl-player-radius');
-    if(lblPlayerRadius) lblPlayerRadius.textContent=t.playerRadiusLabel;
     if(typeof updatePlayerNotifyBtn==='function'){
-      updatePlayerNotifyBtn();updatePlayerFreqUI();updatePlayerRadiusUI();
+      updatePlayerNotifyBtn();
       /* Re-render current nearby players list (mainly to refresh empty-state text) */
       if(nearbyPlayersList && nearbyPlayersList.children.length===1 && nearbyPlayersList.children[0].id==='nearby-players-empty'){
         nearbyPlayersList.children[0].textContent=t.noPlayersNearby;
@@ -2452,7 +2556,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[3,8,1,2,2,3,2,1,3];
+      const sectionSizes=[3,9,1,2,2,4,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -2497,15 +2601,31 @@
       voiceOpts[1].textContent=t.voModeVoiceLabel;
       voiceOpts[2].textContent=t.voModeOffLabel;
     }
+    /* Update movement menu — button label, option texts, and the three
+       per-mode settings group headings all share the same three names */
+    const movementNames={walking:t.movementWalking,biking:t.movementBiking,vehicle:t.movementVehicle};
+    document.getElementById('btn-movement-menu-label').textContent=t.movementBtnLabel;
+    movementMenuEl.setAttribute('aria-label',t.movementMenuAria);
+    movementMenuEl.querySelectorAll('button[data-mode]').forEach(b=>{
+      b.textContent=movementNames[b.dataset.mode];
+    });
+    MOVEMENT_MODE_LIST.forEach(mode=>{
+      const h=document.getElementById(`lbl-${mode}-toggle`);
+      if(h) h.textContent=movementNames[mode];
+      const lblI=document.getElementById(`lbl-${mode}-interval`);
+      if(lblI) lblI.textContent=t.intervalLabel;
+      const lblF=document.getElementById(`lbl-${mode}-player-freq`);
+      if(lblF) lblF.textContent=t.playerFreqLabel;
+      const lblR=document.getElementById(`lbl-${mode}-player-radius`);
+      if(lblR) lblR.textContent=t.playerRadiusLabel;
+    });
     updateFilterLabel();
+    updateMovementMenuUI();
     updateVoiceModeBtn();
     updatePauseBtn();
-    updateIntervalUI();
+    updateAllMovementStepperUI();
     updateSpeedUI();
     if(typeof updateHideTakenBtn==='function') updateHideTakenBtn();
-    /* Update nearby players settings heading */
-    const npsHeading=document.getElementById('nearby-players-settings-heading');
-    if(npsHeading) npsHeading.textContent=t.playerSettingsHeading;
     /* Skip links */
     const skipPlayers=document.getElementById('skip-to-players');
     if(skipPlayers&&!skipPlayers.parentElement.hidden) skipPlayers.textContent=t.skipToPlayers??'Hoppa till spelare i närheten';
@@ -3728,12 +3848,6 @@
      away, the feature fails silently and shows "no players".
   ════════════════════════════════════════ */
   const btnPlayerNotify   =document.getElementById('btn-player-notify');
-  const playerFreqVal     =document.getElementById('player-freq-val');
-  const btnPlayerFreqMinus=document.getElementById('btn-player-freq-minus');
-  const btnPlayerFreqPlus =document.getElementById('btn-player-freq-plus');
-  const playerRadiusVal   =document.getElementById('player-radius-val');
-  const btnPlayerRadiusMinus=document.getElementById('btn-player-radius-minus');
-  const btnPlayerRadiusPlus =document.getElementById('btn-player-radius-plus');
   const nearbyPlayersList =document.getElementById('nearby-players-list');
   const playerAlertRegion =document.getElementById('player-alert-region');
 
@@ -3745,58 +3859,134 @@
     btnPlayerNotify.style.color=playerNotifyActive?'#000':'var(--muted)';
     btnPlayerNotify.style.borderColor=playerNotifyActive?'var(--accent)':'var(--border)';
   }
-  function updatePlayerFreqUI(){
-    playerFreqVal.textContent=`${playerUpdateFreq}s`;
-    playerFreqVal.setAttribute('aria-label',t.playerFreqAria(playerUpdateFreq));
-    btnPlayerFreqMinus.disabled=playerUpdateFreq<=PLAYER_FREQ_MIN;
-    btnPlayerFreqPlus.disabled=playerUpdateFreq>=PLAYER_FREQ_MAX;
-    btnPlayerFreqMinus.setAttribute('aria-label',t.playerFreqMinusAria(Math.max(PLAYER_FREQ_MIN,playerUpdateFreq-PLAYER_FREQ_STEP)));
-    btnPlayerFreqPlus.setAttribute('aria-label',t.playerFreqPlusAria(Math.min(PLAYER_FREQ_MAX,playerUpdateFreq+PLAYER_FREQ_STEP)));
-  }
-  function updatePlayerRadiusUI(){
-    playerRadiusVal.textContent=`${playerRadius}m`;
-    playerRadiusVal.setAttribute('aria-label',t.playerRadiusAria(playerRadius));
-    btnPlayerRadiusMinus.disabled=playerRadius<=PLAYER_RADIUS_MIN;
-    btnPlayerRadiusPlus.disabled=playerRadius>=PLAYER_RADIUS_MAX;
-    btnPlayerRadiusMinus.setAttribute('aria-label',t.playerRadiusMinusAria(Math.max(PLAYER_RADIUS_MIN,playerRadius-PLAYER_RADIUS_STEP)));
-    btnPlayerRadiusPlus.setAttribute('aria-label',t.playerRadiusPlusAria(Math.min(PLAYER_RADIUS_MAX,playerRadius+PLAYER_RADIUS_STEP)));
-  }
-
   btnPlayerNotify.addEventListener('click',()=>{
     playerNotifyActive=!playerNotifyActive;
     updatePlayerNotifyBtn();
     try{localStorage.setItem('turf-player-notify',String(playerNotifyActive))}catch(e){}
   });
-  btnPlayerFreqMinus.addEventListener('click',()=>{
-    if(playerUpdateFreq>PLAYER_FREQ_MIN){
-      playerUpdateFreq-=PLAYER_FREQ_STEP;
-      updatePlayerFreqUI();
-      try{localStorage.setItem('turf-player-freq',playerUpdateFreq)}catch(e){}
+
+  /* ════════════════════════════════════════
+     RÖRELSE — tre profiler (Gång/Cykel/Fordon), var och en med egna
+     uppdateringsfrekvens/spelaruppdateringar/spelaravstånd. Endast den
+     just nu valda profilen (movementMode) styr de levande värdena
+     (refreshInterval/playerUpdateFreq/playerRadius) — men alla tre
+     profiler går att redigera oavsett vilken som är aktiv.
+  ════════════════════════════════════════ */
+  const MOVEMENT_KINDS={
+    interval:{min:INTERVAL_MIN,max:INTERVAL_MAX,step:INTERVAL_STEP,unit:'s',
+      aria:v=>t.intervalAria(v),minusAria:v=>t.intervalMinusAria(v),plusAria:v=>t.intervalPlusAria(v)},
+    playerFreq:{min:PLAYER_FREQ_MIN,max:PLAYER_FREQ_MAX,step:PLAYER_FREQ_STEP,unit:'s',
+      aria:v=>t.playerFreqAria(v),minusAria:v=>t.playerFreqMinusAria(v),plusAria:v=>t.playerFreqPlusAria(v)},
+    playerRadius:{min:PLAYER_RADIUS_MIN,max:PLAYER_RADIUS_MAX,step:PLAYER_RADIUS_STEP,unit:'m',
+      aria:v=>t.playerRadiusAria(v),minusAria:v=>t.playerRadiusMinusAria(v),plusAria:v=>t.playerRadiusPlusAria(v)},
+  };
+  const MOVEMENT_KIND_SLUG={interval:'interval',playerFreq:'player-freq',playerRadius:'player-radius'};
+
+  function movementEls(mode,kind){
+    const slug=MOVEMENT_KIND_SLUG[kind];
+    return {
+      val:document.getElementById(`${mode}-${slug}-val`),
+      minus:document.getElementById(`btn-${mode}-${slug}-minus`),
+      plus:document.getElementById(`btn-${mode}-${slug}-plus`),
+    };
+  }
+  function updateMovementStepperUI(mode,kind){
+    const cfg=MOVEMENT_KINDS[kind];
+    const {val,minus,plus}=movementEls(mode,kind);
+    const v=movementProfiles[mode][kind];
+    val.textContent=`${v}${cfg.unit}`;
+    val.setAttribute('aria-label',cfg.aria(v));
+    minus.disabled=v<=cfg.min;
+    plus.disabled=v>=cfg.max;
+    minus.setAttribute('aria-label',cfg.minusAria(Math.max(cfg.min,v-cfg.step)));
+    plus.setAttribute('aria-label',cfg.plusAria(Math.min(cfg.max,v+cfg.step)));
+  }
+  function updateAllMovementStepperUI(){
+    MOVEMENT_MODE_LIST.forEach(mode=>{
+      Object.keys(MOVEMENT_KINDS).forEach(kind=>updateMovementStepperUI(mode,kind));
+    });
+  }
+  function saveMovementProfiles(){
+    try{localStorage.setItem('turf-movement-profiles',JSON.stringify(movementProfiles))}catch(e){}
+  }
+  function applyLiveFromActiveProfile(){
+    const p=movementProfiles[movementMode];
+    refreshInterval=p.interval;
+    playerUpdateFreq=p.playerFreq;
+    playerRadius=p.playerRadius;
+  }
+  function stepMovementValue(mode,kind,dir){
+    const cfg=MOVEMENT_KINDS[kind];
+    const cur=movementProfiles[mode][kind];
+    if(dir<0&&cur<=cfg.min) return;
+    if(dir>0&&cur>=cfg.max) return;
+    movementProfiles[mode][kind]=dir<0?Math.max(cfg.min,cur-cfg.step):Math.min(cfg.max,cur+cfg.step);
+    updateMovementStepperUI(mode,kind);
+    saveMovementProfiles();
+    if(mode===movementMode){
+      applyLiveFromActiveProfile();
+      if(kind==='interval') restartCountdown();
+      else if(kind==='playerFreq') restartPlayerMonitor();
+      else if(kind==='playerRadius') fetchNearbyPlayers();
+    }
+  }
+  MOVEMENT_MODE_LIST.forEach(mode=>{
+    Object.keys(MOVEMENT_KINDS).forEach(kind=>{
+      const {minus,plus}=movementEls(mode,kind);
+      minus.addEventListener('click',()=>stepMovementValue(mode,kind,-1));
+      plus.addEventListener('click',()=>stepMovementValue(mode,kind,+1));
+    });
+  });
+
+  /* Expandable per-mode settings groups (h3 + button, mirrors the outer
+     Inställningar panel's own expand/collapse pattern) */
+  function wireExpandableToggle(btn,panel){
+    if(!btn||!panel) return;
+    btn.addEventListener('click',()=>{
+      const open=panel.hidden;
+      panel.hidden=!open;
+      btn.setAttribute('aria-expanded',String(open));
+      btn.querySelector('.tips-chevron').textContent=open?'▲':'▼';
+    });
+  }
+  MOVEMENT_MODE_LIST.forEach(mode=>{
+    wireExpandableToggle(document.getElementById(`btn-${mode}-toggle`),document.getElementById(`${mode}-panel`));
+  });
+
+  /* Toolbar Rörelse button — selects which profile is active/live */
+  const btnMovementMenu=document.getElementById('btn-movement-menu');
+  const movementMenuEl=document.getElementById('movement-menu');
+  function updateMovementMenuUI(){
+    const names={walking:t.movementWalking,biking:t.movementBiking,vehicle:t.movementVehicle};
+    btnMovementMenu.setAttribute('aria-label',t.movementBtnAria(names[movementMode]));
+    movementMenuEl.querySelectorAll('button[data-mode]').forEach(b=>{
+      b.setAttribute('aria-checked',b.dataset.mode===movementMode?'true':'false');
+    });
+  }
+  btnMovementMenu.addEventListener('click',()=>{
+    const isOpen=!movementMenuEl.hidden;
+    movementMenuEl.hidden=isOpen;
+    btnMovementMenu.setAttribute('aria-expanded',String(!isOpen));
+  });
+  movementMenuEl.querySelectorAll('button[data-mode]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      movementMenuEl.hidden=true;
+      btnMovementMenu.setAttribute('aria-expanded','false');
+      const mode=btn.dataset.mode;
+      if(mode===movementMode) return;
+      movementMode=mode;
+      applyLiveFromActiveProfile();
+      try{localStorage.setItem('turf-movement-mode',movementMode)}catch(e){}
+      updateMovementMenuUI();
+      restartCountdown();
       restartPlayerMonitor();
-    }
-  });
-  btnPlayerFreqPlus.addEventListener('click',()=>{
-    if(playerUpdateFreq<PLAYER_FREQ_MAX){
-      playerUpdateFreq+=PLAYER_FREQ_STEP;
-      updatePlayerFreqUI();
-      try{localStorage.setItem('turf-player-freq',playerUpdateFreq)}catch(e){}
-      restartPlayerMonitor();
-    }
-  });
-  btnPlayerRadiusMinus.addEventListener('click',()=>{
-    if(playerRadius>PLAYER_RADIUS_MIN){
-      playerRadius=Math.max(PLAYER_RADIUS_MIN,playerRadius-PLAYER_RADIUS_STEP);
-      updatePlayerRadiusUI();
-      try{localStorage.setItem('turf-player-radius',playerRadius)}catch(e){}
-      fetchNearbyPlayers();  /* re-filter immediately with new radius */
-    }
-  });
-  btnPlayerRadiusPlus.addEventListener('click',()=>{
-    if(playerRadius<PLAYER_RADIUS_MAX){
-      playerRadius=Math.min(PLAYER_RADIUS_MAX,playerRadius+PLAYER_RADIUS_STEP);
-      updatePlayerRadiusUI();
-      try{localStorage.setItem('turf-player-radius',playerRadius)}catch(e){}
       fetchNearbyPlayers();
+    });
+  });
+  document.addEventListener('click',e=>{
+    if(!btnMovementMenu.contains(e.target)&&!movementMenuEl.contains(e.target)){
+      movementMenuEl.hidden=true;
+      btnMovementMenu.setAttribute('aria-expanded','false');
     }
   });
 
@@ -3971,36 +4161,6 @@
   function restartPlayerMonitor(){
     if(playerMonitorTimer) startPlayerMonitor();
   }
-
-  /* ════════════════════════════════════════
-     INTERVAL CONTROL
-  ════════════════════════════════════════ */
-  function updateIntervalUI(){
-    intervalVal.textContent=`${refreshInterval}s`;
-    intervalVal.setAttribute('aria-label',t.intervalAria(refreshInterval));
-    const prevStep=refreshInterval-INTERVAL_STEP;
-    const nextStep=refreshInterval+INTERVAL_STEP;
-    btnIntervalMinus.disabled=refreshInterval<=INTERVAL_MIN;
-    btnIntervalPlus.disabled=refreshInterval>=INTERVAL_MAX;
-    btnIntervalMinus.setAttribute('aria-label',t.intervalMinusAria(Math.max(INTERVAL_MIN,prevStep)));
-    btnIntervalPlus.setAttribute('aria-label',t.intervalPlusAria(Math.min(INTERVAL_MAX,nextStep)));
-  }
-  btnIntervalMinus.addEventListener('click',()=>{
-    if(refreshInterval>INTERVAL_MIN){
-      refreshInterval=Math.max(INTERVAL_MIN,refreshInterval-INTERVAL_STEP);
-      updateIntervalUI();
-      try{localStorage.setItem('turf-interval',refreshInterval)}catch(e){}
-      restartCountdown();
-    }
-  });
-  btnIntervalPlus.addEventListener('click',()=>{
-    if(refreshInterval<INTERVAL_MAX){
-      refreshInterval=Math.min(INTERVAL_MAX,refreshInterval+INTERVAL_STEP);
-      updateIntervalUI();
-      try{localStorage.setItem('turf-interval',refreshInterval)}catch(e){}
-      restartCountdown();
-    }
-  });
 
   /* ════════════════════════════════════════
      SPEED CONTROL
@@ -4851,7 +5011,6 @@
   updateVoiceModeBtn();
   updatePauseBtn();
   updateHideTakenBtn();
-  updateIntervalUI();
   updateSpeedUI();
   updateVolumeUI();
   updateCompassBtn();

@@ -356,12 +356,14 @@ Sticky, gult, tre rader:
 
 - **Rad 0:** `#btn-profile` — visar namn, antal zoner, pph, omgångspoäng
 - **Rad 1:** Uppdatera, Pausa, Avisera spelare
-- **Rad 2:** Dölj tagna, Filter
+- **Rad 2:** Dölj tagna, Filter, Rörelse
 
-Röstläge (`#voice-menu-wrap`) satt tidigare som en tredje knapp på rad 2,
-men är flyttat till Inställningar (direkt ovanför Talhastighet, samma
+Röstläge (`#voice-menu-wrap`) satt tidigare som tredje knapp på rad 2, men
+är flyttat till Inställningar (direkt ovanför Talhastighet, samma
 `<ul id="voice-menu">`-innehåll och alla samma element-ID:n, bara ny plats
-i DOM:en). Rad 2 är därför en tvåkolumns-grid nu istället för tre.
+i DOM:en). Dess gamla plats på rad 2 togs sedan över av den nya
+Rörelse-knappen (se `### Rörelse` nedan) — rad 2 är därför en
+trekolumns-grid precis som innan, bara med ett annat tredje element.
 
 Safari-fix för sticky-positionering:
 
@@ -454,6 +456,48 @@ direkt efter zonens namn, före "Unik." om båda gäller (`zoneTypeName()` i
 `buildZoneItem`, återanvänds av `buildOwnedZoneItem`). Visas bara när namnet
 inte är det generiska `"Okänd"`/`"Unknown"`.
 
+### Rörelse
+
+Ersätter de tidigare enskilda globala reglagen Uppdateringsfrekvens,
+Uppdateringsfrekvens spelare och Avstånd spelare. Istället finns tre
+oberoende, alltid redigerbara profiler — Gång, Cykel, Fordon — vardera med
+egen uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, under
+Inställningar (rubrik nivå 3 + expanderbar knapp per profil, samma mönster
+som den yttre Inställningar-panelen). Grundvärden:
+
+| Profil | Uppdatering | Spelare | Avstånd |
+|---|---|---|---|
+| Gång (`walking`) | 30s | 45s | 500 m |
+| Cykel (`biking`) | 15s | 35s | 800 m |
+| Fordon (`vehicle`) | 10s | 20s | 1000 m |
+
+En knapp i verktygsfältets rad 2 (`#btn-movement-menu`, tredje kolumnen —
+samma plats Röstläge hade innan den flyttade till Inställningar) väljer
+vilken profil som är **aktiv**: `movementMode` styr vilka värden som
+faktiskt är levande (`refreshInterval`/`playerUpdateFreq`/`playerRadius`,
+samma globala variabler som förut). Statisk knapptext "Rörelse" (inte
+aktuellt läge, till skillnad från gamla Röstläge-knappen) — bara
+`aria-label` är dynamisk, i samma stil som `voModeBtnAria`.
+
+Alla tre profiler är redigerbara oavsett vilken som är aktiv — expanderar
+du t.ex. Fordon och ändrar dess avstånd medan Gång är aktivt läge, påverkas
+bara Fordons sparade värde. Ändrar du istället en profil som **är** aktiv
+just nu slår ändringen igenom direkt (`stepMovementValue()` kollar
+`mode===movementMode` och kör samma sidoeffekter som ett lägesbyte:
+`restartCountdown()`/`restartPlayerMonitor()`/`fetchNearbyPlayers()`
+beroende på vilket av de tre fälten som ändrades).
+
+**Ingen koppling till Cykling-filtret** (`activeFilter==='cycling'`) —
+medvetet helt separata funktioner, trots namnlikheten. Att välja
+rörelseläge Cykel byter inte filter, och tvärtom. Den engelska
+översättningen av Cykel-profilen är därför "Biking", inte "Cycling", för
+att undvika att båda menyerna visar samma ord för olika saker.
+
+**Migrering:** vid introduktionen nollställdes alla tre profiler till
+grundvärdena ovan (användarens tidigare anpassade globala värden
+skrevs inte över till Gång) — ett medvetet val efter förfrågan, inte en
+bugg om användaren undrar varför siffrorna "återställdes".
+
 ### Röstläge
 
 `voiceMode` = `'vo'` (VO-aviseringar, standard) | `'voice'` (Inbyggd röst) | `'off'`.
@@ -480,9 +524,9 @@ egen.
 ### localStorage
 
 ```
-turf-lang, turf-interval, turf-speed, turf-volume, turf-voice-mode,
+turf-lang, turf-speed, turf-volume, turf-voice-mode,
 turf-compass, turf-username, turf-hide-taken, turf-player-notify,
-turf-player-freq, turf-player-radius, turf-friends,
+turf-movement-mode, turf-movement-profiles, turf-friends,
 turf-friends-show-nearby, turf-players-hidden-nearby,
 turf-unique-zones, turf-pause, turf-unique-auto-fetch,
 turf-unique-count-baseline, turf-round-start-cache,
