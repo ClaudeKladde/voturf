@@ -356,7 +356,12 @@ Sticky, gult, tre rader:
 
 - **Rad 0:** `#btn-profile` — visar namn, antal zoner, pph, omgångspoäng
 - **Rad 1:** Uppdatera, Pausa, Avisera spelare
-- **Rad 2:** Dölj tagna, Filter, Röstläge
+- **Rad 2:** Dölj tagna, Filter
+
+Röstläge (`#voice-menu-wrap`) satt tidigare som en tredje knapp på rad 2,
+men är flyttat till Inställningar (direkt ovanför Talhastighet, samma
+`<ul id="voice-menu">`-innehåll och alla samma element-ID:n, bara ny plats
+i DOM:en). Rad 2 är därför en tvåkolumns-grid nu istället för tre.
 
 Safari-fix för sticky-positionering:
 
@@ -452,6 +457,8 @@ inte är det generiska `"Okänd"`/`"Unknown"`.
 ### Röstläge
 
 `voiceMode` = `'vo'` (VO-aviseringar, standard) | `'voice'` (Inbyggd röst) | `'off'`.
+Kontrollen (tre valbara lägen, ingen på/av-toggle) finns under Inställningar,
+direkt ovanför Talhastighet/Röstvolym.
 
 VO-aviseringar och Röstläge bygger generellt sina texter i **separata kodvägar**
 (t.ex. den löpande zonlistans `buildZoneItem` kontra `announceZone`). Ändrar du

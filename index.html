@@ -101,8 +101,11 @@
       width:100%;text-align:left;transition:background .15s,color .15s;
     }
     #toolbar #btn-profile:focus-visible{outline:3px solid #000;outline-offset:3px}
-    #toolbar-row1,#toolbar-row2{
+    #toolbar-row1{
       display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
+    }
+    #toolbar-row2{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:.35rem;
     }
     /* All toolbar buttons share the same base style */
     #toolbar button:not(#btn-refresh){
@@ -148,6 +151,15 @@
     #filter-menu li button[aria-checked="true"],#voice-menu li button[aria-checked="true"]{color:var(--accent)}
     #filter-menu li button:focus-visible,#voice-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
     #filter-menu li+li,#voice-menu li+li{border-top:1px solid var(--border)}
+    /* Voice menu now lives in Settings, not the toolbar — needs its own
+       button styling since it no longer matches #toolbar button rules. */
+    #voice-menu-wrap>button{
+      font-family:var(--font-mono);font-size:.85rem;font-weight:700;
+      border:2px solid var(--accent);border-radius:var(--radius);
+      padding:.55rem .8rem;cursor:pointer;background:transparent;color:var(--accent);
+      text-align:left;transition:background .15s,color .15s;
+    }
+    #voice-menu-wrap>button:focus-visible{outline:3px solid var(--accent2);outline-offset:3px}
 
     /* ── Status ── */
     #status-msg{font-size:.85rem;color:var(--muted);font-family:var(--font-mono);min-height:1.4em;margin-bottom:.6rem}
@@ -240,7 +252,7 @@
         </ul>
         <h3 id="tips-h-toolbar">Verktygsfält</h3>
         <ul>
-          <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.</li>
+          <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
           <li id="tip-7">Filter-knappen öppnar en meny med åtta alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder och Cykling. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
@@ -251,7 +263,7 @@
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
         <ul>
-          <li id="tip-8">Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.</li>
+          <li id="tip-8">Röstläge hittar du under Inställningar. Knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym direkt nedanför.</li>
         </ul>
         <h3 id="tips-h-players">Spelare i närheten</h3>
         <ul>
@@ -276,7 +288,7 @@
         </ul>
         <h3 id="tips-h-settings">Inställningar</h3>
         <ul>
-          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.</li>
+          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), röstläge, talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.</li>
         </ul>
         <h3 id="tips-h-misc">Tips och övrigt</h3>
         <ul>
@@ -328,16 +340,6 @@
             <li><button role="option" data-filter="advanced"         aria-checked="false">Avancerad visning med höjd</button></li>
             <li><button role="option" data-filter="advancedObstacle" aria-checked="false">Avancerat läge med hinder</button></li>
             <li><button role="option" data-filter="cycling"          aria-checked="false">Cykling</button></li>
-          </ul>
-        </div>
-        <div id="voice-menu-wrap">
-          <button id="btn-voice-menu" aria-expanded="false" aria-haspopup="listbox">
-            <span id="btn-voice-menu-label">VO-aviseringar</span>
-          </button>
-          <ul id="voice-menu" role="listbox" hidden>
-            <li><button role="option" data-mode="vo"    aria-checked="true">VO-aviseringar</button></li>
-            <li><button role="option" data-mode="voice" aria-checked="false">Inbyggd röst</button></li>
-            <li><button role="option" data-mode="off"   aria-checked="false">Av</button></li>
           </ul>
         </div>
       </div>
@@ -413,6 +415,20 @@
       <button class="stepper-btn" id="btn-interval-minus" aria-label="Minska uppdateringsintervall">−</button>
       <span class="stepper-val" id="interval-val" aria-live="polite" aria-atomic="true">30s</span>
       <button class="stepper-btn" id="btn-interval-plus"  aria-label="Öka uppdateringsintervall">+</button>
+    </div>
+
+    <!-- Voice mode — moved here from the toolbar -->
+    <div class="settings-control">
+      <div id="voice-menu-wrap">
+        <button id="btn-voice-menu" aria-expanded="false" aria-haspopup="listbox">
+          <span id="btn-voice-menu-label">VO-aviseringar</span>
+        </button>
+        <ul id="voice-menu" role="listbox" hidden>
+          <li><button role="option" data-mode="vo"    aria-checked="true">VO-aviseringar</button></li>
+          <li><button role="option" data-mode="voice" aria-checked="false">Inbyggd röst</button></li>
+          <li><button role="option" data-mode="off"   aria-checked="false">Av</button></li>
+        </ul>
+      </div>
     </div>
 
     <!-- Voice speed -->
@@ -495,7 +511,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 12:09</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-01 00:37</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -721,7 +737,7 @@
         'Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver, eller svep från vänster kant i Safari.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
-        'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter, Röstläge.',
+        'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
         'Filter-knappen öppnar en meny med åtta alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder och Cykling. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
@@ -729,7 +745,7 @@
         'Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
         'Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
-        'Röstläge-knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym under Inställningar.',
+        'Röstläge hittar du under Inställningar. Knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym direkt nedanför.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
         'Tryck på en spelare i listan för att öppna deras profil med stats och ägda zoner. Direkt efter spelarnamnet finns knapparna Lägg till som vän och Visa i spelare i närheten.',
         'Lägg till Turf-vänner längst ner på din profilsida. Vänner visas inte i listan över spelare i närheten och du får inga aviseringar om dem som standard. Om en vän är aktiv i spelet visas Aktiv-märket bredvid deras namn. Tryck på en väns namn för att se deras profil. Där kan du slå på Visa i spelare i närheten om du vill se just den vännen i listan trots att ni är vänner, eller ta bort dem som vän längst ner på sidan.',
@@ -739,7 +755,7 @@
         'Filuppladdning finns kvar som reserv om automatisk hämtning inte fungerar. Stödjer tabb-separerade textfiler och KML-filer. Zoner som inte finns i din lista markeras med ett U-märke visuellt och läses upp som Unik i talsyntesen.',
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt det valda aviseringsläget.',
-        'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.',
+        'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Justera uppdateringsfrekvens (standardvärde 30 sekunder), röstläge, talhastighet, röstvolym och spelaravstånd där. Platsknappen och kompassknappen är grupperade tillsammans.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
@@ -985,7 +1001,7 @@
         'Each zone in the list is one swipe — name, zone type when known (e.g. Monument or Bridge), distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver, or swipe from the left edge in Safari.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
-        'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter, Voice mode.',
+        'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
         'The Filter button opens a menu with eight options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, Advanced mode with obstacles, and Cycling. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
@@ -993,7 +1009,7 @@
         'Advanced view with height works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'Advanced mode with obstacles works like All zones but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
         'Cycling takes the 15 nearest zones and re-sorts them by actual bike-route distance instead of the straight line, keeping the height difference but dropping the obstacle check (a real bike route can\'t already run through water or a motorway). Zones with no bike route found are tagged "Uncertain cycling" and moved to the end instead of being hidden. Cycling data is fetched from an external service (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
-        'The Voice mode button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume under Settings.',
+        'Voice mode is found under Settings. The button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume right below it.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
         'Tap a player in the list to open their profile with stats and owned zones. Right after the player\'s name are the Add as friend and Show in nearby players buttons.',
         'Add Turf friends at the bottom of your profile page. Friends are excluded from the nearby players list and you will not get notified about them by default. If a friend is active in the game, an Active badge appears next to their name. Tap a friend\'s name to view their profile. There you can turn on Show in nearby players if you want to see that specific friend in the list despite being friends, or remove them as a friend at the bottom of the page.',
@@ -1003,7 +1019,7 @@
         'File upload remains as a fallback if automatic fetching does not work. Supports tab-separated text files and KML files. Zones not in your list are marked with a U badge visually and announced as Unique by speech.',
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the selected announcement mode.',
-        'Settings are at the bottom of the zone list behind an expandable button. Adjust update frequency (default 30 seconds), speech rate, voice volume, and player distance there. The location button and compass button are grouped together.',
+        'Settings are at the bottom of the zone list behind an expandable button. Adjust update frequency (default 30 seconds), voice mode, speech rate, voice volume, and player distance there. The location button and compass button are grouped together.',
         'Remember to keep your screen unlocked and Safari open for the app to work properly.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
@@ -1376,7 +1392,7 @@
   /* ═══ Nearby players state ═══ */
   const PLAYER_LOCATION_API='https://api.turfgame.com/v4/users/location';
   const PLAYER_FREQ_MIN=10,PLAYER_FREQ_MAX=120,PLAYER_FREQ_STEP=5,PLAYER_FREQ_DEFAULT=35;
-  const PLAYER_RADIUS_MIN=50,PLAYER_RADIUS_MAX=1000,PLAYER_RADIUS_STEP=50,PLAYER_RADIUS_DEFAULT=500;
+  const PLAYER_RADIUS_MIN=50,PLAYER_RADIUS_MAX=2000,PLAYER_RADIUS_STEP=100,PLAYER_RADIUS_DEFAULT=500;
   let playerNotifyActive=true;  /* single toggle, follows top Voice mode/VO alerts — on by default */
   let playerUpdateFreq=PLAYER_FREQ_DEFAULT;
   let playerRadius=PLAYER_RADIUS_DEFAULT;
@@ -3769,7 +3785,7 @@
   });
   btnPlayerRadiusMinus.addEventListener('click',()=>{
     if(playerRadius>PLAYER_RADIUS_MIN){
-      playerRadius-=PLAYER_RADIUS_STEP;
+      playerRadius=Math.max(PLAYER_RADIUS_MIN,playerRadius-PLAYER_RADIUS_STEP);
       updatePlayerRadiusUI();
       try{localStorage.setItem('turf-player-radius',playerRadius)}catch(e){}
       fetchNearbyPlayers();  /* re-filter immediately with new radius */
@@ -3777,7 +3793,7 @@
   });
   btnPlayerRadiusPlus.addEventListener('click',()=>{
     if(playerRadius<PLAYER_RADIUS_MAX){
-      playerRadius+=PLAYER_RADIUS_STEP;
+      playerRadius=Math.min(PLAYER_RADIUS_MAX,playerRadius+PLAYER_RADIUS_STEP);
       updatePlayerRadiusUI();
       try{localStorage.setItem('turf-player-radius',playerRadius)}catch(e){}
       fetchNearbyPlayers();
