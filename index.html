@@ -495,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 11:27</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 11:52</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -578,6 +578,9 @@
       <li id="pi-round-points">—</li>
       <li id="pi-unique">—</li>
       <li id="pi-round-unique" hidden>—</li>
+      <li id="pi-round-takeovers" hidden>—</li>
+      <li id="pi-round-new-unique" hidden>—</li>
+      <li id="pi-round-new-unique-note" hidden>—</li>
       <li id="pi-points">—</li>
       <li id="pi-pph">—</li>
       <li id="pi-taken">—</li>
@@ -654,6 +657,9 @@
       <li id="pdi-round-points">—</li>
       <li id="pdi-unique">—</li>
       <li id="pdi-round-unique" hidden>—</li>
+      <li id="pdi-round-takeovers" hidden>—</li>
+      <li id="pdi-round-new-unique" hidden>—</li>
+      <li id="pdi-round-new-unique-note" hidden>—</li>
       <li id="pdi-points">—</li>
       <li id="pdi-pph">—</li>
       <li id="pdi-taken">—</li>
@@ -933,6 +939,9 @@
       piPph:(p)=>`Poäng per timme: ${p}`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
       piRoundUnique:(n)=>`Omgångsunika zoner: ${n.toLocaleString('sv-SE')}`,
+      piRoundTakeovers:(n)=>`Tagningar denna omgång: ${n.toLocaleString('sv-SE')}`,
+      piRoundNewUnique:(n)=>`Nya unikazoner denna omgång: ${n.toLocaleString('sv-SE')}`,
+      piRoundNewUniqueNote:'Ungefärligt värde, räknat från appens första mätning denna omgång — kan vara för lågt.',
       piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
       piMedals:(n)=>`Medaljer: ${n}`,
       piZonesCount:(n)=>`Ägda zoner: ${n}`,
@@ -1195,6 +1204,9 @@
       piPph:(p)=>`Points per hour: ${p}`,
       piUnique:(n)=>`Unique zones taken: ${n.toLocaleString('en-GB')}`,
       piRoundUnique:(n)=>`Round-unique zones: ${n.toLocaleString('en-GB')}`,
+      piRoundTakeovers:(n)=>`Takeovers this round: ${n.toLocaleString('en-GB')}`,
+      piRoundNewUnique:(n)=>`New unique zones this round: ${n.toLocaleString('en-GB')}`,
+      piRoundNewUniqueNote:"Approximate, counted from the app's first measurement this round — may be too low.",
       piTaken:(n)=>`Total takeovers: ${n.toLocaleString('en-GB')}`,
       piMedals:(n)=>`Medals: ${n}`,
       piZonesCount:(n)=>`Owned zones: ${n}`,
@@ -1266,6 +1278,83 @@
     }
   }
 
+  /* /v5/rounds accepts only GET, unlike the other v5 endpoints above —
+     same host, same one-request-per-second limit, so it needs the same
+     retry-once-on-rate-limit behaviour as fetchJsonWithRetry. */
+  async function fetchRoundsWithRetry(attempt=0){
+    try{
+      const r=await fetch(`${API_BASE}/rounds`,{headers:{'Accept-Encoding':'gzip'}});
+      if(!r.ok){
+        const e=await r.json().catch(()=>({}));
+        throw new Error(e.errorMessage||`HTTP ${r.status}`);
+      }
+      return await r.json();
+    }catch(e){
+      if(attempt<1&&/one request per second/i.test(e.message)){
+        await sleep(1500);
+        return fetchRoundsWithRetry(attempt+1);
+      }
+      throw e;
+    }
+  }
+
+  /* Turfs /rounds ger exakta start-tider (första söndagen i månaden, 12:00
+     svensk tid) för pågående och kommande omgångar. Hämtas högst en gång
+     per kalenderdag — cachas i minnet och localStorage — för att inte
+     belasta Turfs hastighetsgräns i varje uppdateringscykel. Sover själv
+     1100 ms innan anropet, men bara när ett anrop faktiskt görs. */
+  async function ensureCurrentRoundStart(){
+    const today=new Date().toISOString().slice(0,10);
+    if(cachedRoundStart&&roundStartFetchDate===today) return cachedRoundStart;
+    await sleep(1100);
+    try{
+      const rounds=await fetchRoundsWithRetry();
+      const now=Date.now();
+      const past=rounds.filter(r=>new Date(r.start).getTime()<=now)
+        .sort((a,b)=>new Date(a.start)-new Date(b.start));
+      if(past.length){
+        cachedRoundStart=past[past.length-1].start;
+        roundStartFetchDate=today;
+        try{localStorage.setItem('turf-round-start-cache',JSON.stringify({iso:cachedRoundStart,date:today}))}catch(e){}
+      }
+    }catch(e){ /* keep previous cached value, if any; tries again next cycle */ }
+    return cachedRoundStart;
+  }
+
+  /* Nya unikazoner denna omgång (livstids-unika OCH tagna sedan
+     omgångsstart) — Turfs API ger bara ett livstidsantal
+     (uniqueZonesTaken), ingen historik. Vi sparar själva det första
+     observerade värdet per spelare och omgång som en baslinje, och räknar
+     differensen därefter. Ungefärligt om appen inte råkade köras precis
+     vid omgångsstart, se piRoundNewUniqueNote. */
+  function computeRoundNewUnique(playerKey,uniqueZonesTaken,roundStartIso){
+    if(!roundStartIso||typeof uniqueZonesTaken!=='number') return null;
+    let store={};
+    try{store=JSON.parse(localStorage.getItem('turf-round-new-unique-baseline')||'{}');}catch(e){}
+    const key=playerKey.toLowerCase();
+    const existing=store[key];
+    if(!existing||existing.roundStart!==roundStartIso){
+      store[key]={roundStart:roundStartIso,baseline:uniqueZonesTaken};
+      try{localStorage.setItem('turf-round-new-unique-baseline',JSON.stringify(store));}catch(e){}
+      return 0;
+    }
+    return Math.max(0,uniqueZonesTaken-existing.baseline);
+  }
+
+  function renderRoundNewUnique(prefix,playerKey,uniqueZonesTaken){
+    const elVal=document.getElementById(`${prefix}-round-new-unique`);
+    const elNote=document.getElementById(`${prefix}-round-new-unique-note`);
+    if(!elVal||!elNote) return;
+    const delta=cachedRoundStart?computeRoundNewUnique(playerKey,uniqueZonesTaken,cachedRoundStart):null;
+    if(delta===null){
+      elVal.hidden=true; elNote.hidden=true; return;
+    }
+    elVal.textContent=t.piRoundNewUnique(delta);
+    elVal.hidden=false;
+    elNote.textContent=t.piRoundNewUniqueNote;
+    elNote.hidden=false;
+  }
+
   let lang='sv',t=T.sv;
   let userLat=null,userLon=null;
   let compassHeading=null,compassAvailable=false;
@@ -1320,6 +1409,7 @@
   let uniqueZoneNamesNormalized=new Set(); // lowercase trimmed version for safe matching
   let uniqueAutoFetchActive=false; // user has activated automatic unique-zone fetching from turf.lundkvist.com
   let uniqueCountBaseline=null; // last known uniqueZonesTaken count, used to detect newly taken zones
+  let cachedRoundStart=null,roundStartFetchDate=null; // official current round start (ISO), refetched at most once per calendar day
 
   /* ═══ Player detail navigation context ═══ */
   let playerDetailReturnView='list';   /* 'list' if opened from nearby players, 'profile' if opened from friends */
@@ -1858,6 +1948,11 @@
       if(savedAutoFetch==='true') uniqueAutoFetchActive=true;
       const savedBaseline=parseInt(localStorage.getItem('turf-unique-count-baseline'),10);
       if(!isNaN(savedBaseline)) uniqueCountBaseline=savedBaseline;
+      const savedRoundStart=JSON.parse(localStorage.getItem('turf-round-start-cache')||'null');
+      const todayStr=new Date().toISOString().slice(0,10);
+      if(savedRoundStart&&savedRoundStart.date===todayStr){
+        cachedRoundStart=savedRoundStart.iso; roundStartFetchDate=savedRoundStart.date;
+      }
     }catch(e){}
   }
   loadPrefs();
@@ -2117,7 +2212,7 @@
     document.getElementById('player-detail-heading').textContent=player.name;
     ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
       .forEach(id=>{document.getElementById(id).textContent='—'});
-    ['pdi-round-unique','pdi-biggest-take','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims']
+    ['pdi-round-unique','pdi-round-takeovers','pdi-round-new-unique','pdi-round-new-unique-note','pdi-biggest-take','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims']
       .forEach(id=>{document.getElementById(id).hidden=true});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
@@ -2609,6 +2704,14 @@
         }
       }catch(e){ /* keep stale profile data rather than showing an error */ }
 
+      /* 2b. Nya unikazoner denna omgång — kräver Turfs /rounds-endpoint
+         för omgångsstart. Cachas per dag, så detta gör oftast inget nytt
+         anrop alls. */
+      if(isOpen()&&savedUserProfile){
+        await ensureCurrentRoundStart();
+        if(isOpen()) renderRoundNewUnique('pi',savedUsername,savedUserProfile.uniqueZonesTaken??null);
+      }
+
       /* 3. Mina zoner — last, heaviest payload */
       if(isOpen()&&savedUserProfile){
         await sleep(1100);
@@ -2675,6 +2778,7 @@
     };
     const rs=data&&data.round_stats;
     set(`${prefix}-round-unique`, rs?t.piRoundUnique(rs.zones):'', !!rs);
+    set(`${prefix}-round-takeovers`, rs&&typeof rs.takeovers==='number'?t.piRoundTakeovers(rs.takeovers):'', !!(rs&&typeof rs.takeovers==='number'));
     const rec=data&&data.records;
     const bt=rec&&rec.biggest_take;
     set(`${prefix}-biggest-take`, bt?t.piBiggestTake(bt.zone_name,bt.points,formatApiDate(bt.taken_at)):'', !!bt);
@@ -2963,6 +3067,11 @@
       document.getElementById('pdi-zones-count').textContent=t.piZonesCount((u.zones||[]).length);
       document.getElementById('pdi-region').textContent=t.piRegion(u.region?.name??t.unknown);
       document.getElementById('pdi-place').textContent=t.piPlace(u.place??'—');
+
+      /* Nya unikazoner denna omgång — samma /rounds-baserade beräkning som
+         på egen profil, nyckel per spelarnamn. */
+      await ensureCurrentRoundStart();
+      renderRoundNewUnique('pdi',playerName,u.uniqueZonesTaken??null);
 
       /* API allows only one request per second — sequence the owned-zones
          fetch after this one instead of firing both at once. */

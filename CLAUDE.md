@@ -260,14 +260,52 @@ själv. Endpointen `GET /api/v1/turfer/{namn}` är CORS-öppen
 gräns (60 anrop/minut) — helt separat värd och helt separat från Turfs egen
 hastighetsgräns, så inget `sleep()` behövs runt detta anrop.
 
-**Vad det löser:** `round_stats.zones` (omgångsunika zoner) visas som en ny
-rad **direkt under** "Unika zoner tagna" (`pi-round-unique`/
-`pdi-round-unique`), på både egen profil och vänners profilsida.
+**Vad det löser:** `round_stats.zones` (omgångsunika zoner, dvs. distinkta
+zoner tagna denna omgång oavsett historik) visas som en ny rad **direkt
+under** "Unika zoner tagna" (`pi-round-unique`/`pdi-round-unique`), på både
+egen profil och vänners profilsida. `round_stats.takeovers` (antalet
+tagningar denna omgång) visas som nästa rad
+(`pi-round-takeovers`/`pdi-round-takeovers`).
 
-**Vad det INTE löser:** det egentliga ursprungsönskemålet — "unikazoner som
-tagits denna omgång OCH är livstids-unika" — finns inte i TurfTracker,
-Turfs eget API eller (användbart, pga saknad CORS) Turfportalen. Ingen
-egen lösning (t.ex. egen baseline/delta-spårning) är byggd för detta ännu.
+### Nya unikazoner denna omgång (Metric B) — egen baseline/delta via Turfs /rounds
+
+Det egentliga ursprungsönskemålet — "unikazoner som tagits denna omgång OCH
+är livstids-unika" — finns **inte** i TurfTracker eller Turfs eget API.
+Turfportalen (`turfportalen.se/player/{namn}`) visar dock exakt detta tal
+("Unique zones this round", skilt från deras "Round unique zones this
+round" som motsvarar `round_stats.zones` ovan). Turfportalen saknar CORS
+(bekräftat, ingen `Access-Control-Allow-Origin`) och har inget upptäckbart
+JSON-API — sidan är helt server-renderad från en egen historikdatabas
+(syns i deras månadsvisa historiktabell) — så den kan inte anropas direkt.
+Istället räknas motsvarande tal ut **själv, helt klientsidigt**:
+
+- **Omgångsstart:** `GET /v5/rounds` (samma värd och hastighetsgräns som
+  övriga Turf-API, men enda `v5`-endpointen som kräver GET istället för
+  POST — `fetchRoundsWithRetry()` är en egen liten kopia av
+  `fetchJsonWithRetry()` för detta). Ger exakta start-tider för pågående
+  och kommande omgångar. Bekräftat att omgångar börjar **första söndagen i
+  månaden klockan 12:00 svensk tid** (10:00/11:00 UTC beroende på
+  sommartid), inte den 1:a i månaden som man kunde tro.
+  `ensureCurrentRoundStart()` hämtar detta högst en gång per kalenderdag
+  (cachas i minnet och i `turf-round-start-cache`) för att inte belasta
+  hastighetsgränsen i varje uppdateringscykel, och sover själv 1100 ms
+  innan anropet — men bara de dagar ett anrop faktiskt görs.
+- **Baslinje per spelare:** Turfs API ger bara **nuvarande** värde av
+  `uniqueZonesTaken` (livstidsräknaren), ingen historik. `
+  computeRoundNewUnique()` sparar därför själva det första observerade
+  värdet per spelarnamn och omgångsstart som en baslinje
+  (`turf-round-new-unique-baseline` i localStorage) och räknar differensen
+  vid varje efterföljande observation. Fungerar identiskt för egen profil
+  och för vilken spelare som helst vars profil öppnas — nyckeln är
+  spelarnamnet (gemener), inte "jag själv" specifikt.
+- **Känd felmarginal:** till skillnad från Turfportalen (som har en server
+  som kör kontinuerligt) har appen bara enhetens egen körning. Öppnas
+  appen (för en given spelare) inte exakt vid omgångsstart missas de zoner
+  som redan tagits innan första observationen den omgången — talet blir då
+  för lågt just den omgången, men stämmer korrekt från och med nästa
+  omgång om appen används regelbundet. Detta kommuniceras med en kort,
+  alltid synlig extra rad (`pi-round-new-unique-note`/
+  `pdi-round-new-unique-note`) närhelst huvudraden visas.
 
 **Bonusfält** (`records`/`rivals` i samma svar) läggs längst ner i samma
 statistiklista, efter `pi-place`/`pdi-place`: `biggest_take`,
@@ -431,7 +469,8 @@ turf-compass, turf-username, turf-hide-taken, turf-player-notify,
 turf-player-freq, turf-player-radius, turf-friends,
 turf-friends-show-nearby, turf-players-hidden-nearby,
 turf-unique-zones, turf-pause, turf-unique-auto-fetch,
-turf-unique-count-baseline
+turf-unique-count-baseline, turf-round-start-cache,
+turf-round-new-unique-baseline
 ```
 
 ---
