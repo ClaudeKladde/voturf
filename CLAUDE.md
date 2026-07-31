@@ -248,6 +248,47 @@ vara den uppnådda nivån (dvs. lägre nivåer "ersätts", inte adderas) — kod
 fungerar även om det antagandet visar sig fel, eftersom den bara letar efter
 högsta matchande ID.
 
+### TurfTracker-statistik (omgångsunika zoner + rekord/rivaler)
+
+Turfs eget API exponerar bara **livstids**-antalet unikazoner
+(`u.uniqueZonesTaken`) — inget fält för hur många av dessa som är unika
+**denna omgång**. Tredjepartssajten **TurfTracker**
+(`turf.thorminate.com/api`) arkiverar Turfs råa take-flöde (som Turfs eget
+API bara exponerar ett rullande 30-minutersfönster av) och räknar fram detta
+själv. Endpointen `GET /api/v1/turfer/{namn}` är CORS-öppen
+(`Access-Control-Allow-Origin: *`), kräver ingen nyckel och har en generös
+gräns (60 anrop/minut) — helt separat värd och helt separat från Turfs egen
+hastighetsgräns, så inget `sleep()` behövs runt detta anrop.
+
+**Vad det löser:** `round_stats.zones` (omgångsunika zoner) visas som en ny
+rad **direkt under** "Unika zoner tagna" (`pi-round-unique`/
+`pdi-round-unique`), på både egen profil och vänners profilsida.
+
+**Vad det INTE löser:** det egentliga ursprungsönskemålet — "unikazoner som
+tagits denna omgång OCH är livstids-unika" — finns inte i TurfTracker,
+Turfs eget API eller (användbart, pga saknad CORS) Turfportalen. Ingen
+egen lösning (t.ex. egen baseline/delta-spårning) är byggd för detta ännu.
+
+**Bonusfält** (`records`/`rivals` i samma svar) läggs längst ner i samma
+statistiklista, efter `pi-place`/`pdi-place`: `biggest_take`,
+`longest_hold`, `best_day`, `longest_session`, `most_taken_zone`,
+`favourite_area`, samt första posten i `rivals.steals_from_you` och
+`rivals.your_victims`. Tider (`hold_seconds`, `longest_session.seconds`)
+läses upp via `formatDurationSpoken()`, inte det kompakta
+`formatDuration()`-formatet, av samma skäl som all annan uppläst text i
+appen (se "Meter kontra minuter" ovan) — dessa rader är vanliga `<li>` utan
+separat uppläst variant.
+
+Varje fält är individuellt valfritt — saknas ett fält i svaret (t.ex. en
+ny spelare utan `longest_session` än) döljs bara den raden
+(`hidden`-attributet), resten visas som vanligt. Misslyckas hela anropet
+(nätverk, okänd spelare) döljs alla nya rader tyst — ingen felruta, ingen
+`aria-live`-avbrott, appen fungerar precis som innan TurfTracker fanns.
+
+**Ej verifierat i den riktiga appen ännu** (bara testat med `curl` från
+sandboxmiljön mot `turf.thorminate.com`) — bör testas live av användaren
+efter driftsättning.
+
 ### Centrala hjälpfunktioner
 
 | Funktion | Syfte |

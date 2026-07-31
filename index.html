@@ -495,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 10:33</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 11:27</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -577,6 +577,7 @@
       <li id="pi-next-rank">—</li>
       <li id="pi-round-points">—</li>
       <li id="pi-unique">—</li>
+      <li id="pi-round-unique" hidden>—</li>
       <li id="pi-points">—</li>
       <li id="pi-pph">—</li>
       <li id="pi-taken">—</li>
@@ -584,6 +585,14 @@
       <li id="pi-zones-count">—</li>
       <li id="pi-region">—</li>
       <li id="pi-place">—</li>
+      <li id="pi-biggest-take" hidden>—</li>
+      <li id="pi-longest-hold" hidden>—</li>
+      <li id="pi-best-day" hidden>—</li>
+      <li id="pi-longest-session" hidden>—</li>
+      <li id="pi-most-taken-zone" hidden>—</li>
+      <li id="pi-favourite-area" hidden>—</li>
+      <li id="pi-rival-steals" hidden>—</li>
+      <li id="pi-rival-victims" hidden>—</li>
     </ul>
 
     <!-- Unique zones section — at the very end of profile page -->
@@ -644,6 +653,7 @@
       <li id="pdi-next-rank">—</li>
       <li id="pdi-round-points">—</li>
       <li id="pdi-unique">—</li>
+      <li id="pdi-round-unique" hidden>—</li>
       <li id="pdi-points">—</li>
       <li id="pdi-pph">—</li>
       <li id="pdi-taken">—</li>
@@ -651,6 +661,14 @@
       <li id="pdi-zones-count">—</li>
       <li id="pdi-region">—</li>
       <li id="pdi-place">—</li>
+      <li id="pdi-biggest-take" hidden>—</li>
+      <li id="pdi-longest-hold" hidden>—</li>
+      <li id="pdi-best-day" hidden>—</li>
+      <li id="pdi-longest-session" hidden>—</li>
+      <li id="pdi-most-taken-zone" hidden>—</li>
+      <li id="pdi-favourite-area" hidden>—</li>
+      <li id="pdi-rival-steals" hidden>—</li>
+      <li id="pdi-rival-victims" hidden>—</li>
     </ul>
     <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
@@ -914,11 +932,20 @@
       piRoundPoints:(p)=>`Omgångspoäng: ${p.toLocaleString('sv-SE')}`,
       piPph:(p)=>`Poäng per timme: ${p}`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
+      piRoundUnique:(n)=>`Omgångsunika zoner: ${n.toLocaleString('sv-SE')}`,
       piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
       piMedals:(n)=>`Medaljer: ${n}`,
       piZonesCount:(n)=>`Ägda zoner: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global placering: ${p}`,
+      piBiggestTake:(zoneName,points,date)=>`Största tagning: ${zoneName}, ${points} poäng (${date})`,
+      piLongestHold:(zoneName,durationSpoken)=>`Längsta innehav: ${zoneName}, ${durationSpoken}`,
+      piBestDay:(day,takes)=>`Bästa dagen: ${day}, ${takes} tagningar`,
+      piLongestSession:(durationSpoken)=>`Längsta sessionen: ${durationSpoken}`,
+      piMostTakenZone:(zoneName,takes)=>`Mest tagna zon: ${zoneName} (${takes} ggr)`,
+      piFavouriteArea:(areaName,takes)=>`Favoritområde: ${areaName} (${takes} tagningar)`,
+      piRivalSteals:(name,count)=>`Stjäl mest från dig: ${name} (${count} ggr)`,
+      piRivalVictims:(name,count)=>`Du tar oftast zoner från: ${name} (${count} ggr)`,
       myZone:'Din zon',
       intervalLabel:'Uppdateringsfrekvens:',
       intervalAria:(s)=>`Uppdateringsfrekvens: ${s} sekunder.`,
@@ -1167,11 +1194,20 @@
       piRoundPoints:(p)=>`Round points: ${p.toLocaleString('en-GB')}`,
       piPph:(p)=>`Points per hour: ${p}`,
       piUnique:(n)=>`Unique zones taken: ${n.toLocaleString('en-GB')}`,
+      piRoundUnique:(n)=>`Round-unique zones: ${n.toLocaleString('en-GB')}`,
       piTaken:(n)=>`Total takeovers: ${n.toLocaleString('en-GB')}`,
       piMedals:(n)=>`Medals: ${n}`,
       piZonesCount:(n)=>`Owned zones: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global place: ${p}`,
+      piBiggestTake:(zoneName,points,date)=>`Biggest take: ${zoneName}, ${points} points (${date})`,
+      piLongestHold:(zoneName,durationSpoken)=>`Longest hold: ${zoneName}, ${durationSpoken}`,
+      piBestDay:(day,takes)=>`Best day: ${day}, ${takes} takes`,
+      piLongestSession:(durationSpoken)=>`Longest session: ${durationSpoken}`,
+      piMostTakenZone:(zoneName,takes)=>`Most taken zone: ${zoneName} (${takes} times)`,
+      piFavouriteArea:(areaName,takes)=>`Favourite area: ${areaName} (${takes} takes)`,
+      piRivalSteals:(name,count)=>`Steals most from you: ${name} (${count} times)`,
+      piRivalVictims:(name,count)=>`You most often take zones from: ${name} (${count} times)`,
       myZone:'Your zone',
       intervalLabel:'Update frequency:',
       intervalAria:(s)=>`Update frequency: ${s} seconds.`,
@@ -2081,6 +2117,8 @@
     document.getElementById('player-detail-heading').textContent=player.name;
     ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
       .forEach(id=>{document.getElementById(id).textContent='—'});
+    ['pdi-round-unique','pdi-biggest-take','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims']
+      .forEach(id=>{document.getElementById(id).hidden=true});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
     document.getElementById('player-detail-status').textContent='';
@@ -2576,6 +2614,14 @@
         await sleep(1100);
         await fetchAndRenderMyZones(savedUserProfile.zones||[]);
       }
+
+      /* 4. TurfTracker — omgångsunika zoner samt personliga rekord/rivaler.
+         Separat värd (turf.thorminate.com), inget att göra med Turfs egen
+         hastighetsgräns, så ingen sleep() behövs innan detta anrop. */
+      if(isOpen()&&savedUsername){
+        const ttData=await fetchTurfTrackerStats(savedUsername);
+        if(isOpen()) renderTurfTrackerStats('pi',ttData);
+      }
     } finally {
       profileRefreshInFlight=false;
     }
@@ -2600,6 +2646,52 @@
     }catch(e){
       ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
     }
+  }
+
+  /* TurfTracker (turf.thorminate.com) — separat värd, egen CORS-öppna API,
+     ingen koppling till Turfs officiella hastighetsgräns. Ger omgångsunika
+     zoner samt några bonusrekord/rivaler som Turfs eget API saknar. Fel
+     (nätverk, 404 för okänd spelare osv.) ger tyst null — statistiken visas
+     bara om den finns. */
+  async function fetchTurfTrackerStats(username){
+    try{
+      const r=await fetch(`https://turf.thorminate.com/api/v1/turfer/${encodeURIComponent(username)}`);
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null; }
+  }
+
+  function formatApiDate(iso){
+    if(!iso) return '';
+    try{ return new Date(iso).toLocaleDateString(lang==='sv'?'sv-SE':'en-GB'); }catch(e){ return ''; }
+  }
+
+  function renderTurfTrackerStats(prefix,data){
+    const set=(id,text,visible)=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      if(visible){ el.textContent=text; el.hidden=false; }
+      else { el.hidden=true; }
+    };
+    const rs=data&&data.round_stats;
+    set(`${prefix}-round-unique`, rs?t.piRoundUnique(rs.zones):'', !!rs);
+    const rec=data&&data.records;
+    const bt=rec&&rec.biggest_take;
+    set(`${prefix}-biggest-take`, bt?t.piBiggestTake(bt.zone_name,bt.points,formatApiDate(bt.taken_at)):'', !!bt);
+    const lh=rec&&rec.longest_hold;
+    set(`${prefix}-longest-hold`, lh?t.piLongestHold(lh.zone_name,formatDurationSpoken(lh.hold_seconds)):'', !!lh);
+    const bd=rec&&rec.best_day;
+    set(`${prefix}-best-day`, bd?t.piBestDay(formatApiDate(bd.day),bd.takes):'', !!bd);
+    const ls=rec&&rec.longest_session;
+    set(`${prefix}-longest-session`, ls?t.piLongestSession(formatDurationSpoken(ls.seconds)):'', !!ls);
+    const mtz=rec&&rec.most_taken_zone;
+    set(`${prefix}-most-taken-zone`, mtz?t.piMostTakenZone(mtz.zone_name,mtz.takes):'', !!mtz);
+    const fa=rec&&rec.favourite_area;
+    set(`${prefix}-favourite-area`, fa?t.piFavouriteArea(fa.area_name,fa.takes):'', !!fa);
+    const steals=data&&data.rivals&&data.rivals.steals_from_you&&data.rivals.steals_from_you[0];
+    set(`${prefix}-rival-steals`, steals?t.piRivalSteals(steals.user_name,steals.count):'', !!steals);
+    const victims=data&&data.rivals&&data.rivals.your_victims&&data.rivals.your_victims[0];
+    set(`${prefix}-rival-victims`, victims?t.piRivalVictims(victims.user_name,victims.count):'', !!victims);
   }
 
 
@@ -2876,6 +2968,11 @@
          fetch after this one instead of firing both at once. */
       await sleep(1100);
       await fetchAndRenderPlayerOwnedZones(u,u.zones||[]);
+
+      /* TurfTracker — omgångsunika zoner samt personliga rekord/rivaler.
+         Separat värd, ingen koppling till Turfs egen hastighetsgräns. */
+      const ttData=await fetchTurfTrackerStats(playerName);
+      if(playerDetailCurrentUser?.name===u.name) renderTurfTrackerStats('pdi',ttData);
     }catch(e){
       document.getElementById('player-detail-heading').textContent=t.playerLoadError;
     }
