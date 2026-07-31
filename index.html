@@ -495,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 11:52</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 12:09</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -580,7 +580,6 @@
       <li id="pi-round-unique" hidden>—</li>
       <li id="pi-round-takeovers" hidden>—</li>
       <li id="pi-round-new-unique" hidden>—</li>
-      <li id="pi-round-new-unique-note" hidden>—</li>
       <li id="pi-points">—</li>
       <li id="pi-pph">—</li>
       <li id="pi-taken">—</li>
@@ -588,7 +587,6 @@
       <li id="pi-zones-count">—</li>
       <li id="pi-region">—</li>
       <li id="pi-place">—</li>
-      <li id="pi-biggest-take" hidden>—</li>
       <li id="pi-longest-hold" hidden>—</li>
       <li id="pi-best-day" hidden>—</li>
       <li id="pi-longest-session" hidden>—</li>
@@ -659,7 +657,6 @@
       <li id="pdi-round-unique" hidden>—</li>
       <li id="pdi-round-takeovers" hidden>—</li>
       <li id="pdi-round-new-unique" hidden>—</li>
-      <li id="pdi-round-new-unique-note" hidden>—</li>
       <li id="pdi-points">—</li>
       <li id="pdi-pph">—</li>
       <li id="pdi-taken">—</li>
@@ -667,7 +664,6 @@
       <li id="pdi-zones-count">—</li>
       <li id="pdi-region">—</li>
       <li id="pdi-place">—</li>
-      <li id="pdi-biggest-take" hidden>—</li>
       <li id="pdi-longest-hold" hidden>—</li>
       <li id="pdi-best-day" hidden>—</li>
       <li id="pdi-longest-session" hidden>—</li>
@@ -947,7 +943,6 @@
       piZonesCount:(n)=>`Ägda zoner: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global placering: ${p}`,
-      piBiggestTake:(zoneName,points,date)=>`Största tagning: ${zoneName}, ${points} poäng (${date})`,
       piLongestHold:(zoneName,durationSpoken)=>`Längsta innehav: ${zoneName}, ${durationSpoken}`,
       piBestDay:(day,takes)=>`Bästa dagen: ${day}, ${takes} tagningar`,
       piLongestSession:(durationSpoken)=>`Längsta sessionen: ${durationSpoken}`,
@@ -1212,7 +1207,6 @@
       piZonesCount:(n)=>`Owned zones: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global place: ${p}`,
-      piBiggestTake:(zoneName,points,date)=>`Biggest take: ${zoneName}, ${points} points (${date})`,
       piLongestHold:(zoneName,durationSpoken)=>`Longest hold: ${zoneName}, ${durationSpoken}`,
       piBestDay:(day,takes)=>`Best day: ${day}, ${takes} takes`,
       piLongestSession:(durationSpoken)=>`Longest session: ${durationSpoken}`,
@@ -1343,16 +1337,13 @@
 
   function renderRoundNewUnique(prefix,playerKey,uniqueZonesTaken){
     const elVal=document.getElementById(`${prefix}-round-new-unique`);
-    const elNote=document.getElementById(`${prefix}-round-new-unique-note`);
-    if(!elVal||!elNote) return;
+    if(!elVal) return;
     const delta=cachedRoundStart?computeRoundNewUnique(playerKey,uniqueZonesTaken,cachedRoundStart):null;
     if(delta===null){
-      elVal.hidden=true; elNote.hidden=true; return;
+      elVal.hidden=true; return;
     }
-    elVal.textContent=t.piRoundNewUnique(delta);
+    elVal.textContent=`${t.piRoundNewUnique(delta)} ${t.piRoundNewUniqueNote}`;
     elVal.hidden=false;
-    elNote.textContent=t.piRoundNewUniqueNote;
-    elNote.hidden=false;
   }
 
   let lang='sv',t=T.sv;
@@ -2212,7 +2203,7 @@
     document.getElementById('player-detail-heading').textContent=player.name;
     ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
       .forEach(id=>{document.getElementById(id).textContent='—'});
-    ['pdi-round-unique','pdi-round-takeovers','pdi-round-new-unique','pdi-round-new-unique-note','pdi-biggest-take','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims']
+    ['pdi-round-unique','pdi-round-takeovers','pdi-round-new-unique','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims']
       .forEach(id=>{document.getElementById(id).hidden=true});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
@@ -2780,8 +2771,6 @@
     set(`${prefix}-round-unique`, rs?t.piRoundUnique(rs.zones):'', !!rs);
     set(`${prefix}-round-takeovers`, rs&&typeof rs.takeovers==='number'?t.piRoundTakeovers(rs.takeovers):'', !!(rs&&typeof rs.takeovers==='number'));
     const rec=data&&data.records;
-    const bt=rec&&rec.biggest_take;
-    set(`${prefix}-biggest-take`, bt?t.piBiggestTake(bt.zone_name,bt.points,formatApiDate(bt.taken_at)):'', !!bt);
     const lh=rec&&rec.longest_hold;
     set(`${prefix}-longest-hold`, lh?t.piLongestHold(lh.zone_name,formatDurationSpoken(lh.hold_seconds)):'', !!lh);
     const bd=rec&&rec.best_day;
@@ -4191,7 +4180,7 @@
     const s=totalSec%60;
     if(lang==='sv'){
       if(totalSec<60) return`${s} sekund${s===1?'':'er'}`;
-      if(h>0) return`${h} timme${h===1?'':'r'}, ${m} minut${m===1?'':'er'} och ${s}`;
+      if(h>0) return`${h} ${h===1?'timme':'timmar'}, ${m} minut${m===1?'':'er'} och ${s}`;
       return`${m} minut${m===1?'':'er'} och ${s}`;
     } else {
       if(totalSec<60) return`${s} second${s===1?'':'s'}`;

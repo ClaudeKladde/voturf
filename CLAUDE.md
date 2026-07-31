@@ -155,6 +155,13 @@ talsyntesen läste fel. Lösningen:
 
 Bokstaven `m` får bara förekomma för avstånd i uppläst text.
 
+**Känd bugg, fixad:** pluralformen av timme byggdes tidigare genom att
+lägga till ett `r` (`timme`+`r`), vilket gav det felaktiga ordet "timmer"
+istället för korrekt "timmar" (oregelbunden pluralform, går inte att bara
+lägga till en bokstav). Påverkade alla tider över en timme i
+`formatDurationSpoken()`, bland annat "Längsta innehav" och "Längsta
+sessionen" i TurfTracker-statistiken nedan.
+
 ### Element som byggs om medan man rör dem
 
 Timers som bygger om DOM-element varje sekund kan förstöra ett element mitt i ett
@@ -303,15 +310,17 @@ Istället räknas motsvarande tal ut **själv, helt klientsidigt**:
   appen (för en given spelare) inte exakt vid omgångsstart missas de zoner
   som redan tagits innan första observationen den omgången — talet blir då
   för lågt just den omgången, men stämmer korrekt från och med nästa
-  omgång om appen används regelbundet. Detta kommuniceras med en kort,
-  alltid synlig extra rad (`pi-round-new-unique-note`/
-  `pdi-round-new-unique-note`) närhelst huvudraden visas.
+  omgång om appen används regelbundet. Detta kommuniceras med en kort
+  förklarande mening direkt i samma rad som siffran (`pi-round-new-unique`/
+  `pdi-round-new-unique`) — medvetet **inte** en separat `<li>`, så att
+  VoiceOver läser värdet och förklaringen i ett enda svep istället för två.
 
 **Bonusfält** (`records`/`rivals` i samma svar) läggs längst ner i samma
-statistiklista, efter `pi-place`/`pdi-place`: `biggest_take`,
-`longest_hold`, `best_day`, `longest_session`, `most_taken_zone`,
-`favourite_area`, samt första posten i `rivals.steals_from_you` och
-`rivals.your_victims`. Tider (`hold_seconds`, `longest_session.seconds`)
+statistiklista, efter `pi-place`/`pdi-place`: `longest_hold`, `best_day`,
+`longest_session`, `most_taken_zone`, `favourite_area`, samt första posten
+i `rivals.steals_from_you` och `rivals.your_victims`. (`biggest_take` togs
+bort igen efter användartest — gav inte tillräckligt mervärde för raden.)
+Tider (`hold_seconds`, `longest_session.seconds`)
 läses upp via `formatDurationSpoken()`, inte det kompakta
 `formatDuration()`-formatet, av samma skäl som all annan uppläst text i
 appen (se "Meter kontra minuter" ovan) — dessa rader är vanliga `<li>` utan
