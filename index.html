@@ -495,7 +495,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-28 21:29</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-07-31 10:33</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -580,7 +580,7 @@
       <li id="pi-points">—</li>
       <li id="pi-pph">—</li>
       <li id="pi-taken">—</li>
-      <li id="pi-medals">—</li>
+      <li><button id="pi-medals" style="display:block;width:100%;text-align:left;background:none;border:none;padding:0;margin:0;font:inherit;color:var(--accent2);text-decoration:underline;cursor:pointer;">—</button></li>
       <li id="pi-zones-count">—</li>
       <li id="pi-region">—</li>
       <li id="pi-place">—</li>
@@ -647,12 +647,27 @@
       <li id="pdi-points">—</li>
       <li id="pdi-pph">—</li>
       <li id="pdi-taken">—</li>
-      <li id="pdi-medals">—</li>
+      <li><button id="pdi-medals" style="display:block;width:100%;text-align:left;background:none;border:none;padding:0;margin:0;font:inherit;color:var(--accent2);text-decoration:underline;cursor:pointer;">—</button></li>
       <li id="pdi-zones-count">—</li>
       <li id="pdi-region">—</li>
       <li id="pdi-place">—</li>
     </ul>
     <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
+  </div>
+
+  <!-- ══ MEDALS VIEW (nås från egen profil och från vänners sida) ══ -->
+  <div id="medals-view" class="view">
+    <button id="btn-back-medals" class="btn-back" aria-label="Tillbaka till profilen">&#8592; <span id="lbl-back-medals">Tillbaka till profilen</span></button>
+    <h1 id="medals-heading" tabindex="-1">—</h1>
+    <div id="medals-owned-section">
+      <h2 id="medals-owned-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Mina medaljer</h2>
+      <div id="medals-owned-list"></div>
+    </div>
+    <div id="medals-remaining-section">
+      <h2 id="medals-remaining-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Återstående medaljer</h2>
+      <div id="medals-remaining-list"></div>
+    </div>
+    <button id="btn-back-medals-bottom" class="btn-back" aria-label="Tillbaka till profilen" style="margin-top:1rem;">&#8592; <span id="lbl-back-medals-bottom">Tillbaka till profilen</span></button>
   </div>
 
   <!-- VO alert live region — outside all views so VoiceOver never swipes to it normally -->
@@ -857,6 +872,12 @@
       backToListProfile:'Tillbaka till listan',
       backToProfile:'Tillbaka till profilen',
       backToZone:'Tillbaka till zonen',
+      medalsHeading:'Medaljer',
+      medalsOwnedHeading:'Mina medaljer',
+      medalsRemainingHeading:'Återstående medaljer',
+      medalsBackToPlayer:(name)=>`Tillbaka till ${name}`,
+      medalsNoneOwned:'Inga medaljer uppnådda ännu.',
+      medalsNoneRemaining:'Alla medaljer uppnådda!',
       tipsLabelBottom:'Tips &amp; instruktioner',
       tipsClose:'Stäng instruktioner',
       tipsCloseAria:'Stäng tips och instruktioner',
@@ -1104,6 +1125,12 @@
       backToListProfile:'Back to list',
       backToProfile:'Back to profile',
       backToZone:'Back to the zone',
+      medalsHeading:'Medals',
+      medalsOwnedHeading:'My medals',
+      medalsRemainingHeading:'Remaining medals',
+      medalsBackToPlayer:(name)=>`Back to ${name}`,
+      medalsNoneOwned:'No medals achieved yet.',
+      medalsNoneRemaining:'All medals achieved!',
       tipsLabelBottom:'Tips &amp; instructions',
       tipsClose:'Close instructions',
       tipsCloseAria:'Close tips and instructions',
@@ -1245,6 +1272,7 @@
   let audioCtx=null;
   let savedUsername=null;
   let savedUserProfile=null;  // full API user object
+  let playerDetailCurrentUser=null; // fullständigt API-användarobjekt för spelaren som visas just nu, används för att öppna Medaljer från deras sida
   let friendsList=[];  // array of friend usernames, excluded from nearby players
   let activeFriends=new Set(); // friends currently visible in the location feed
   let friendsNearZone={}; // name -> {zone, distKm}, for active friends only
@@ -1309,6 +1337,405 @@
     return{ name:next[0], pointsNeeded:next[1]-totalPoints };
   }
 
+  /* ═══════════════════════════════════════════════════════
+     MEDALJDATA
+     Id:n hämtade från turfgame.com/info/medals/<id> via
+     TurfWiki (wiki.turfgame.com/sv/wiki/Medaljer).
+     Kategoriordning matchar Turfs officiella medaljlista.
+     Medaljnamnen är Turfs egna (engelska) speltermer och
+     översätts inte, samma princip som RANKS-tabellen.
+  ════════════════════════════════════════════════════════ */
+  const MEDAL_CATEGORIES=[
+    ['placering','Placeringsmedaljer','Placement medals'],
+    ['event','Eventmedaljer','Event medals'],
+    ['bidrag','Bidragsmedaljer','Contribution medals'],
+    ['zon','Zonrelaterade medaljer','Zone medals'],
+    ['region','Regionsrelaterade medaljer','Region medals'],
+    ['land','Landsrelaterade medaljer','Country medals'],
+    ['tid','Tidsrelaterade medaljer','Time medals'],
+    ['attribut','Attributrelaterade medaljer','Attribute medals'],
+    ['turfteams','TurfTeams-medaljer','TurfTeams medals'],
+  ];
+
+  function numTiers(pairs,svName,enName){
+    return pairs.map(([id,value])=>({id,value,sv:svName(value),en:enName(value)}));
+  }
+
+  const TAKE_TIERS=numTiers(
+    [[84,5],[85,10],[31,25],[86,50],[32,100],[42,250],[33,500],[34,1000],[35,2500],
+     [36,5000],[37,7500],[38,10000],[39,15000],[40,20000],[41,25000],[73,30000],
+     [87,35000],[88,40000],[89,50000],[118,75000],[119,100000],[149,250000],[150,500000]],
+    n=>`Take-${n.toLocaleString('sv-SE')}`, n=>`Take-${n.toLocaleString('en-GB')}`);
+
+  const UNIQUE_TIERS=numTiers(
+    [[92,15],[11,50],[12,100],[13,250],[14,500],[15,1000],[50,2500],[74,5000],
+     [120,7500],[121,10000],[140,20000],[141,30000]],
+    n=>`${n.toLocaleString('sv-SE')} Unique`, n=>`${n.toLocaleString('en-GB')} Unique`);
+
+  const GREED_TIERS=numTiers(
+    [[80,5],[51,10],[52,20],[53,30],[54,40],[55,50],[56,75],[57,100],[58,150],
+     [59,200],[60,250],[81,300],[82,350],[146,400],[147,500],[148,1000]],
+    n=>`Greed-${n}`, n=>`Greed-${n}`);
+
+  const CROWDY_TIERS=numTiers(
+    [[93,1],[94,2],[95,3],[96,5],[97,8],[98,13],[99,21],[112,34],[114,55],[115,89],[116,144],[142,233]],
+    n=>`Crowdy-${n}`, n=>`Crowdy-${n}`);
+
+  const ASSIST_TIERS=numTiers(
+    [[100,5],[101,25],[102,50],[103,100],[104,250],[105,500],[106,750],[107,1000],
+     [108,2500],[109,5000],[110,7500],[111,10000],[143,15000],[144,20000],[145,25000]],
+    n=>`Assist-${n.toLocaleString('sv-SE')}`, n=>`Assist-${n.toLocaleString('en-GB')}`);
+
+  const ROUNDPOINTER_TIERS=numTiers(
+    [[151,10000],[152,25000],[153,50000],[154,75000],[155,100000],[156,250000],
+     [157,500000],[158,750000],[159,1000000],[160,2000000],[161,3000000]],
+    n=>n>=1000000?`Roundpointer-${n/1000000}M`:`Roundpointer-${n/1000}k`,
+    n=>n>=1000000?`Roundpointer-${n/1000000}M`:`Roundpointer-${n/1000}k`);
+
+  const DIVERSE_TIERS=numTiers(
+    [[122,250],[123,500],[124,1000]],
+    n=>n===250?'Diverse':n===500?'Diversier':'Diversiest',
+    n=>n===250?'Diverse':n===500?'Diversier':'Diversiest');
+
+  const DAILY_TIERS=numTiers(
+    [[127,10],[128,30],[129,60],[130,90],[131,180],[132,365]],
+    n=>`Daily-${n}`, n=>`Daily-${n}`);
+
+  const MEDAL_SERIES=[
+    {key:'take',category:'zon',metric:'taken',tiers:TAKE_TIERS,
+      svReq:n=>`Ta ${n.toLocaleString('sv-SE')} zoner totalt.`,
+      enReq:n=>`Take ${n.toLocaleString('en-GB')} zones in total.`},
+    {key:'unique',category:'zon',metric:'unique',tiers:UNIQUE_TIERS,
+      svReq:n=>`Ta ${n.toLocaleString('sv-SE')} unika zoner.`,
+      enReq:n=>`Take ${n.toLocaleString('en-GB')} unique zones.`},
+    {key:'greed',category:'zon',metric:'greed',tiers:GREED_TIERS,
+      svReq:n=>`Ägde minst ${n} zoner samtidigt.`,
+      enReq:n=>`Hold at least ${n} zones at the same time.`},
+    {key:'roundpointer',category:'tid',metric:'points',tiers:ROUNDPOINTER_TIERS,
+      svReq:n=>`Samla ${n.toLocaleString('sv-SE')} poäng under en omgång.`,
+      enReq:n=>`Collect ${n.toLocaleString('en-GB')} points during one round.`},
+    {key:'crowdy',category:'zon',metric:null,tiers:CROWDY_TIERS,
+      svReq:n=>`Var en av ${n} som assisterade samma zontagning.`,
+      enReq:n=>`Be one of ${n} players assisting the same zone takeover.`},
+    {key:'assist',category:'zon',metric:null,tiers:ASSIST_TIERS,
+      svReq:n=>`Assistera totalt ${n.toLocaleString('sv-SE')} gånger.`,
+      enReq:n=>`Assist a total of ${n.toLocaleString('en-GB')} times.`},
+    {key:'diverse',category:'zon',metric:null,tiers:DIVERSE_TIERS,
+      svReq:n=>`Besök ${n.toLocaleString('sv-SE')} omgångsunika zoner under samma omgång.`,
+      enReq:n=>`Visit ${n.toLocaleString('en-GB')} round-unique zones during the same round.`},
+    {key:'daily',category:'tid',metric:null,tiers:DAILY_TIERS,
+      svReq:n=>`Ta 5 zoner varje dag i ${n} dagar i rad (UTC-tid).`,
+      enReq:n=>`Take 5 zones every day for ${n} days in a row (UTC time).`},
+    {key:'regionstar',category:'region',metric:null,
+      svReq:n=>`Ta zoner i minst ${n} regioner.`,
+      enReq:n=>`Take zones in at least ${n} regions.`,
+      tiers:[
+        {id:6,value:5,sv:'Pentaregion Star',en:'Pentaregion Star'},
+        {id:7,value:10,sv:'Decaregion Star',en:'Decaregion Star'},
+        {id:66,value:20,sv:'Icosaregion Star',en:'Icosaregion Star'},
+        {id:91,value:30,sv:'Tricontaregion Star',en:'Tricontaregion Star'},
+      ]},
+    {key:'ninja',category:'tid',metric:null,
+      svReq:n=>`Ta minst ${n} zoner mellan 02:00 och 03:00.`,
+      enReq:n=>`Take at least ${n} zones between 02:00 and 03:00.`,
+      tiers:[
+        {id:5,value:3,sv:'Dark Ninja',en:'Dark Ninja'},
+        {id:83,value:30,sv:'Darkest Ninja',en:'Darkest Ninja'},
+      ]},
+    {key:'restless',category:'tid',metric:null,
+      svReq:n=>`Ta minst en zon varje timme under en ${n}-timmarsperiod.`,
+      enReq:n=>`Take at least one zone every hour during a ${n}-hour period.`,
+      tiers:[
+        {id:22,value:12,sv:'Restless',en:'Restless'},
+        {id:21,value:24,sv:'Insomnia',en:'Insomnia'},
+      ]},
+    {key:'eager',category:'tid',metric:null,
+      svReq:n=>`Ta minst 10 zoner på under ${n} minuter.`,
+      enReq:n=>`Take at least 10 zones in under ${n} minutes.`,
+      tiers:[
+        {id:90,value:30,sv:'Eager Squirrel',en:'Eager Squirrel'},
+        {id:10,value:20,sv:'Eager Beaver',en:'Eager Beaver'},
+        {id:28,value:15,sv:'Eager Weasel',en:'Eager Weasel'},
+        {id:72,value:10,sv:'Eager Ferret',en:'Eager Ferret'},
+      ]},
+    {key:'staminator',category:'tid',metric:null,
+      svReq:n=>`Ta minst ${n} zoner under en 24-timmarsperiod.`,
+      enReq:n=>`Take at least ${n} zones during a 24-hour period.`,
+      tiers:[
+        {id:46,value:50,sv:'Stamina',en:'Stamina'},
+        {id:47,value:100,sv:'Staminator',en:'Staminator'},
+        {id:48,value:200,sv:'El Staminatore',en:'El Staminatore'},
+        {id:75,value:400,sv:'Staminatrix',en:'Staminatrix'},
+      ]},
+    {key:'bridge',category:'attribut',metric:null,
+      svReq:n=>`Ta minst 3 brozoner inom ${n} minuter.`,
+      enReq:n=>`Take at least 3 bridge zones within ${n} minutes.`,
+      tiers:[
+        {id:71,value:30,sv:'Bridge crosser',en:'Bridge crosser'},
+        {id:78,value:20,sv:'Bridge lover',en:'Bridge lover'},
+        {id:79,value:10,sv:'Bridge fanatic',en:'Bridge fanatic'},
+      ]},
+    {key:'monument',category:'attribut',metric:null,
+      svReq:n=>`Ta minst ${n} unika monumentzoner.`,
+      enReq:n=>`Take at least ${n} unique monument zones.`,
+      tiers:[
+        {id:162,value:50,sv:'Monument',en:'Monument'},
+        {id:163,value:100,sv:'Monumental',en:'Monumental'},
+        {id:164,value:250,sv:'Monumentalist',en:'Monumentalist'},
+        {id:165,value:500,sv:'Mondo',en:'Mondo'},
+      ]},
+  ];
+
+  const MEDAL_SINGLES=[
+    {id:1,category:'placering',repeatable:true,sv:'Guldmedalj',en:'Gold medal',
+      svReq:'Vinn en turfomgång.',enReq:'Win a Turf round.'},
+    {id:2,category:'placering',repeatable:true,sv:'Silvermedalj',en:'Silver medal',
+      svReq:'Kom tvåa i en turfomgång.',enReq:'Finish second in a Turf round.'},
+    {id:3,category:'placering',repeatable:true,sv:'Bronsmedalj',en:'Bronze medal',
+      svReq:'Kom trea i en turfomgång.',enReq:'Finish third in a Turf round.'},
+    {id:69,category:'placering',repeatable:true,sv:'Landsmedalj',en:'Country medal',
+      svReq:'Vinn omgången i ett officiellt turfland.',enReq:'Win the round in an official Turf country.'},
+    {id:68,category:'placering',repeatable:true,sv:'Regionmedalj',en:'Region medal',
+      svReq:'Vinn omgången i en region.',enReq:'Win the round in a region.'},
+
+    {id:20,category:'event',repeatable:true,sv:'Bonanza Gold',en:'Bonanza Gold',
+      svReq:'Vinn en Turf-Bonanza.',enReq:'Win a Turf Bonanza.'},
+    {id:19,category:'event',repeatable:true,sv:'Bonanza Silver',en:'Bonanza Silver',
+      svReq:'Kom tvåa i en Turf-Bonanza.',enReq:'Finish second in a Turf Bonanza.'},
+    {id:18,category:'event',repeatable:true,sv:'Bonanza Bronze',en:'Bonanza Bronze',
+      svReq:'Kom trea i en Turf-Bonanza.',enReq:'Finish third in a Turf Bonanza.'},
+    {id:17,category:'event',repeatable:true,sv:'Bonanza Participator',en:'Bonanza Participator',
+      svReq:'Delta i en Turf-Bonanza.',enReq:'Participate in a Turf Bonanza.'},
+    {id:24,category:'event',repeatable:true,sv:'Eventor',en:'Eventor',
+      svReq:'Delta i ett öppet Turfevenemang.',enReq:'Participate in an open Turf event.'},
+    {id:113,category:'event',repeatable:true,sv:'Event24',en:'Event24',
+      svReq:'Slutför ett 24-timmars Turfevenemang.',enReq:'Complete a 24-hour Turf event.'},
+
+    {id:9,category:'bidrag',repeatable:false,obtainable:false,sv:'Donation Hero',en:'Donation Hero',
+      svReq:'Kunde tidigare erhållas genom donation. Går inte längre att ta.',
+      enReq:'Previously obtained through donation. No longer obtainable.'},
+    {id:44,category:'bidrag',repeatable:false,obtainable:false,sv:'Donation Angel',en:'Donation Angel',
+      svReq:'Kunde tidigare erhållas genom donation. Går inte längre att ta.',
+      enReq:'Previously obtained through donation. No longer obtainable.'},
+    {id:43,category:'bidrag',repeatable:false,obtainable:false,sv:'Donation God',en:'Donation God',
+      svReq:'Kunde tidigare erhållas genom donation. Går inte längre att ta.',
+      enReq:'Previously obtained through donation. No longer obtainable.'},
+    {id:8,category:'bidrag',repeatable:false,sv:'Expandator',en:'Expandator',
+      svReq:'Sätt upp minst 25 Turf-posters.',enReq:'Put up at least 25 Turf posters.'},
+    {id:61,category:'bidrag',repeatable:false,sv:'Web Expandator',en:'Web Expandator',
+      svReq:'Få Turf publicerat på en välbesökt webbplats (över 1000 träffar/dag).',
+      enReq:'Get Turf featured on a well-visited website (over 1000 hits/day).'},
+    {id:62,category:'bidrag',repeatable:false,sv:'Broadcast Expandator',en:'Broadcast Expandator',
+      svReq:'Få Turf sänt i radio eller tv för en publik större än 1000.',
+      enReq:'Get Turf broadcast on radio or TV to an audience over 1000.'},
+    {id:63,category:'bidrag',repeatable:false,sv:'Wiki Expandator',en:'Wiki Expandator',
+      svReq:'Gör 400 relevanta tillskott till TurfWiki.',enReq:'Make 400 relevant contributions to TurfWiki.'},
+    {id:64,category:'bidrag',repeatable:false,sv:'Paper Expandator',en:'Paper Expandator',
+      svReq:'Få Turf publicerat i en tidning med upplaga över 1000.',
+      enReq:'Get Turf featured in a newspaper with circulation over 1000.'},
+    {id:23,category:'bidrag',repeatable:false,sv:'Heavy Expandator',en:'Heavy Expandator',
+      svReq:'Bidra till över 500 nya app-nedladdningar inom 5 dagar.',
+      enReq:'Contribute to over 500 new app downloads within 5 days.'},
+
+    {id:26,category:'land',repeatable:false,sv:'Sweden Explorer',en:'Sweden Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Sverige.',enReq:'Take at least one zone in every region of Sweden.'},
+    {id:25,category:'land',repeatable:false,sv:'Netherland Explorer',en:'Netherland Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Nederländerna.',enReq:'Take at least one zone in every region of the Netherlands.'},
+    {id:29,category:'land',repeatable:false,sv:'Korea Explorer',en:'Korea Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Sydkorea.',enReq:'Take at least one zone in every region of South Korea.'},
+    {id:30,category:'land',repeatable:false,sv:'Denmark Explorer',en:'Denmark Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Danmark.',enReq:'Take at least one zone in every region of Denmark.'},
+    {id:45,category:'land',repeatable:false,sv:'Norway Explorer',en:'Norway Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Norge.',enReq:'Take at least one zone in every region of Norway.'},
+    {id:49,category:'land',repeatable:false,sv:'Finland Explorer',en:'Finland Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Finland.',enReq:'Take at least one zone in every region of Finland.'},
+    {id:65,category:'land',repeatable:false,sv:'UK Explorer',en:'UK Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Storbritannien.',enReq:'Take at least one zone in every region of the UK.'},
+    {id:125,category:'land',repeatable:false,sv:'Germany Explorer',en:'Germany Explorer',
+      svReq:'Ta minst en zon i samtliga regioner i Tyskland.',enReq:'Take at least one zone in every region of Germany.'},
+
+    {id:16,category:'tid',repeatable:false,sv:'Neutralizer',en:'Neutralizer',
+      svReq:'Ta minst 20 neutrala zoner inom 5 timmar. Kan inte tas med assist.',
+      enReq:'Take at least 20 neutral zones within 5 hours. Cannot be taken with assist.'},
+    {id:27,category:'tid',repeatable:false,sv:'Revisitor',en:'Revisitor',
+      svReq:'Återbesök minst 50 zoner inom 5 dagar. Kan inte tas med assist.',
+      enReq:'Revisit at least 50 zones within 5 days. Cannot be taken with assist.'},
+    {id:67,category:'tid',repeatable:false,sv:'Dawn Ninja',en:'Dawn Ninja',
+      svReq:'Ta minst 3 zoner mellan 04:00 och 05:00.',enReq:'Take at least 3 zones between 04:00 and 05:00.'},
+    {id:126,category:'tid',repeatable:false,obtainable:false,sv:'Cakeday',en:'Cakeday',
+      svReq:'Krävde 10 zoner på Turfs 10-årsdag, 2020-07-10. Går inte längre att ta.',
+      enReq:'Required 10 zones on Turf’s 10th anniversary, 2020-07-10. No longer obtainable.'},
+
+    {id:70,category:'attribut',repeatable:false,sv:'Ghost Minute',en:'Ghost Minute',
+      svReq:'Ta en helig zon mellan 00:00 och 00:01.',enReq:'Take a holy zone between 00:00 and 00:01.'},
+    {id:77,category:'attribut',repeatable:false,sv:'Orderly III',en:'Orderly III',
+      svReq:'Ta en brozon, sedan en helig zon och avsluta med en monumentzon inom 20 minuter, i rätt ordning.',
+      enReq:'Take a bridge zone, then a holy zone, then finish with a monument zone within 20 minutes, in the correct order.'},
+    {id:117,category:'attribut',repeatable:false,sv:'Trainer',en:'Trainer',
+      svReq:'Ta en järnvägsstationszon dagligen i 30 dagar (UTC-tid).',enReq:'Take a railway station zone daily for 30 days (UTC time).'},
+    {id:76,category:'attribut',repeatable:false,sv:'Ranger',en:'Ranger',
+      svReq:'Ta minst 25 olika nationalparkszoner inom 12 månader.',enReq:'Take at least 25 different national park zones within 12 months.'},
+    {id:4,category:'attribut',repeatable:false,sv:'Order of Aquamen',en:'Order of Aquamen',
+      svReq:'Ta en vattenzon mellan maj och oktober.',enReq:'Take a water zone between May and October.'},
+
+    {id:133,category:'turfteams',repeatable:true,sv:'Turf Teams',en:'Turf Teams',
+      svReq:'Delta i en omgång av TurfTeams.',enReq:'Participate in a round of TurfTeams.'},
+    {id:134,category:'turfteams',repeatable:true,sv:'Turf Teams Gold',en:'Turf Teams Gold',
+      svReq:'Vinn en omgång av TurfTeams i det vinnande laget.',enReq:'Win a round of TurfTeams as part of the winning team.'},
+    {id:135,category:'turfteams',repeatable:true,sv:'Turf Teams Silver',en:'Turf Teams Silver',
+      svReq:'Kom tvåa i en omgång av TurfTeams.',enReq:'Finish second in a round of TurfTeams.'},
+    {id:136,category:'turfteams',repeatable:true,sv:'Turf Teams Bronze',en:'Turf Teams Bronze',
+      svReq:'Kom trea i en omgång av TurfTeams.',enReq:'Finish third in a round of TurfTeams.'},
+    {id:137,category:'turfteams',repeatable:true,sv:'Turf Teams Indy Gold',en:'Turf Teams Indy Gold',
+      svReq:'Bli individuell vinnare i en omgång av TurfTeams.',enReq:'Be the individual winner in a round of TurfTeams.'},
+    {id:138,category:'turfteams',repeatable:true,sv:'Turf Teams Indy Silver',en:'Turf Teams Indy Silver',
+      svReq:'Bli individuell tvåa i en omgång av TurfTeams.',enReq:'Be the individual runner-up in a round of TurfTeams.'},
+    {id:139,category:'turfteams',repeatable:true,sv:'Turf Teams Indy Bronze',en:'Turf Teams Indy Bronze',
+      svReq:'Bli individuell trea i en omgång av TurfTeams.',enReq:'Be the individual third place in a round of TurfTeams.'},
+  ];
+
+  /* ═══════════════════════════════════════════════════════
+     MEDALJSTATUS
+  ════════════════════════════════════════════════════════ */
+  function medalCounts(u){
+    const counts=new Map();
+    (u.medals||[]).forEach(id=>{ if(id>0) counts.set(id,(counts.get(id)||0)+1); });
+    return counts;
+  }
+
+  function medalMetricValue(u,metric){
+    if(metric==='taken') return u.taken??0;
+    if(metric==='unique') return u.uniqueZonesTaken??0;
+    if(metric==='greed') return (u.zones||[]).length;
+    if(metric==='points') return u.points??0;
+    return null;
+  }
+
+  function medalSeriesStatus(series,u,counts){
+    const tiers=series.tiers;
+    let currentIdx=-1;
+    if(series.metric){
+      const val=medalMetricValue(u,series.metric);
+      for(let i=0;i<tiers.length;i++){ if(val>=tiers[i].value) currentIdx=i; else break; }
+    } else {
+      for(let i=tiers.length-1;i>=0;i--){ if(counts.has(tiers[i].id)){ currentIdx=i; break; } }
+    }
+    const current=currentIdx>=0?tiers[currentIdx]:null;
+    const next=currentIdx+1<tiers.length?tiers[currentIdx+1]:null;
+    let remainingSv=null,remainingEn=null;
+    if(next&&series.metric){
+      const val=medalMetricValue(u,series.metric);
+      const left=Math.max(0,next.value-val);
+      remainingSv=`${left.toLocaleString('sv-SE')} kvar till ${next.sv}.`;
+      remainingEn=`${left.toLocaleString('en-GB')} left for ${next.en}.`;
+    }
+    return {current,next,remainingSv,remainingEn};
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MEDALJVY — RENDERING
+  ════════════════════════════════════════════════════════ */
+  function appendMedalCategoryGroup(container,label,items){
+    const h3=document.createElement('h3');
+    h3.textContent=label;
+    h3.style.cssText='font-family:var(--font-mono);font-size:.85rem;font-weight:700;color:var(--accent2);margin:.75rem 0 .35rem;';
+    container.appendChild(h3);
+    const ul=document.createElement('ul');
+    ul.style.cssText='list-style:none;display:flex;flex-direction:column;gap:.3rem;margin:0 0 .25rem;padding:0;';
+    items.forEach(text=>{
+      const li=document.createElement('li');
+      li.textContent=text;
+      li.style.cssText='font-family:var(--font-mono);font-size:.85rem;color:var(--text);';
+      ul.appendChild(li);
+    });
+    container.appendChild(ul);
+  }
+
+  function renderMedals(u){
+    const counts=medalCounts(u);
+    const ownedByCat={},remainingByCat={};
+    MEDAL_CATEGORIES.forEach(([key])=>{ ownedByCat[key]=[];remainingByCat[key]=[]; });
+
+    MEDAL_SERIES.forEach(series=>{
+      const status=medalSeriesStatus(series,u,counts);
+      if(status.current){
+        ownedByCat[series.category].push(lang==='en'?status.current.en:status.current.sv);
+      }
+      if(status.next){
+        const nextName=lang==='en'?status.next.en:status.next.sv;
+        const req=series.metric
+          ?(lang==='en'?status.remainingEn:status.remainingSv)
+          :(lang==='en'?series.enReq(status.next.value):series.svReq(status.next.value));
+        remainingByCat[series.category].push(`${nextName}. ${req}`);
+      }
+    });
+
+    MEDAL_SINGLES.forEach(m=>{
+      const count=counts.get(m.id)||0;
+      const name=lang==='en'?m.en:m.sv;
+      if(count>0){
+        ownedByCat[m.category].push(m.repeatable&&count>1?`${name} ×${count}`:name);
+      } else if(m.obtainable!==false){
+        const req=lang==='en'?m.enReq:m.svReq;
+        remainingByCat[m.category].push(`${name}. ${req}`);
+      }
+    });
+
+    const ownedContainer=document.getElementById('medals-owned-list');
+    const remainingContainer=document.getElementById('medals-remaining-list');
+    ownedContainer.innerHTML='';remainingContainer.innerHTML='';
+    let ownedTotal=0,remainingTotal=0;
+    MEDAL_CATEGORIES.forEach(([key,svLabel,enLabel])=>{
+      const label=lang==='en'?enLabel:svLabel;
+      if(ownedByCat[key].length){
+        ownedTotal+=ownedByCat[key].length;
+        appendMedalCategoryGroup(ownedContainer,label,ownedByCat[key]);
+      }
+      if(remainingByCat[key].length){
+        remainingTotal+=remainingByCat[key].length;
+        appendMedalCategoryGroup(remainingContainer,label,remainingByCat[key]);
+      }
+    });
+    if(!ownedTotal){
+      ownedContainer.innerHTML=`<p style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">${t.medalsNoneOwned}</p>`;
+    }
+    if(!remainingTotal){
+      remainingContainer.innerHTML=`<p style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">${t.medalsNoneRemaining}</p>`;
+    }
+  }
+
+  /* ═══════════════════════════════════════════════════════
+     MEDALJVY — NAVIGATION
+  ════════════════════════════════════════════════════════ */
+  let medalsReturnView='profile'; // 'profile' | 'playerDetail'
+  let medalsCurrentUser=null;
+
+  function showMedals(user,returnView,fromPopState=false){
+    clearInterval(detailLiveInterval);
+    if(returnView) medalsReturnView=returnView;
+    medalsCurrentUser=user;
+    listView.classList.remove('active');
+    detailView.classList.remove('active');
+    profileView.classList.remove('active');
+    playerDetailView.classList.remove('active');
+    medalsView.classList.add('active');
+    document.title=`${t.medalsHeading} — ${user.name}`;
+    document.getElementById('medals-heading').textContent=`${t.medalsHeading} — ${user.name}`;
+    renderMedals(user);
+    const backLabel=medalsReturnView==='playerDetail'?t.medalsBackToPlayer(user.name):t.backToProfile;
+    document.getElementById('lbl-back-medals').textContent=backLabel;
+    document.getElementById('btn-back-medals').setAttribute('aria-label',backLabel);
+    document.getElementById('lbl-back-medals-bottom').textContent=backLabel;
+    document.getElementById('btn-back-medals-bottom').setAttribute('aria-label',backLabel);
+    document.getElementById('medals-heading').focus();
+    if(!fromPopState) history.pushState({view:'medals',playerName:user.name,returnView:medalsReturnView},'',`#medals-${user.name}`);
+  }
+
+  function backFromMedals(){
+    if(medalsReturnView==='playerDetail'&&medalsCurrentUser) showPlayerDetail({name:medalsCurrentUser.name},false,playerDetailReturnView);
+    else showProfile();
+  }
+
   /* ════════════════════════════════════════
      DOM REFS
   ════════════════════════════════════════ */
@@ -1316,6 +1743,7 @@
   const detailView    =document.getElementById('detail-view');
   const profileView   =document.getElementById('profile-view');
   const playerDetailView=document.getElementById('player-detail-view');
+  const medalsView=document.getElementById('medals-view');
   const startSection  =document.getElementById('start-section');
   const statusMsg     =document.getElementById('status-msg');
   const zoneList      =document.getElementById('zone-list');
@@ -1605,6 +2033,7 @@
     detailView.classList.remove('active');
     profileView.classList.remove('active');
     playerDetailView.classList.remove('active');
+    medalsView.classList.remove('active');
     listView.classList.add('active');
     document.title='VO Turf List';
     if(lastFocusedBtn){lastFocusedBtn.focus();lastFocusedBtn=null;}
@@ -1617,6 +2046,7 @@
     listView.classList.remove('active');
     profileView.classList.remove('active');
     playerDetailView.classList.remove('active');
+    medalsView.classList.remove('active');
     detailView.classList.add('active');
     document.title=t.pageTitle(zone.name);
     renderDetail();detailHeading.focus();
@@ -1630,6 +2060,7 @@
     listView.classList.remove('active');
     detailView.classList.remove('active');
     playerDetailView.classList.remove('active');
+    medalsView.classList.remove('active');
     profileView.classList.add('active');
     document.title=`${savedUsername} — VO Turf`;
     renderProfile();
@@ -1643,6 +2074,7 @@
     listView.classList.remove('active');
     detailView.classList.remove('active');
     profileView.classList.remove('active');
+    medalsView.classList.remove('active');
     playerDetailView.classList.add('active');
     document.title=`${player.name} — VO Turf`;
     /* Reset to loading state before fetch resolves */
@@ -1709,6 +2141,14 @@
     if(e.state?.view==='detail'){const z=allZonesSorted.find(z=>z.id===e.state.zoneId);if(z){showDetail(z,true);return;}}
     if(e.state?.view==='profile'){showProfile(true);return;}
     if(e.state?.view==='playerDetail'){showPlayerDetail({name:e.state.playerName},true,e.state.returnView||'list');return;}
+    if(e.state?.view==='medals'){
+      const name=e.state.playerName;
+      const user=(savedUserProfile&&savedUserProfile.name===name)?savedUserProfile
+        :(playerDetailCurrentUser&&playerDetailCurrentUser.name===name)?playerDetailCurrentUser
+        :(medalsCurrentUser&&medalsCurrentUser.name===name)?medalsCurrentUser:null;
+      if(user){ showMedals(user,e.state.returnView||'profile',true); return; }
+      showProfile(true); return;
+    }
     showList(true);
   });
   history.replaceState({view:'list'},'',location.pathname);
@@ -1820,6 +2260,22 @@
     const lblBackPlayerDetBot=document.getElementById('lbl-back-player-detail-bottom');
     if(lblBackPlayerDetBot) lblBackPlayerDetBot.textContent=playerDetBackLabel;
     document.getElementById('btn-back-player-detail-bottom')?.setAttribute('aria-label',playerDetBackLabel);
+    const medalsOwnedHeadingEl=document.getElementById('medals-owned-heading');
+    if(medalsOwnedHeadingEl) medalsOwnedHeadingEl.textContent=t.medalsOwnedHeading;
+    const medalsRemainingHeadingEl=document.getElementById('medals-remaining-heading');
+    if(medalsRemainingHeadingEl) medalsRemainingHeadingEl.textContent=t.medalsRemainingHeading;
+    if(medalsCurrentUser){
+      const medalsBackLabel=medalsReturnView==='playerDetail'?t.medalsBackToPlayer(medalsCurrentUser.name):t.backToProfile;
+      const lblBM=document.getElementById('lbl-back-medals');
+      if(lblBM) lblBM.textContent=medalsBackLabel;
+      document.getElementById('btn-back-medals')?.setAttribute('aria-label',medalsBackLabel);
+      const lblBMB=document.getElementById('lbl-back-medals-bottom');
+      if(lblBMB) lblBMB.textContent=medalsBackLabel;
+      document.getElementById('btn-back-medals-bottom')?.setAttribute('aria-label',medalsBackLabel);
+      const medalsHeadingEl=document.getElementById('medals-heading');
+      if(medalsHeadingEl) medalsHeadingEl.textContent=`${t.medalsHeading} — ${medalsCurrentUser.name}`;
+      if(medalsView.classList.contains('active')) renderMedals(medalsCurrentUser);
+    }
     updateCompassBtn();
     document.getElementById('lbl-username').textContent=t.usernameLabel;
     usernameInput.placeholder=t.usernamePlaceholder;
@@ -2397,6 +2853,7 @@
       const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify([{name:playerName}]));
       if(!data.length) throw new Error('Player not found');
       const u=data[0];
+      playerDetailCurrentUser=u;
       const rn=rankName(u.rank);
       const next=nextRankInfo(u.rank,u.totalPoints);
       const totalMedals=(u.medals||[]).filter(m=>m>0).length;
@@ -4112,6 +4569,14 @@
   document.getElementById('btn-back-profile-bottom').addEventListener('click',()=>showList());
   document.getElementById('btn-back-player-detail').addEventListener('click',()=>backFromPlayerDetail());
   document.getElementById('btn-back-player-detail-bottom').addEventListener('click',()=>backFromPlayerDetail());
+  document.getElementById('btn-back-medals').addEventListener('click',()=>backFromMedals());
+  document.getElementById('btn-back-medals-bottom').addEventListener('click',()=>backFromMedals());
+  document.getElementById('pi-medals').addEventListener('click',()=>{
+    if(savedUserProfile) showMedals(savedUserProfile,'profile');
+  });
+  document.getElementById('pdi-medals').addEventListener('click',()=>{
+    if(playerDetailCurrentUser) showMedals(playerDetailCurrentUser,'playerDetail');
+  });
   document.getElementById('btn-toggle-friend').addEventListener('click',()=>{
     if(!playerDetailCurrentName) return;
     const name=playerDetailCurrentName;

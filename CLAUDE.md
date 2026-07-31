@@ -215,8 +215,38 @@ zonnamn. Därför krävs manuell filuppladdning från turf.lundkvist.com.
 
 ### Vyer
 
-`list-view`, `detail-view` (zon), `profile-view`, `player-detail-view`.
-Navigering via History API. `playerDetailReturnView` spårar `'list'`/`'profile'`/`'detail'`.
+`list-view`, `detail-view` (zon), `profile-view`, `player-detail-view`,
+`medals-view`. Navigering via History API. `playerDetailReturnView` spårar
+`'list'`/`'profile'`/`'detail'`. `medalsReturnView` spårar `'profile'`/`'playerDetail'`.
+
+### Medaljvy
+
+Nås via en knapp (`pi-medals`/`pdi-medals`, ersatte tidigare en ren textrad)
+på både egen profil och vänners profilsida. Ingen ny API-trafik — bygger
+uteslutande på fält som redan hämtas för profilen (`medals`, `taken`,
+`uniqueZonesTaken`, `zones`, `points`).
+
+**Datakällor:** medaljernas ID, namn och krav (`MEDAL_CATEGORIES`,
+`MEDAL_SERIES`, `MEDAL_SINGLES`, deklarerade direkt efter `RANKS`-tabellen)
+kommer från en separat research-konversation på claude.ai (webbsökning är
+inte tillgänglig i den här miljön) som i sin tur hämtade dem från
+turfgame.com/wiki.turfgame.com. **Detta är inte verifierat mot Turfs
+officiella API-dokumentation eller mot en riktig användares faktiska
+`medals`-array** — bara kontrollerat för interna dubbletter (165 unika ID,
+inga krockar) och körd genom `node --check`. Om medaljer visas fel eller
+namn/krav inte stämmer med vad Turfs egen app visar, är detta första stället
+att misstänka.
+
+**Beräkningslogik** (`medalSeriesStatus()`): fyra serier (Take, Unique,
+Greed, Roundpointer) har en riktig räknare mot redan hämtad data
+(`taken`/`uniqueZonesTaken`/`zones.length`/`points`) och visar exakt hur
+mycket som återstår till nästa nivå. Övriga serier och alla `MEDAL_SINGLES`
+saknar en räknare i API:t — de kollar bara om ID:t finns i `u.medals` och
+visar i så fall nästa krav som statisk text, utan framstegssiffra.
+**Antagande:** för flernivåserier antas det högsta ID:t i `medals`-listan
+vara den uppnådda nivån (dvs. lägre nivåer "ersätts", inte adderas) — koden
+fungerar även om det antagandet visar sig fel, eftersom den bara letar efter
+högsta matchande ID.
 
 ### Centrala hjälpfunktioner
 
