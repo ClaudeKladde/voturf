@@ -462,8 +462,12 @@ Ersätter de tidigare enskilda globala reglagen Uppdateringsfrekvens,
 Uppdateringsfrekvens spelare och Avstånd spelare. Istället finns tre
 oberoende, alltid redigerbara profiler — Gång, Cykel, Fordon — vardera med
 egen uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, under
-Inställningar (rubrik nivå 3 + expanderbar knapp per profil, samma mönster
-som den yttre Inställningar-panelen). Grundvärden:
+Inställningar (rubrik nivå 2 `#movement-settings-heading` "Rörelse
+inställningar", sedan rubrik nivå 3 + expanderbar knapp per profil, samma
+mönster som den yttre Inställningar-panelen). Varje profils expanderade
+innehåll är inramat med `.movement-panel` (kantlinje + padding) så det är
+visuellt tydligt vilka reglage som hör till vilken profil, även om flera
+profiler expanderas samtidigt. Grundvärden:
 
 | Profil | Uppdatering | Spelare | Avstånd |
 |---|---|---|---|

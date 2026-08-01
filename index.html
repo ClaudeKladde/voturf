@@ -197,6 +197,13 @@
       border-radius:var(--radius);padding:.6rem .85rem;margin-bottom:.5rem;
     }
     .settings-label{font-family:var(--font-mono);font-size:.8rem;color:var(--muted);flex:1}
+    /* Boxes each movement profile's steppers together visually, so it's
+       clear which controls belong to which profile when expanded. */
+    .movement-panel{
+      border:1px solid var(--border);border-radius:var(--radius);
+      padding:.6rem;margin:.35rem 0 .75rem;
+    }
+    .movement-panel .settings-control:last-child{margin-bottom:0}
     .stepper-btn{
       font-family:var(--font-mono);font-size:1rem;font-weight:700;
       border:2px solid var(--accent);border-radius:var(--radius);
@@ -290,7 +297,7 @@
         </ul>
         <h3 id="tips-h-settings">Inställningar</h3>
         <ul>
-          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Rörelse har tre egna profiler (Gång, Cykel och Fordon) med varsin uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under egna expanderbara rubriker. Platsknappen och kompassknappen är grupperade tillsammans.</li>
+          <li id="tip-15">Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Under rubriken Rörelse inställningar finns tre egna profiler (Gång, Cykel och Fordon), var och en med egen uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under varsin expanderbar rubrik. Platsknappen och kompassknappen är grupperade tillsammans.</li>
         </ul>
         <h3 id="tips-h-misc">Tips och övrigt</h3>
         <ul>
@@ -454,6 +461,7 @@
     <!-- Movement mode profiles — Gång/Cykel/Fordon, each with its own
          update frequency / player update frequency / player distance.
          All three always editable regardless of which is active. -->
+    <h2 id="movement-settings-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Rörelse inställningar</h2>
     <h3 style="margin:1rem 0 .5rem;padding:0;border:none;">
       <button id="btn-walking-toggle" aria-expanded="false" aria-controls="walking-panel"
         style="display:flex;align-items:center;justify-content:space-between;width:100%;font-family:var(--font-mono);font-size:.9rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.5rem .85rem;cursor:pointer;background:var(--surface);color:var(--accent);">
@@ -461,7 +469,7 @@
         <span class="tips-chevron" aria-hidden="true">▼</span>
       </button>
     </h3>
-    <div id="walking-panel" hidden>
+    <div id="walking-panel" class="movement-panel" hidden>
       <div class="settings-control">
         <span class="settings-label" id="lbl-walking-interval">Uppdateringsfrekvens: </span>
         <button class="stepper-btn" id="btn-walking-interval-minus" aria-label="Minska uppdateringsfrekvens">−</button>
@@ -489,7 +497,7 @@
         <span class="tips-chevron" aria-hidden="true">▼</span>
       </button>
     </h3>
-    <div id="biking-panel" hidden>
+    <div id="biking-panel" class="movement-panel" hidden>
       <div class="settings-control">
         <span class="settings-label" id="lbl-biking-interval">Uppdateringsfrekvens: </span>
         <button class="stepper-btn" id="btn-biking-interval-minus" aria-label="Minska uppdateringsfrekvens">−</button>
@@ -517,7 +525,7 @@
         <span class="tips-chevron" aria-hidden="true">▼</span>
       </button>
     </h3>
-    <div id="vehicle-panel" hidden>
+    <div id="vehicle-panel" class="movement-panel" hidden>
       <div class="settings-control">
         <span class="settings-label" id="lbl-vehicle-interval">Uppdateringsfrekvens: </span>
         <button class="stepper-btn" id="btn-vehicle-interval-minus" aria-label="Minska uppdateringsfrekvens">−</button>
@@ -585,7 +593,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-01 14:06</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-01 14:15</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -831,7 +839,7 @@
         'Medaljer visas som en egen knapp på profilsidan och öppnar en fullständig vy med alla dina uppnådda medaljer och vad som krävs för nästa nivå i varje serie.',
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt det valda aviseringsläget.',
-        'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Rörelse har tre egna profiler (Gång, Cykel och Fordon) med varsin uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under egna expanderbara rubriker. Platsknappen och kompassknappen är grupperade tillsammans.',
+        'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Under rubriken Rörelse inställningar finns tre egna profiler (Gång, Cykel och Fordon), var och en med egen uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under varsin expanderbar rubrik. Platsknappen och kompassknappen är grupperade tillsammans.',
         'Kom ihåg att hålla skärmen olåst och Safari öppen för att appen ska fungera korrekt.',
         'Tips: Aktivera alltid platsåtkomst för den här sidan i Safari. Tryck på Sidmeny till vänster i adressfältet, sedan Mer längst ner till höger i menyn, välj Webbplatsinställningar och sätt Plats till Tillåt. Då behöver du aldrig godkänna igen.',
         'Tips: Spara appen till hemskärmen för snabb åtkomst. Tryck på Dela-knappen i Safari, välj Lägg till på hemskärmen och bekräfta. Appen öppnas då som en fristående app. Obs: Använd bakåtknappen i appen för att navigera bakåt, inte svepgestet.',
@@ -1020,6 +1028,7 @@
       movementBtnAria:(v)=>`Rörelse: ${v}.`,
       movementMenuAria:'Välj rörelseläge',
       movementWalking:'Gång',movementBiking:'Cykel',movementVehicle:'Fordon',
+      movementSettingsHeading:'Rörelse inställningar',
       myZonesHeading:'Mina zoner',
       myZonesEmpty:'Du äger inga zoner just nu.',
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
@@ -1100,7 +1109,7 @@
         'Medals appears as its own button on the profile page and opens a full view with all your achieved medals and what is needed for the next level in each series.',
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the selected announcement mode.',
-        'Settings are at the bottom of the zone list behind an expandable button. Voice mode, speech rate, and voice volume are adjusted right there. Movement has three separate profiles (Walking, Biking, and Vehicle), each with their own update frequency, player updates, and player distance, grouped under their own expandable headings. The location button and compass button are grouped together.',
+        'Settings are at the bottom of the zone list behind an expandable button. Voice mode, speech rate, and voice volume are adjusted right there. Under the Movement settings heading are three separate profiles (Walking, Biking, and Vehicle), each with their own update frequency, player updates, and player distance, grouped under its own expandable heading. The location button and compass button are grouped together.',
         'Remember to keep your screen unlocked and Safari open for the app to work properly.',
         'Tip: Allow location access permanently for this page in Safari. Tap the Page menu to the left of the address bar, then More at the bottom right of the menu, choose Website Settings, and set Location to Allow. You will never need to approve it again.',
         'Tip: Save the app to your home screen for quick access. Tap the Share button in Safari, choose Add to Home Screen, and confirm. The app will open as a standalone app. Note: Use the back button inside the app to navigate back, not the swipe gesture.',
@@ -1289,6 +1298,7 @@
       movementBtnAria:(v)=>`Movement: ${v}.`,
       movementMenuAria:'Choose movement mode',
       movementWalking:'Walking',movementBiking:'Biking',movementVehicle:'Vehicle',
+      movementSettingsHeading:'Movement settings',
       myZonesHeading:'My zones',
       myZonesEmpty:'You do not own any zones right now.',
       piRank:(r,rn)=>`Rank ${r} — ${rn}`,
@@ -2606,6 +2616,8 @@
     const movementNames={walking:t.movementWalking,biking:t.movementBiking,vehicle:t.movementVehicle};
     document.getElementById('btn-movement-menu-label').textContent=t.movementBtnLabel;
     movementMenuEl.setAttribute('aria-label',t.movementMenuAria);
+    const movementSettingsHeadingEl=document.getElementById('movement-settings-heading');
+    if(movementSettingsHeadingEl) movementSettingsHeadingEl.textContent=t.movementSettingsHeading;
     movementMenuEl.querySelectorAll('button[data-mode]').forEach(b=>{
       b.textContent=movementNames[b.dataset.mode];
     });
