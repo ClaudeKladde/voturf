@@ -105,7 +105,7 @@
       display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
     }
     #toolbar-row2{
-      display:grid;grid-template-columns:repeat(3,1fr);gap:.35rem;
+      display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;
     }
     /* All toolbar buttons share the same base style */
     #toolbar button:not(#btn-refresh){
@@ -133,24 +133,34 @@
     .btn-refresh-inner{display:flex;flex-direction:column;align-items:flex-start;gap:.1rem}
     #btn-refresh-label{font-size:.78rem}
     .btn-countdown-vis{font-size:.7rem;opacity:.8}
-    /* Filter and Voice menus */
-    #filter-wrap,#voice-menu-wrap,#movement-wrap{position:relative;width:100%}
-    #filter-wrap button,#voice-menu-wrap>button,#movement-wrap>button{width:100%}
-    #filter-menu,#voice-menu,#movement-menu{
+    /* Filter (checkboxes), Visning/Voice/Movement (single-select) menus */
+    #filter-wrap,#voice-menu-wrap,#movement-wrap,#visning-wrap{position:relative;width:100%}
+    #filter-wrap>button,#voice-menu-wrap>button,#movement-wrap>button,#visning-wrap>button{width:100%}
+    #filter-menu,#voice-menu,#movement-menu,#visning-menu{
       position:absolute;top:calc(100% + .35rem);right:0;
       background:var(--surface);border:1px solid var(--border);
       border-radius:var(--radius);list-style:none;min-width:11rem;z-index:20;overflow:hidden;
     }
-    #filter-menu[hidden],#voice-menu[hidden],#movement-menu[hidden]{display:none}
-    #filter-menu li button,#voice-menu li button,#movement-menu li button{
+    #filter-menu[hidden],#voice-menu[hidden],#movement-menu[hidden],#visning-menu[hidden]{display:none}
+    #voice-menu li button,#movement-menu li button,#visning-menu li button{
       display:block;width:100%;text-align:left;
       font-family:var(--font-mono);font-size:.85rem;
       padding:.55rem .85rem;border:none;background:transparent;color:var(--text);cursor:pointer;
     }
-    #filter-menu li button:hover,#voice-menu li button:hover,#movement-menu li button:hover{background:rgba(255,255,255,.06)}
-    #filter-menu li button[aria-checked="true"],#voice-menu li button[aria-checked="true"],#movement-menu li button[aria-checked="true"]{color:var(--accent)}
-    #filter-menu li button:focus-visible,#voice-menu li button:focus-visible,#movement-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
-    #filter-menu li+li,#voice-menu li+li,#movement-menu li+li{border-top:1px solid var(--border)}
+    #voice-menu li button:hover,#movement-menu li button:hover,#visning-menu li button:hover{background:rgba(255,255,255,.06)}
+    #voice-menu li button[aria-checked="true"],#movement-menu li button[aria-checked="true"],#visning-menu li button[aria-checked="true"]{color:var(--accent)}
+    #voice-menu li button:focus-visible,#movement-menu li button:focus-visible,#visning-menu li button:focus-visible{outline:3px solid var(--accent);outline-offset:-2px}
+    #filter-menu li+li,#voice-menu li+li,#movement-menu li+li,#visning-menu li+li{border-top:1px solid var(--border)}
+    /* Filter menu — real checkboxes, combinable, unlike the single-select
+       listboxes above */
+    #filter-menu li label{
+      display:flex;align-items:center;gap:.55rem;cursor:pointer;
+      font-family:var(--font-mono);font-size:.85rem;color:var(--text);
+      padding:.55rem .85rem;
+    }
+    #filter-menu li label:hover{background:rgba(255,255,255,.06)}
+    #filter-menu input[type="checkbox"]{width:1.15rem;height:1.15rem;accent-color:var(--accent);cursor:pointer;flex-shrink:0}
+    #filter-menu input[type="checkbox"]:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     /* Voice menu now lives in Settings, not the toolbar — needs its own
        button styling since it no longer matches #toolbar button rules. */
     #voice-menu-wrap>button{
@@ -260,13 +270,14 @@
         </ul>
         <h3 id="tips-h-toolbar">Verktygsfält</h3>
         <ul>
-          <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter.</li>
+          <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Rörelse. Rad 2: Filter, Visning, Avisera spelare, Dölj tagna.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny med nio alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder, Cykling och Gång. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
-          <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
-          <li id="tip-7c">Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
-          <li id="tip-7d">Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7a">Visning-knappen öppnar en meny med fem alternativ, bara ett i taget: Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.</li>
+          <li id="tip-7b">Sök zoner under Visning låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
+          <li id="tip-7c">Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
+          <li id="tip-7d">Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
           <li id="tip-7e">Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7e2">Gång tar de 15 närmaste zonerna och sorterar om dem efter faktisk gångväg istället för fågelvägen, med höjdskillnad kvar. Gångdata hämtas från samma externa tjänst som Cykling (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7f">Rörelse-knappen öppnar en meny med tre lägen: Gång, Cykel och Fordon. Varje läge har egna inställningar för uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, som du ställer in under Inställningar.</li>
@@ -324,7 +335,7 @@
     <div id="toolbar" aria-label="Verktygsfält">
       <!-- Row 0: Min profil — natural part of the toolbar -->
       <button id="btn-profile">Min profil</button>
-      <!-- Row 1: Refresh | Pause/Start | Avisera spelare -->
+      <!-- Row 1: Refresh | Pause/Start | Rörelse -->
       <div id="toolbar-row1">
         <button id="btn-refresh" aria-label="Uppdatera zoner. Automatisk uppdatering om — sekunder." disabled>
           <div class="btn-refresh-inner" aria-hidden="true">
@@ -333,27 +344,6 @@
           </div>
         </button>
         <button id="btn-pause" aria-pressed="false">Pausa</button>
-        <button id="btn-player-notify" aria-pressed="true">Avisera spelare</button>
-      </div>
-      <!-- Row 2: Dölj tagna | Filter | Voice/VO menu -->
-      <div id="toolbar-row2">
-        <button id="btn-hide-taken" aria-pressed="false">Dölj tagna</button>
-        <div id="filter-wrap">
-          <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox" aria-label="Filter: Alla zoner">
-            <span id="btn-filter-label">Filter</span>
-          </button>
-          <ul id="filter-menu" role="listbox" aria-label="Välj filterläge" hidden>
-            <li><button role="option" data-filter="all"          aria-checked="true">Alla zoner</button></li>
-            <li><button role="option" data-filter="available"    aria-checked="false">Tillgängliga</button></li>
-            <li><button role="option" data-filter="blocked"      aria-checked="false">Blockerade</button></li>
-            <li><button role="option" data-filter="notunique"    aria-checked="false">Närmsta unikazoner</button></li>
-            <li><button role="option" data-filter="search"       aria-checked="false">Sök zoner</button></li>
-            <li><button role="option" data-filter="advanced"         aria-checked="false">Avancerad visning med höjd</button></li>
-            <li><button role="option" data-filter="advancedObstacle" aria-checked="false">Avancerat läge med hinder</button></li>
-            <li><button role="option" data-filter="cycling"          aria-checked="false">Cykling</button></li>
-            <li><button role="option" data-filter="walking"          aria-checked="false">Gång</button></li>
-          </ul>
-        </div>
         <div id="movement-wrap">
           <button id="btn-movement-menu" aria-expanded="false" aria-haspopup="listbox" aria-label="Rörelse: Gång.">
             <span id="btn-movement-menu-label">Rörelse</span>
@@ -364,6 +354,33 @@
             <li><button role="option" data-mode="vehicle" aria-checked="false">Fordon</button></li>
           </ul>
         </div>
+      </div>
+      <!-- Row 2: Filter | Visning | Avisera spelare | Dölj tagna -->
+      <div id="toolbar-row2">
+        <div id="filter-wrap">
+          <button id="btn-filter" aria-expanded="false" aria-haspopup="true" aria-label="Filter: Alla zoner">
+            <span id="btn-filter-label">Filter</span>
+          </button>
+          <ul id="filter-menu" hidden>
+            <li><label><input type="checkbox" id="chk-filter-available"> <span id="lbl-chk-available">Tillgängliga</span></label></li>
+            <li><label><input type="checkbox" id="chk-filter-blocked"> <span id="lbl-chk-blocked">Blockerade</span></label></li>
+            <li><label><input type="checkbox" id="chk-filter-unique"> <span id="lbl-chk-unique">Unikazoner</span></label></li>
+          </ul>
+        </div>
+        <div id="visning-wrap">
+          <button id="btn-visning" aria-expanded="false" aria-haspopup="listbox" aria-label="Visning: Standard">
+            <span id="btn-visning-label">Visning</span>
+          </button>
+          <ul id="visning-menu" role="listbox" aria-label="Välj visning" hidden>
+            <li><button role="option" data-visning="walking"          aria-checked="false">Gång</button></li>
+            <li><button role="option" data-visning="cycling"          aria-checked="false">Cykling</button></li>
+            <li><button role="option" data-visning="advanced"         aria-checked="false">Visning med höjd</button></li>
+            <li><button role="option" data-visning="advancedObstacle" aria-checked="false">Visning med höjd och hinder</button></li>
+            <li><button role="option" data-visning="search"           aria-checked="false">Sök zoner</button></li>
+          </ul>
+        </div>
+        <button id="btn-player-notify" aria-pressed="true">Avisera spelare</button>
+        <button id="btn-hide-taken" aria-pressed="false">Dölj tagna</button>
       </div>
     </div>
 
@@ -596,7 +613,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-02 13:23</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-02 14:05</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -828,13 +845,14 @@
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver. Om appen finns på hemskärmen finns tillbaka-knappar längst upp och längst ner i varje vy.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
         'På zonens detaljsida finns knappen Starta vägbeskrivning, direkt under rubriken. Den ger en levande, steg-för-steg gångnavigering som aviserar nästa sväng när du närmar dig den, tillsammans med klockriktning och kvarvarande avstånd och tid till zonen. Hittas ingen pålitlig gångväg visas bara riktning och avstånd istället.',
-        'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter.',
+        'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Rörelse. Rad 2: Filter, Visning, Avisera spelare, Dölj tagna.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
-        'Filter-knappen öppnar en meny med nio alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder, Cykling och Gång. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
-        'Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
-        'Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
-        'Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
+        'Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
+        'Visning-knappen öppnar en meny med fem alternativ, bara ett i taget: Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.',
+        'Sök zoner under Visning låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
+        'Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
+        'Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
         'Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
         'Gång tar de 15 närmaste zonerna och sorterar om dem efter faktisk gångväg istället för fågelvägen, med höjdskillnad kvar. Gångdata hämtas från samma externa tjänst som Cykling (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
         'Rörelse-knappen öppnar en meny med tre lägen: Gång, Cykel och Fordon. Varje läge har egna inställningar för uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, som du ställer in under Inställningar.',
@@ -952,13 +970,17 @@
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
       ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
       filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
-      filterNotUnique:'Närmsta unikazoner',filterSearch:'Sök zoner',
-      filterAdvanced:'Avancerad visning med höjd',
-      filterAdvancedObstacle:'Avancerat läge med hinder',
+      filterUnique:'Unikazoner',filterSearch:'Sök zoner',
+      filterAdvanced:'Visning med höjd',
+      filterAdvancedObstacle:'Visning med höjd och hinder',
       filterCycling:'Cykling',
       filterWalking:'Gång',
+      filterBtnLabel:'Filter',
       filterBtnAria:(v)=>`Filter: ${v}`,
-      filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
+      filterUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
+      visningBtnLabel:'Visning',
+      visningBtnAria:(v)=>`Visning: ${v}`,
+      visningStandard:'Standard',
       elevUp:(m)=>`${m} m högre.`,elevDown:(m)=>`${m} m lägre.`,
       elevationStatusOk:'Höjdinformation kunde hämtas.',
       elevationStatusFail:'Höjdinformation kunde inte hämtas den här gången.',
@@ -1126,13 +1148,14 @@
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver. If the app is on your home screen, back buttons are also available at the top and bottom of every view.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
         'On a zone\'s detail page there is a Start directions button, right under the heading. It gives live, step-by-step walking navigation that announces the next turn as you approach it, along with the clock direction and remaining distance and time to the zone. If no reliable walking route is found, only direction and distance are shown instead.',
-        'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter.',
+        'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Movement. Row 2: Filter, View, Notify players, Hide taken.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
-        'The Filter button opens a menu with nine options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, Advanced mode with obstacles, Cycling, and Walking. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
-        'The Search zones filter lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
-        'Advanced view with height works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
-        'Advanced mode with obstacles works like All zones but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
+        'The Filter button opens a menu with three checkboxes: Available, Blocked, and Unique zones. They combine freely, for example Available and Unique zones at the same time. No box checked shows all zones. Unique zones requires you to have uploaded your unique zones list under My profile.',
+        'The View button opens a menu with five options, one at a time: Walking, Cycling, View with height, View with height and obstacles, and Zone search. View is completely independent from the Filter checkboxes and combines freely with them, for example Unique zones together with Cycling.',
+        'Zone search under View lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
+        'View with height works like the standard view but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
+        'View with height and obstacles works like the standard view but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
         'Cycling takes the 15 nearest zones and re-sorts them by actual bike-route distance instead of the straight line, keeping the height difference but dropping the obstacle check (a real bike route can\'t already run through water or a motorway). Zones with no bike route found are tagged "Uncertain cycling" and moved to the end instead of being hidden. Cycling data is fetched from an external service (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
         'Walking takes the 15 nearest zones and re-sorts them by actual walking-route distance instead of the straight line, keeping the height difference. Walking data is fetched from the same external service as Cycling (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
         'The Movement button opens a menu with three modes: Walking, Biking, and Vehicle. Each mode has its own settings for update frequency, player updates, and player distance, which you configure under Settings.',
@@ -1250,13 +1273,17 @@
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
-      filterNotUnique:'Nearest unique zones',filterSearch:'Zone search',
-      filterAdvanced:'Advanced view with height',
-      filterAdvancedObstacle:'Advanced mode with obstacles',
+      filterUnique:'Unique zones',filterSearch:'Zone search',
+      filterAdvanced:'View with height',
+      filterAdvancedObstacle:'View with height and obstacles',
       filterCycling:'Cycling',
       filterWalking:'Walking',
+      filterBtnLabel:'Filter',
       filterBtnAria:(v)=>`Filter: ${v}`,
-      filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
+      filterUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
+      visningBtnLabel:'View',
+      visningBtnAria:(v)=>`View: ${v}`,
+      visningStandard:'Standard',
       elevUp:(m)=>`${m} m higher.`,elevDown:(m)=>`${m} m lower.`,
       elevationStatusOk:'Elevation data could be fetched.',
       elevationStatusFail:'Elevation data could not be fetched this time.',
@@ -1525,7 +1552,11 @@
   let compassHeading=null,compassAvailable=false;
   let compassEnabled=true;   /* toggled by compass settings button */
   let allZonesSorted=[],shownCount=INITIAL_MAX;
-  let activeFilter='all';
+  /* Filter (kryssrutor, kombinerbara) och Visning (ett val i taget) är
+     medvetet separata tillstånd — ersätter den tidigare enda activeFilter
+     som gjorde det omöjligt att t.ex. kombinera Unikazoner med Cykling. */
+  let filterAvailable=false,filterBlocked=false,filterUnique=false;
+  let activeVisning=null; // null | 'advanced' | 'advancedObstacle' | 'cycling' | 'walking' | 'search'
   /* Advanced view — elevation lookups via Open-Elevation (open, key-free, batchable),
      used the same way for the user's own position and every zone so both sides of the
      height comparison come from the same data source instead of mixing it with the
@@ -2069,6 +2100,12 @@
   const btnFilter     =document.getElementById('btn-filter');
   const btnFilterLabel=document.getElementById('btn-filter-label');
   const filterMenu    =document.getElementById('filter-menu');
+  const btnVisning     =document.getElementById('btn-visning');
+  const btnVisningLabel=document.getElementById('btn-visning-label');
+  const visningMenu    =document.getElementById('visning-menu');
+  const chkFilterAvailable=document.getElementById('chk-filter-available');
+  const chkFilterBlocked  =document.getElementById('chk-filter-blocked');
+  const chkFilterUnique   =document.getElementById('chk-filter-unique');
   const tipsToggle    =document.getElementById('tips-toggle');
   const tipsContent   =document.getElementById('tips-content');
   const speedVal      =document.getElementById('speed-val');
@@ -2636,7 +2673,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[4,10,1,2,2,4,2,1,3];
+      const sectionSizes=[4,11,1,2,2,4,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -2652,16 +2689,6 @@
         }
       });
     }
-    const opts=filterMenu.querySelectorAll('button[data-filter]');
-    if(opts[0]) opts[0].textContent=t.filterAll;
-    if(opts[1]) opts[1].textContent=t.filterAvailable;
-    if(opts[2]) opts[2].textContent=t.filterBlocked;
-    if(opts[3]) opts[3].textContent=t.filterNotUnique;
-    if(opts[4]) opts[4].textContent=t.filterSearch;
-    if(opts[5]) opts[5].textContent=t.filterAdvanced;
-    if(opts[6]) opts[6].textContent=t.filterAdvancedObstacle;
-    if(opts[7]) opts[7].textContent=t.filterCycling;
-    if(opts[8]) opts[8].textContent=t.filterWalking;
     /* Search section labels */
     const szh=document.getElementById('search-zone-heading');
     if(szh) szh.textContent=t.searchHeading;
@@ -2702,7 +2729,19 @@
       const lblR=document.getElementById(`lbl-${mode}-player-radius`);
       if(lblR) lblR.textContent=t.playerRadiusLabel;
     });
-    updateFilterLabel();
+    /* Filter checkboxes — labels */
+    const lblChkAvailable=document.getElementById('lbl-chk-available');
+    if(lblChkAvailable) lblChkAvailable.textContent=t.filterAvailable;
+    const lblChkBlocked=document.getElementById('lbl-chk-blocked');
+    if(lblChkBlocked) lblChkBlocked.textContent=t.filterBlocked;
+    const lblChkUnique=document.getElementById('lbl-chk-unique');
+    if(lblChkUnique) lblChkUnique.textContent=t.filterUnique;
+    updateFilterButtonUI();
+    /* Visning menu — option texts */
+    const visningOpts=visningMenu.querySelectorAll('button[data-visning]');
+    const visningNames={walking:t.filterWalking,cycling:t.filterCycling,advanced:t.filterAdvanced,advancedObstacle:t.filterAdvancedObstacle,search:t.filterSearch};
+    visningOpts.forEach(b=>{b.textContent=visningNames[b.dataset.visning];});
+    updateVisningLabel();
     updateMovementMenuUI();
     updateVoiceModeBtn();
     updatePauseBtn();
@@ -3321,51 +3360,90 @@
   }
 
   /* ════════════════════════════════════════
-     FILTER
+     FILTER — kryssrutor, fritt kombinerbara (Tillgängliga/Blockerade/
+     Unikazoner). Separat och oberoende av Visning nedan — det är just det
+     som gör t.ex. Unikazoner + Cykling möjligt, till skillnad från den
+     tidigare enda activeFilter som gjorde alla nio alternativen ömsesidigt
+     uteslutande.
   ════════════════════════════════════════ */
-  function filterLabel(){
-    if(activeFilter==='available') return t.filterAvailable;
-    if(activeFilter==='blocked')   return t.filterBlocked;
-    if(activeFilter==='notunique') return t.filterNotUnique;
-    if(activeFilter==='search')    return t.filterSearch;
-    if(activeFilter==='advanced')  return t.filterAdvanced;
-    if(activeFilter==='advancedObstacle') return t.filterAdvancedObstacle;
-    if(activeFilter==='cycling') return t.filterCycling;
-    if(activeFilter==='walking') return t.filterWalking;
-    return t.filterAll;
+  function filterSummaryLabel(){
+    const parts=[];
+    if(filterAvailable) parts.push(t.filterAvailable);
+    if(filterBlocked) parts.push(t.filterBlocked);
+    if(filterUnique) parts.push(t.filterUnique);
+    return parts.length?parts.join(', '):t.filterAll;
   }
-  function updateFilterLabel(){
-    btnFilterLabel.textContent=filterLabel();
-    btnFilter.setAttribute('aria-label',t.filterBtnAria(filterLabel()));
-    filterMenu.querySelectorAll('button[data-filter]').forEach(b=>{b.setAttribute('aria-checked',b.dataset.filter===activeFilter?'true':'false')});
+  function updateFilterButtonUI(){
+    btnFilterLabel.textContent=t.filterBtnLabel;
+    btnFilter.setAttribute('aria-label',t.filterBtnAria(filterSummaryLabel()));
   }
   btnFilter.addEventListener('click',()=>{
     const open=!filterMenu.hidden;filterMenu.hidden=open;btnFilter.setAttribute('aria-expanded',String(!open));
-    if(!open) filterMenu.querySelector(`button[data-filter="${activeFilter}"]`)?.focus();
+    if(!open) chkFilterAvailable.focus();
   });
   document.addEventListener('click',e=>{if(!e.target.closest('#filter-wrap')){filterMenu.hidden=true;btnFilter.setAttribute('aria-expanded','false');}});
-  filterMenu.querySelectorAll('button[data-filter]').forEach(btn=>{
+  function onFilterCheckboxChange(){
+    filterAvailable=chkFilterAvailable.checked;
+    filterBlocked=chkFilterBlocked.checked;
+    filterUnique=chkFilterUnique.checked;
+    updateFilterButtonUI();
+    if(filterUnique&&uniqueZoneNames.size===0){
+      setStatus(t.filterUniqueNoList,'');
+    }
+    shownCount=INITIAL_MAX;
+    renderZoneSlice();
+  }
+  chkFilterAvailable.addEventListener('change',onFilterCheckboxChange);
+  chkFilterBlocked.addEventListener('change',onFilterCheckboxChange);
+  chkFilterUnique.addEventListener('change',onFilterCheckboxChange);
+
+  /* ════════════════════════════════════════
+     VISNING — ett val i taget (samma enval-mönster som Filter hade förut),
+     men helt oberoende av Filter-kryssrutorna ovan.
+  ════════════════════════════════════════ */
+  function visningLabel(){
+    if(activeVisning==='advanced')  return t.filterAdvanced;
+    if(activeVisning==='advancedObstacle') return t.filterAdvancedObstacle;
+    if(activeVisning==='cycling') return t.filterCycling;
+    if(activeVisning==='walking') return t.filterWalking;
+    if(activeVisning==='search')  return t.filterSearch;
+    return t.visningStandard;
+  }
+  function updateVisningLabel(){
+    btnVisningLabel.textContent=t.visningBtnLabel;
+    btnVisning.setAttribute('aria-label',t.visningBtnAria(visningLabel()));
+    visningMenu.querySelectorAll('button[data-visning]').forEach(b=>{b.setAttribute('aria-checked',b.dataset.visning===activeVisning?'true':'false')});
+  }
+  btnVisning.addEventListener('click',()=>{
+    const open=!visningMenu.hidden;visningMenu.hidden=open;btnVisning.setAttribute('aria-expanded',String(!open));
+    if(!open){
+      const cur=activeVisning?visningMenu.querySelector(`button[data-visning="${activeVisning}"]`):null;
+      (cur||visningMenu.querySelector('button[data-visning]')).focus();
+    }
+  });
+  document.addEventListener('click',e=>{if(!e.target.closest('#visning-wrap')){visningMenu.hidden=true;btnVisning.setAttribute('aria-expanded','false');}});
+  visningMenu.querySelectorAll('button[data-visning]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const newFilter=btn.dataset.filter;
-      const wasSearch=activeFilter==='search';
-      activeFilter=newFilter;
-      filterMenu.hidden=true;
-      btnFilter.setAttribute('aria-expanded','false');
-      btnFilter.focus();
-      updateFilterLabel();
+      const chosen=btn.dataset.visning;
+      const wasSearch=activeVisning==='search';
+      /* Klickar man på det redan aktiva alternativet stängs det av,
+         tillbaka till standardvisning — ingen separat "Standard"-rad
+         behövs i menyn. */
+      const newVisning=(chosen===activeVisning)?null:chosen;
+      activeVisning=newVisning;
+      visningMenu.hidden=true;
+      btnVisning.setAttribute('aria-expanded','false');
+      btnVisning.focus();
+      updateVisningLabel();
       /* Handle search mode transitions */
-      if(newFilter==='search'){
+      if(newVisning==='search'){
         activateSearchMode();
       } else {
         deactivateSearchMode(wasSearch);
       }
-      /* Handle notunique with no list */
-      if(newFilter==='notunique'&&uniqueZoneNames.size===0){
-        setStatus(t.filterNotUniqueNoList,'');
-      }
-      /* Cykling starts with a smaller pool — each candidate costs a routing
-         lookup, so default to fewer than the usual page size. */
-      shownCount=(newFilter==='cycling'||newFilter==='walking')?CYCLING_POOL_SIZE:INITIAL_MAX;
+      /* Cykling/Gång startar med en mindre pool — varje kandidat kostar en
+         ruttberäkning, så färre än den vanliga sidstorleken som standard. */
+      shownCount=(newVisning==='cycling'||newVisning==='walking')?CYCLING_POOL_SIZE:INITIAL_MAX;
       renderZoneSlice();
     });
   });
@@ -3375,10 +3453,16 @@
     if(hideTakenActive&&savedUsername){
       zones=zones.filter(z=>z.currentOwner?.name!==savedUsername);
     }
-    /* Active filter */
-    if(activeFilter==='available') return zones.filter(z=>getBlockStatus(z).blocked===false);
-    if(activeFilter==='blocked')   return zones.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
-    if(activeFilter==='notunique') return zones.filter(z=>isUniqueZone(z.name));
+    /* Filter-kryssrutor: Tillgängliga/Blockerade kombineras som "endera"
+       eftersom de är motsatta tillstånd av samma egenskap; Unikazoner är
+       ett separat, extra krav ovanpå det. */
+    if(filterAvailable||filterBlocked){
+      zones=zones.filter(z=>{
+        const b=getBlockStatus(z);
+        return (filterAvailable&&b.blocked===false)||(filterBlocked&&(b.blocked===true||b.blocked===null));
+      });
+    }
+    if(filterUnique) zones=zones.filter(z=>isUniqueZone(z.name));
     /* Cykling: no extra filtering here — the candidate pool is just the
        nearest `shownCount` zones (standard pagination), re-sorted by actual
        bike distance in renderZoneSlice()/loadMore() once fetched. This keeps
@@ -3399,7 +3483,7 @@
      zones keep showing normally, just without a height line — the one-time
      aria-live diagnostic is the only user-visible sign of success or failure. */
   async function ensureElevationData(zones){
-    if(!ELEVATION_FILTERS.includes(activeFilter)||elevationFetchInFlight) return;
+    if(!ELEVATION_FILTERS.includes(activeVisning)||elevationFetchInFlight) return;
     if(userLat===null||userLon===null) return;
     const points=[{lat:userLat,lon:userLon}, ...zones.map(z=>({lat:z.latitude,lon:z.longitude}))];
     const needed=points.filter(p=>!elevationCache.has(coordKey(p.lat,p.lon)));
@@ -3418,7 +3502,7 @@
         const elEl=document.getElementById('advanced-status');
         if(elEl){elEl.textContent=t.elevationStatusOk;setTimeout(()=>{elEl.textContent='';},6000);}
       }
-      if(ELEVATION_FILTERS.includes(activeFilter)) renderZoneSlice();
+      if(ELEVATION_FILTERS.includes(activeVisning)) renderZoneSlice();
     }catch(e){
       if(!elevationDiagnosticShown){
         elevationDiagnosticShown=true;
@@ -3438,7 +3522,7 @@
      useful context when judging whether an obstacle is actually a problem. */
   const ELEVATION_FILTERS=['advanced','advancedObstacle','cycling','walking'];
   function elevationDiffFor(zone){
-    if(!ELEVATION_FILTERS.includes(activeFilter)||userLat===null||userLon===null) return null;
+    if(!ELEVATION_FILTERS.includes(activeVisning)||userLat===null||userLon===null) return null;
     const userElev=elevationCache.get(coordKey(userLat,userLon));
     const zoneElev=elevationCache.get(coordKey(zone.latitude,zone.longitude));
     if(userElev==null||zoneElev==null) return null;
@@ -3502,7 +3586,7 @@
      lookups. Re-renders once data lands so sentences backfill without waiting
      for the next full refresh. */
   async function ensureObstacleData(zones){
-    if(activeFilter!=='advancedObstacle'||obstacleFetchInFlight) return;
+    if(activeVisning!=='advancedObstacle'||obstacleFetchInFlight) return;
     if(userLat===null||userLon===null||!zones.length) return;
     obstacleFetchInFlight=true;
     try{
@@ -3537,7 +3621,7 @@
         const stEl=document.getElementById('advanced-status');
         if(stEl){stEl.textContent=t.obstacleStatusOk;setTimeout(()=>{stEl.textContent='';},6000);}
       }
-      if(activeFilter==='advancedObstacle') renderZoneSlice();
+      if(activeVisning==='advancedObstacle') renderZoneSlice();
     }catch(e){
       if(!obstacleDiagnosticShown){
         obstacleDiagnosticShown=true;
@@ -3554,7 +3638,7 @@
   }
 
   function obstacleKindsFor(zone){
-    if(activeFilter!=='advancedObstacle'||userLat===null||userLon===null) return [];
+    if(activeVisning!=='advancedObstacle'||userLat===null||userLon===null) return [];
     const key=coordKey(zone.latitude,zone.longitude);
     if(obstacleCache.has(key)) return obstacleCache.get(key);
     const userPos={lat:userLat,lon:userLon};
@@ -3598,7 +3682,7 @@
      one batched /table request (1 source, up to 15 destinations) per
      refresh, instead of one request per zone. */
   async function ensureCyclingData(zones){
-    if(activeFilter!=='cycling'||cyclingFetchInFlight) return;
+    if(activeVisning!=='cycling'||cyclingFetchInFlight) return;
     if(userLat===null||userLon===null||!zones.length) return;
     const needed=zones.filter(z=>!cyclingDataCache.has(coordKey(z.latitude,z.longitude)));
     if(!needed.length) return;
@@ -3623,7 +3707,7 @@
         const stEl=document.getElementById('advanced-status');
         if(stEl){stEl.textContent=t.cyclingStatusOk;setTimeout(()=>{stEl.textContent='';},6000);}
       }
-      if(activeFilter==='cycling') renderZoneSlice();
+      if(activeVisning==='cycling') renderZoneSlice();
     }catch(e){
       /* Leave "needed" uncached on a request-level failure (network/HTTP
          error) so the next refresh cycle retries automatically, same as
@@ -3641,7 +3725,7 @@
   }
 
   function cyclingInfoFor(zone){
-    if(activeFilter!=='cycling') return null;
+    if(activeVisning!=='cycling') return null;
     return cyclingDataCache.get(coordKey(zone.latitude,zone.longitude))??null;
   }
   function cyclingSentence(zone){
@@ -3683,7 +3767,7 @@
   let walkingDiagnosticShown=false;
 
   async function ensureWalkingData(zones){
-    if(activeFilter!=='walking'||walkingFetchInFlight) return;
+    if(activeVisning!=='walking'||walkingFetchInFlight) return;
     if(userLat===null||userLon===null||!zones.length) return;
     const needed=zones.filter(z=>!walkingDataCache.has(coordKey(z.latitude,z.longitude)));
     if(!needed.length) return;
@@ -3708,7 +3792,7 @@
         const stEl=document.getElementById('advanced-status');
         if(stEl){stEl.textContent=t.walkingStatusOk;setTimeout(()=>{stEl.textContent='';},6000);}
       }
-      if(activeFilter==='walking') renderZoneSlice();
+      if(activeVisning==='walking') renderZoneSlice();
     }catch(e){
       if(!walkingDiagnosticShown){
         walkingDiagnosticShown=true;
@@ -3722,7 +3806,7 @@
   }
 
   function walkingInfoFor(zone){
-    if(activeFilter!=='walking') return null;
+    if(activeVisning!=='walking') return null;
     return walkingDataCache.get(coordKey(zone.latitude,zone.longitude))??null;
   }
   function walkingSentence(zone){
@@ -4015,9 +4099,9 @@
   }
 
   btnBackToLive.addEventListener('click',()=>{
-    const wasSearch=activeFilter==='search';
-    activeFilter='all';
-    updateFilterLabel();
+    const wasSearch=activeVisning==='search';
+    activeVisning=null;
+    updateVisningLabel();
     deactivateSearchMode(wasSearch);
     /* Restore GPS-based zone coordinates */
     if(userLat!==null) fetchNearbyZones(false);
@@ -4922,8 +5006,8 @@
     /* Cykling/Gång re-sort just the currently visible slice by actual
        route distance — the pool grows via the normal "Load more"/shownCount
        mechanism, it just also gets re-ordered each time. */
-    if(activeFilter==='cycling') visible=sortCyclingPool(visible);
-    if(activeFilter==='walking') visible=sortWalkingPool(visible);
+    if(activeVisning==='cycling') visible=sortCyclingPool(visible);
+    if(activeVisning==='walking') visible=sortWalkingPool(visible);
     if(!filtered.length){
       emptyState.textContent=allZonesSorted.length?t.emptyFiltered:t.emptyState;
       emptyState.hidden=false;btnLoadMore.hidden=true;return;
@@ -4938,10 +5022,10 @@
       btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(visible);startBlockTicker();
-    if(activeFilter==='advanced'||activeFilter==='advancedObstacle'||activeFilter==='cycling'||activeFilter==='walking') ensureElevationData(visible);
-    if(activeFilter==='advancedObstacle') ensureObstacleData(visible);
-    if(activeFilter==='cycling') ensureCyclingData(visible);
-    if(activeFilter==='walking') ensureWalkingData(visible);
+    if(activeVisning==='advanced'||activeVisning==='advancedObstacle'||activeVisning==='cycling'||activeVisning==='walking') ensureElevationData(visible);
+    if(activeVisning==='advancedObstacle') ensureObstacleData(visible);
+    if(activeVisning==='cycling') ensureCyclingData(visible);
+    if(activeVisning==='walking') ensureWalkingData(visible);
   }
 
   function loadMore(){
@@ -4949,7 +5033,7 @@
     const prev=shownCount;
     shownCount=Math.min(shownCount+PAGE_SIZE,filtered.length);
     if(shownCount===prev)return;
-    if(activeFilter==='cycling'||activeFilter==='walking'){
+    if(activeVisning==='cycling'||activeVisning==='walking'){
       /* Re-sorting by route distance can reorder already-shown zones too, not
          just append at the bottom — rebuild fully instead of incrementally. */
       renderZoneSlice();
@@ -4965,8 +5049,8 @@
       btnLoadMore.textContent=t.loadMore(n);btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(slice);
-    if(activeFilter==='advanced'||activeFilter==='advancedObstacle') ensureElevationData(slice);
-    if(activeFilter==='advancedObstacle') ensureObstacleData(slice);
+    if(activeVisning==='advanced'||activeVisning==='advancedObstacle') ensureElevationData(slice);
+    if(activeVisning==='advancedObstacle') ensureObstacleData(slice);
     zoneList.querySelectorAll('.zone-card')[prev]?.querySelector('.zone-btn')?.focus();
   }
   btnLoadMore.addEventListener('click',loadMore);

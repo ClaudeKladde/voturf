@@ -355,15 +355,18 @@ efter driftsättning.
 Sticky, gult, tre rader:
 
 - **Rad 0:** `#btn-profile` — visar namn, antal zoner, pph, omgångspoäng
-- **Rad 1:** Uppdatera, Pausa, Avisera spelare
-- **Rad 2:** Dölj tagna, Filter, Rörelse
+- **Rad 1:** Uppdatera, Pausa, Rörelse
+- **Rad 2:** Filter, Visning, Avisera spelare, Dölj tagna
 
 Röstläge (`#voice-menu-wrap`) satt tidigare som tredje knapp på rad 2, men
 är flyttat till Inställningar (direkt ovanför Talhastighet, samma
 `<ul id="voice-menu">`-innehåll och alla samma element-ID:n, bara ny plats
-i DOM:en). Dess gamla plats på rad 2 togs sedan över av den nya
-Rörelse-knappen (se `### Rörelse` nedan) — rad 2 är därför en
-trekolumns-grid precis som innan, bara med ett annat tredje element.
+i DOM:en). Rörelse satt sedan som ersättare på rad 2, men flyttades i sin
+tur till rad 1 (tredje position, ersätter Avisera spelare) när Filter
+delades upp i Filter+Visning nedan — rad 2 fick då plats för fyra knappar
+istället för tre (`grid-template-columns:repeat(4,1fr)`), och Avisera
+spelare samt Dölj tagna flyttades dit tillsammans med de två nya
+filtreringsknapparna. Rad 1 är fortfarande en trekolumns-grid.
 
 Safari-fix för sticky-positionering:
 
@@ -373,20 +376,58 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 
 `role="toolbar"` är medvetet borttaget (orsakade dubbel uppläsning).
 
-### Filter
+### Filter och Visning
 
-Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner,
-Avancerad visning med höjd, Avancerat läge med hinder, Cykling, Gång.
+Tidigare var alla nio zonvisningsalternativen (Alla zoner, Tillgängliga,
+Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd,
+Avancerat läge med hinder, Cykling, Gång) ömsesidigt uteslutande via en enda
+`activeFilter`-variabel — det gick t.ex. inte att kombinera Unikazoner med
+Cykling. Uppdelat i två oberoende tillstånd efter användarönskemål:
+
+- **Filter** (`filterAvailable`/`filterBlocked`/`filterUnique`, booleaner) —
+  riktiga `<input type="checkbox">` i `#filter-menu` (medvetet inte
+  `role="listbox"`+`aria-checked`-knappar som tidigare — semantisk HTML
+  räcker för "kryssa i flera", ingen extra ARIA behövs). Fritt
+  kombinerbara. Tillgängliga/Blockerade kombineras som "endera" (de är
+  motsatta tillstånd av samma egenskap — ikryssade båda ger samma resultat
+  som ingen ikryssad, bara redundant). Unikazoner är ett separat, extra
+  krav ovanpå blockeringsvalet (`getFilteredZones()`), så "Tillgängliga +
+  Unikazoner" ger just tillgängliga zoner som också är unika. Ingen egen
+  kryssruta för "Alla zoner" — ingen ikryssad ruta betyder implicit allt.
+- **Visning** (`activeVisning`, sträng eller `null`) — Gång, Cykling,
+  Avancerad visning med höjd, Avancerat läge med hinder, Sök zoner. Samma
+  enval-lista-mönster (`role="listbox"`, `aria-checked`) som Filter hade
+  förut. Klick på det redan aktiva alternativet stänger av det (tillbaka
+  till `null`/standardvisning) — ingen separat "Standard"-rad behövs i
+  menyn för det.
+
+De två är helt oberoende av varandra och kombineras fritt — det var hela
+poängen med uppdelningen. Sök zoner (`activeVisning==='search'`) stänger
+fortfarande av sig själv när ett annat Visning-alternativ väljs (samma
+`deactivateSearchMode()` som förut), men påverkar inte Filter-kryssrutorna
+alls — de fortsätter gälla på de sökta zonerna också.
+
+**Namnbyte:** "Avancerad visning med höjd" → **Visning med höjd**,
+"Avancerat läge med hinder" → **Visning med höjd och hinder** (kortare,
+och ordet "Avancerad(t)" kändes missvisande nu när de bara är ett av flera
+jämbördiga Visning-alternativ snarare än ett särskilt "avancerat läge").
+Interna nycklar (`'advanced'`/`'advancedObstacle'`) är oförändrade — bara
+den svenska/engelska visningstexten är ny.
 
 **Sök zoner** använder Nominatim för adressgeokodning, pausar automatiska
 uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar.
 Avstånd och riktning beräknas relativt adressen, inte GPS-positionen.
+**Kombineras i den här versionen bara med Filter** — Cykling/Gång/Höjd-
+visningarna stängs av om man väljer Sök zoner (och tvärtom), eftersom de
+skulle kräva att cykel-/gångdatan räknades från adressen istället för GPS-
+positionen. Ett medvetet avgränsat första steg, inte en teknisk begränsning.
 
-De två avancerade filtren (`activeFilter==='advanced'` respektive
-`'advancedObstacle'`) fungerar som Alla zoner (`getFilteredZones()` gör ingen
-extra filtrering för dem) men berikar varje zons text med ett extra fält var.
-De är medvetet separata filter, inte en kombinerad inställning — enklare att
-hålla reda på än ett eget reglage utöver filtermenyn.
+De två höjd/hinder-visningarna (`activeVisning==='advanced'` respektive
+`'advancedObstacle'`) fungerar som standardvisningen (`getFilteredZones()`
+gör ingen extra filtrering för dem) men berikar varje zons text med ett
+extra fält var. De är medvetet separata Visning-alternativ, inte en
+kombinerad inställning — enklare att hålla reda på än ett eget reglage
+utöver menyn.
 
 **Avancerad visning med höjd** — höjdskillnad relativt din position, direkt
 efter riktningen (`"15 m högre."` / `"20 m lägre."`). Hämtas från
@@ -420,15 +461,16 @@ session om hämtningen lyckades. **Känd begränsning:** en bro eller tunnel vid
 korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte
 skiljer på "korsar" och "går över/under".
 
-**Cykling** — till skillnad från de två filtren ovan (som bara berikar text på
-den redan fågelvägs-sorterade listan) **sorterar om** listan efter faktiskt
-cykelruttavstånd. `getFilteredZones()` gör ingen egen filtrering/slicing för
-Cykling (returnerar hela fågelvägs-sorterade listan, som för Alla zoner) —
-istället är det bara den vanliga `shownCount`/"Ladda fler"-sidnumreringen som
-avgör kandidatpoolen. Vid filterbyte till Cykling sätts `shownCount` till
-`CYCLING_POOL_SIZE` (15) istället för det vanliga `INITIAL_MAX`, och varje
-tryck på "Ladda fler" utökar poolen med `PAGE_SIZE` precis som alla andra
-filter. Skillnaden är att `renderZoneSlice()` kör den synliga delen genom
+**Cykling** — till skillnad från de två Visning-alternativen ovan (som bara
+berikar text på den redan fågelvägs-sorterade listan) **sorterar om**
+listan efter faktiskt cykelruttavstånd. `getFilteredZones()` gör ingen egen
+filtrering/slicing för Cykling (returnerar hela fågelvägs-sorterade listan,
+som för standardvisningen) — istället är det bara den vanliga
+`shownCount`/"Ladda fler"-sidnumreringen som avgör kandidatpoolen. Byter man
+Visning till Cykling sätts `shownCount` till `CYCLING_POOL_SIZE` (15)
+istället för det vanliga `INITIAL_MAX`, och varje tryck på "Ladda fler"
+utökar poolen med `PAGE_SIZE` precis som alla andra Visning-alternativ.
+Skillnaden är att `renderZoneSlice()` kör den synliga delen genom
 `sortCyclingPool()` innan den ritas, och att `loadMore()` för Cykling anropar
 `renderZoneSlice()` i sin helhet istället för att bara lägga till nya kort
 längst ner — eftersom omsorteringen kan flytta om redan synliga zoner också.
@@ -460,7 +502,7 @@ tjänsteprofilen: **`routing.openstreetmap.de/routed-foot`** istället för
 aktivt åt gången, så det spelar ingen roll i vilken ordning de testas.
 
 **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
-inga extra anrop) visas i **alla** vyer, inte bara de avancerade filtren,
+inga extra anrop) visas i **alla** vyer, inte bara de avancerade Visning-alternativen,
 direkt efter zonens namn, före "Unik." om båda gäller (`zoneTypeName()` i
 `buildZoneItem`, återanvänds av `buildOwnedZoneItem`). Visas bara när namnet
 inte är det generiska `"Okänd"`/`"Unknown"`.
@@ -478,7 +520,7 @@ en vanlig synlig textuppdatering, exakt samma princip som `#status-msg`,
 för att undvika dubbeluppläsning.
 
 **Datakälla:** samma `routing.openstreetmap.de/routed-foot` som
-Gång-filtret, men `/route` (inte `/table`) med `steps=true` för faktiska
+Gång-visningen, men `/route` (inte `/table`) med `steps=true` för faktiska
 svängar och `geometries=geojson` för stegens geometri (används för
 avvikelsekontroll). Tjänsten ger **inga** färdiga meningar — bara rådata
 (`maneuver.type`, `maneuver.modifier`, gatunamn, avstånd) som
@@ -584,9 +626,9 @@ just nu slår ändringen igenom direkt (`stepMovementValue()` kollar
 `restartCountdown()`/`restartPlayerMonitor()`/`fetchNearbyPlayers()`
 beroende på vilket av de tre fälten som ändrades).
 
-**Ingen koppling till Cykling-filtret** (`activeFilter==='cycling'`) —
-medvetet helt separata funktioner, trots namnlikheten. Att välja
-rörelseläge Cykel byter inte filter, och tvärtom. Den engelska
+**Ingen koppling till Visning-alternativet Cykling** (`activeVisning==='cycling'`)
+— medvetet helt separata funktioner, trots namnlikheten. Att välja
+rörelseläge Cykel byter inte Visning, och tvärtom. Den engelska
 översättningen av Cykel-profilen är därför "Biking", inte "Cycling", för
 att undvika att båda menyerna visar samma ord för olika saker.
 
