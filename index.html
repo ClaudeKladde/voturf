@@ -256,17 +256,19 @@
           <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.</li>
           <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver. Om appen finns på hemskärmen finns tillbaka-knappar längst upp och längst ner i varje vy.</li>
           <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.</li>
+          <li id="tip-3b">På zonens detaljsida finns knappen Starta vägbeskrivning, direkt under rubriken. Den ger en levande, steg-för-steg gångnavigering som aviserar nästa sväng när du närmar dig den, tillsammans med klockriktning och kvarvarande avstånd och tid till zonen. Hittas ingen pålitlig gångväg visas bara riktning och avstånd istället.</li>
         </ul>
         <h3 id="tips-h-toolbar">Verktygsfält</h3>
         <ul>
           <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny med åtta alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder och Cykling. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med nio alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder, Cykling och Gång. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
           <li id="tip-7b">Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
           <li id="tip-7c">Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7d">Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
           <li id="tip-7e">Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
+          <li id="tip-7e2">Gång tar de 15 närmaste zonerna och sorterar om dem efter faktisk gångväg istället för fågelvägen, med höjdskillnad kvar. Gångdata hämtas från samma externa tjänst som Cykling (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7f">Rörelse-knappen öppnar en meny med tre lägen: Gång, Cykel och Fordon. Varje läge har egna inställningar för uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, som du ställer in under Inställningar.</li>
         </ul>
         <h3 id="tips-h-voice">Röstläge och VO-aviseringar</h3>
@@ -349,6 +351,7 @@
             <li><button role="option" data-filter="advanced"         aria-checked="false">Avancerad visning med höjd</button></li>
             <li><button role="option" data-filter="advancedObstacle" aria-checked="false">Avancerat läge med hinder</button></li>
             <li><button role="option" data-filter="cycling"          aria-checked="false">Cykling</button></li>
+            <li><button role="option" data-filter="walking"          aria-checked="false">Gång</button></li>
           </ul>
         </div>
         <div id="movement-wrap">
@@ -593,7 +596,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-02 12:29</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-02 13:23</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -609,6 +612,11 @@
         </div>
       </div>
     </h1>
+    <button id="btn-nav-toggle" aria-pressed="false"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:.75rem;margin-bottom:.35rem;text-align:left;">
+      Starta vägbeskrivning
+    </button>
+    <div id="nav-status" style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted);margin:0 0 .75rem;min-height:1.2em;"></div>
     <ul id="detail-list" style="list-style:none;display:flex;flex-direction:column;gap:.5rem;margin-top:.75rem">
       <li id="di-owner-wrap">—</li>
       <li id="di-taken">—</li>
@@ -819,14 +827,16 @@
         'Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver. Om appen finns på hemskärmen finns tillbaka-knappar längst upp och längst ner i varje vy.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
+        'På zonens detaljsida finns knappen Starta vägbeskrivning, direkt under rubriken. Den ger en levande, steg-för-steg gångnavigering som aviserar nästa sväng när du närmar dig den, tillsammans med klockriktning och kvarvarande avstånd och tid till zonen. Hittas ingen pålitlig gångväg visas bara riktning och avstånd istället.',
         'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Avisera spelare. Rad 2: Dölj tagna, Filter.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
-        'Filter-knappen öppnar en meny med åtta alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder och Cykling. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
+        'Filter-knappen öppnar en meny med nio alternativ: Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd, Avancerat läge med hinder, Cykling och Gång. Närmsta unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
         'Sök zoner-filtret låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
         'Avancerad visning med höjd fungerar som Alla zoner men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Avancerat läge med hinder fungerar som Alla zoner men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
         'Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
+        'Gång tar de 15 närmaste zonerna och sorterar om dem efter faktisk gångväg istället för fågelvägen, med höjdskillnad kvar. Gångdata hämtas från samma externa tjänst som Cykling (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
         'Rörelse-knappen öppnar en meny med tre lägen: Gång, Cykel och Fordon. Varje läge har egna inställningar för uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, som du ställer in under Inställningar.',
         'Röstläge hittar du under Inställningar. Knappen öppnar en meny med tre val: VO-aviseringar (standard), Inbyggd röst och Av. VO-aviseringar använder din egen VoiceOver-röst och hastighet. Inbyggd röst använder en separat syntetisk röst med ett pip-ljud som signal — du kan justera talhastighet och röstvolym direkt nedanför.',
         'Spelare i närheten visas som en egen lista efter zonlistan, uppdaterad automatiskt. Aktivera Avisera spelare i verktygsfältet för att höra när någon kommer inom avståndet — aviseringen följer det valda aviseringsläget. Den närmaste spelarens namn, avstånd, riktning och närmaste zon visas och läses upp. Om spelaren är en aktiv vän läses även Aktiv upp.',
@@ -946,6 +956,7 @@
       filterAdvanced:'Avancerad visning med höjd',
       filterAdvancedObstacle:'Avancerat läge med hinder',
       filterCycling:'Cykling',
+      filterWalking:'Gång',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Ladda upp din unikazoner-lista under Min profil för att använda det här filtret.',
       elevUp:(m)=>`${m} m högre.`,elevDown:(m)=>`${m} m lägre.`,
@@ -959,6 +970,31 @@
       cyclingUncertain:'Tveksam cykling.',
       cyclingStatusOk:'Cykelinformation kunde hämtas.',
       cyclingStatusFail:'Cykelinformation kunde inte hämtas den här gången.',
+      walkingSentence:(m,min)=>`${m} m, cirka ${min} minut${min===1?'':'er'} gång.`,
+      walkingUncertain:'Tveksam gångväg.',
+      walkingStatusOk:'Gånginformation kunde hämtas.',
+      walkingStatusFail:'Gånginformation kunde inte hämtas den här gången.',
+      navStartBtn:'Starta vägbeskrivning',
+      navStopBtn:'Stäng av vägbeskrivning',
+      navStartAria:(name)=>`Starta vägbeskrivning till ${name}.`,
+      navStopAria:(name)=>`Stäng av vägbeskrivning till ${name}.`,
+      navFetching:'Beräknar rutt…',
+      navNoGps:'Väntar på GPS-position…',
+      navNoRouteFound:'Ingen gångväg kunde beräknas till zonen.',
+      navUnreliableRoute:'Ingen gångväg hittades — visar bara riktning och avstånd.',
+      navRouteError:'Kunde inte hämta vägbeskrivning just nu.',
+      navStartedPrefix:'Vägbeskrivning startad. ',
+      navRerouted:'Ny rutt beräknad. ',
+      navArrived:(name)=>`Du har anlänt till ${name}.`,
+      navGoOn:(dist,name)=>name?`Gå ${dist} m på ${name}.`:`Gå ${dist} m rakt fram.`,
+      navTurn:(modifierPhrase,dist,name)=>name?`${modifierPhrase} om ${dist} m till ${name}.`:`${modifierPhrase} om ${dist} m.`,
+      navContinueOn:(name)=>name?`Fortsätt på ${name}.`:'Fortsätt rakt fram.',
+      navRoundabout:(exit)=>exit?`Kör in i rondellen, sväng av vid avfart ${exit}.`:'Kör in i rondellen.',
+      navModifierLeft:'Sväng vänster',navModifierRight:'Sväng höger',
+      navModifierSharpLeft:'Sväng skarpt vänster',navModifierSharpRight:'Sväng skarpt höger',
+      navModifierSlightLeft:'Sväng svagt vänster',navModifierSlightRight:'Sväng svagt höger',
+      navModifierStraight:'Fortsätt rakt fram',navModifierUturn:'Vänd om',
+      navProgress:(clock,dist,mins,name)=>`${clock?clock+'. ':''}${dist} m kvar, cirka ${mins} minut${mins===1?'':'er'} till ${name}.`,
       searchPlaceholder:'Adress, stad — t.ex. Drottninggatan 1, Stockholm',
       searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress',
       searchHeading:'Sök zoner',searchResultsHeading:'Sökresultat',
@@ -1089,14 +1125,16 @@
         'Each zone in the list is one swipe — name, zone type when known (e.g. Monument or Bridge), distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver. If the app is on your home screen, back buttons are also available at the top and bottom of every view.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
+        'On a zone\'s detail page there is a Start directions button, right under the heading. It gives live, step-by-step walking navigation that announces the next turn as you approach it, along with the clock direction and remaining distance and time to the zone. If no reliable walking route is found, only direction and distance are shown instead.',
         'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Notify players. Row 2: Hide taken, Filter.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
-        'The Filter button opens a menu with eight options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, Advanced mode with obstacles, and Cycling. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
+        'The Filter button opens a menu with nine options: All zones, Available, Blocked, Nearest unique zones, Search zones, Advanced view with height, Advanced mode with obstacles, Cycling, and Walking. Nearest unique zones requires you to have uploaded your unique zones list under My profile.',
         'The Search zones filter lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
         'Advanced view with height works like All zones but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'Advanced mode with obstacles works like All zones but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
         'Cycling takes the 15 nearest zones and re-sorts them by actual bike-route distance instead of the straight line, keeping the height difference but dropping the obstacle check (a real bike route can\'t already run through water or a motorway). Zones with no bike route found are tagged "Uncertain cycling" and moved to the end instead of being hidden. Cycling data is fetched from an external service (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
+        'Walking takes the 15 nearest zones and re-sorts them by actual walking-route distance instead of the straight line, keeping the height difference. Walking data is fetched from the same external service as Cycling (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
         'The Movement button opens a menu with three modes: Walking, Biking, and Vehicle. Each mode has its own settings for update frequency, player updates, and player distance, which you configure under Settings.',
         'Voice mode is found under Settings. The button opens a menu with three options: VO alerts (default), Built-in voice, and Off. VO alerts uses your own VoiceOver voice and speed. Built-in voice uses a separate synthetic voice with a beep as signal — you can adjust speech rate and volume right below it.',
         'Nearby players appear as their own list after the zone list, updated automatically. Enable Notify players in the toolbar to hear when someone comes within range — announcements follow the selected mode. The closest player\'s name, distance, direction, and nearest zone are shown and announced. If the player is an active friend, Active is also announced.',
@@ -1216,6 +1254,7 @@
       filterAdvanced:'Advanced view with height',
       filterAdvancedObstacle:'Advanced mode with obstacles',
       filterCycling:'Cycling',
+      filterWalking:'Walking',
       filterBtnAria:(v)=>`Filter: ${v}`,
       filterNotUniqueNoList:'Upload your unique zones list under My profile to use this filter.',
       elevUp:(m)=>`${m} m higher.`,elevDown:(m)=>`${m} m lower.`,
@@ -1229,6 +1268,31 @@
       cyclingUncertain:'Uncertain cycling.',
       cyclingStatusOk:'Cycling data could be fetched.',
       cyclingStatusFail:'Cycling data could not be fetched this time.',
+      walkingSentence:(m,min)=>`${m} m, about ${min} minute${min===1?'':'s'} walking.`,
+      walkingUncertain:'Uncertain walking route.',
+      walkingStatusOk:'Walking data could be fetched.',
+      walkingStatusFail:'Walking data could not be fetched this time.',
+      navStartBtn:'Start directions',
+      navStopBtn:'Stop directions',
+      navStartAria:(name)=>`Start directions to ${name}.`,
+      navStopAria:(name)=>`Stop directions to ${name}.`,
+      navFetching:'Calculating route…',
+      navNoGps:'Waiting for GPS position…',
+      navNoRouteFound:'No walking route could be calculated to the zone.',
+      navUnreliableRoute:'No walking route found — showing direction and distance only.',
+      navRouteError:'Could not fetch directions right now.',
+      navStartedPrefix:'Directions started. ',
+      navRerouted:'New route calculated. ',
+      navArrived:(name)=>`You have arrived at ${name}.`,
+      navGoOn:(dist,name)=>name?`Go ${dist} m on ${name}.`:`Go ${dist} m straight ahead.`,
+      navTurn:(modifierPhrase,dist,name)=>name?`${modifierPhrase} in ${dist} m onto ${name}.`:`${modifierPhrase} in ${dist} m.`,
+      navContinueOn:(name)=>name?`Continue on ${name}.`:'Continue straight ahead.',
+      navRoundabout:(exit)=>exit?`Enter the roundabout, take exit ${exit}.`:'Enter the roundabout.',
+      navModifierLeft:'Turn left',navModifierRight:'Turn right',
+      navModifierSharpLeft:'Turn sharp left',navModifierSharpRight:'Turn sharp right',
+      navModifierSlightLeft:'Turn slightly left',navModifierSlightRight:'Turn slightly right',
+      navModifierStraight:'Continue straight ahead',navModifierUturn:'Make a U-turn',
+      navProgress:(clock,dist,mins,name)=>`${clock?clock+'. ':''}${dist} m left, about ${mins} minute${mins===1?'':'s'} to ${name}.`,
       searchPlaceholder:'Address, city — e.g. King Street 1, London',
       searchBtn:'Search',searchBtnAria:'Search zones near the given address',
       searchHeading:'Zone search',searchResultsHeading:'Search results',
@@ -1957,6 +2021,7 @@
   let medalsCurrentUser=null;
 
   function showMedals(user,returnView,fromPopState=false){
+    stopNavigation();
     clearInterval(detailLiveInterval);
     if(returnView) medalsReturnView=returnView;
     medalsCurrentUser=user;
@@ -2288,6 +2353,7 @@
      HISTORY / VIEW SWITCHING
   ════════════════════════════════════════ */
   function showList(fromPopState=false){
+    stopNavigation();
     clearInterval(detailLiveInterval);activeZone=null;
     detailView.classList.remove('active');
     profileView.classList.remove('active');
@@ -2299,6 +2365,7 @@
     if(!fromPopState) history.replaceState({view:'list'},'',location.pathname);
   }
   function showDetail(zone,fromPopState=false){
+    stopNavigation();
     clearInterval(detailLiveInterval);activeZone=zone;
     document.getElementById('owned-section').hidden=true;
     document.getElementById('owned-list').innerHTML='';
@@ -2309,12 +2376,14 @@
     detailView.classList.add('active');
     document.title=t.pageTitle(zone.name);
     renderDetail();detailHeading.focus();
+    updateNavToggleUI();
     if(!fromPopState) history.pushState({view:'detail',zoneId:zone.id},'',`#zone-${zone.id}`);
     detailLiveInterval=setInterval(renderDetailLive,1000);
     const ownerId=zone.currentOwner?.id;
     if(ownerId){const entry=ownerCache[ownerId];if(entry?.zones?.length) fetchAndRenderOwnedZones(zone.currentOwner,entry.zones);}
   }
   function showProfile(fromPopState=false){
+    stopNavigation();
     clearInterval(detailLiveInterval);
     listView.classList.remove('active');
     detailView.classList.remove('active');
@@ -2327,6 +2396,7 @@
     if(!fromPopState) history.pushState({view:'profile'},'',`#profile`);
   }
   function showPlayerDetail(player,fromPopState=false,returnView){
+    stopNavigation();
     clearInterval(detailLiveInterval);
     if(returnView) playerDetailReturnView=returnView;
     playerDetailCurrentName=player.name;
@@ -2566,7 +2636,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[3,9,1,2,2,4,2,1,3];
+      const sectionSizes=[4,10,1,2,2,4,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -2591,6 +2661,7 @@
     if(opts[5]) opts[5].textContent=t.filterAdvanced;
     if(opts[6]) opts[6].textContent=t.filterAdvancedObstacle;
     if(opts[7]) opts[7].textContent=t.filterCycling;
+    if(opts[8]) opts[8].textContent=t.filterWalking;
     /* Search section labels */
     const szh=document.getElementById('search-zone-heading');
     if(szh) szh.textContent=t.searchHeading;
@@ -2636,6 +2707,7 @@
     updateVoiceModeBtn();
     updatePauseBtn();
     updateAllMovementStepperUI();
+    updateNavToggleUI();
     updateSpeedUI();
     if(typeof updateHideTakenBtn==='function') updateHideTakenBtn();
     /* Skip links */
@@ -3259,6 +3331,7 @@
     if(activeFilter==='advanced')  return t.filterAdvanced;
     if(activeFilter==='advancedObstacle') return t.filterAdvancedObstacle;
     if(activeFilter==='cycling') return t.filterCycling;
+    if(activeFilter==='walking') return t.filterWalking;
     return t.filterAll;
   }
   function updateFilterLabel(){
@@ -3292,7 +3365,7 @@
       }
       /* Cykling starts with a smaller pool — each candidate costs a routing
          lookup, so default to fewer than the usual page size. */
-      shownCount=newFilter==='cycling'?CYCLING_POOL_SIZE:INITIAL_MAX;
+      shownCount=(newFilter==='cycling'||newFilter==='walking')?CYCLING_POOL_SIZE:INITIAL_MAX;
       renderZoneSlice();
     });
   });
@@ -3363,7 +3436,7 @@
   /* Shown in both advanced filters — Avancerad visning med höjd on its own,
      and Avancerat läge med hinder alongside obstacle info, since height is
      useful context when judging whether an obstacle is actually a problem. */
-  const ELEVATION_FILTERS=['advanced','advancedObstacle','cycling'];
+  const ELEVATION_FILTERS=['advanced','advancedObstacle','cycling','walking'];
   function elevationDiffFor(zone){
     if(!ELEVATION_FILTERS.includes(activeFilter)||userLat===null||userLon===null) return null;
     const userElev=elevationCache.get(coordKey(userLat,userLon));
@@ -3598,6 +3671,282 @@
       if(!okA&&okB) return 1;
       return 0;
     });
+  }
+
+  /* ════════════════════════════════════════
+     GÅNG — real walking routes via routing.openstreetmap.de (OSRM foot
+     profile), exact same pattern as Cykling above, just a different
+     profile and pool cache. See Cykling comment for the general rationale.
+  ════════════════════════════════════════ */
+  let walkingDataCache=new Map(); // coordKey(zone) -> {distance,duration} | 'uncertain'
+  let walkingFetchInFlight=false;
+  let walkingDiagnosticShown=false;
+
+  async function ensureWalkingData(zones){
+    if(activeFilter!=='walking'||walkingFetchInFlight) return;
+    if(userLat===null||userLon===null||!zones.length) return;
+    const needed=zones.filter(z=>!walkingDataCache.has(coordKey(z.latitude,z.longitude)));
+    if(!needed.length) return;
+    walkingFetchInFlight=true;
+    try{
+      const coordList=[`${userLon},${userLat}`,...needed.map(z=>`${z.longitude},${z.latitude}`)].join(';');
+      const destIdx=needed.map((_,i)=>i+1).join(';');
+      const url=`https://routing.openstreetmap.de/routed-foot/table/v1/foot/${coordList}?sources=0&destinations=${destIdx}&annotations=distance,duration`;
+      const r=await fetch(url);
+      if(!r.ok) throw new Error(`HTTP ${r.status}`);
+      const data=await r.json();
+      if(data.code!=='Ok') throw new Error(data.code||'error');
+      const durations=data.durations?.[0]||[];
+      const distances=data.distances?.[0]||[];
+      needed.forEach((z,i)=>{
+        const key=coordKey(z.latitude,z.longitude);
+        const dur=durations[i],dist=distances[i];
+        walkingDataCache.set(key,(dur==null||dist==null)?'uncertain':{distance:dist,duration:dur});
+      });
+      if(!walkingDiagnosticShown){
+        walkingDiagnosticShown=true;
+        const stEl=document.getElementById('advanced-status');
+        if(stEl){stEl.textContent=t.walkingStatusOk;setTimeout(()=>{stEl.textContent='';},6000);}
+      }
+      if(activeFilter==='walking') renderZoneSlice();
+    }catch(e){
+      if(!walkingDiagnosticShown){
+        walkingDiagnosticShown=true;
+        const stEl=document.getElementById('advanced-status');
+        const detail=e&&e.message?` (${e.message})`:'';
+        if(stEl){stEl.textContent=t.walkingStatusFail+detail;setTimeout(()=>{stEl.textContent='';},10000);}
+      }
+    }finally{
+      walkingFetchInFlight=false;
+    }
+  }
+
+  function walkingInfoFor(zone){
+    if(activeFilter!=='walking') return null;
+    return walkingDataCache.get(coordKey(zone.latitude,zone.longitude))??null;
+  }
+  function walkingSentence(zone){
+    const info=walkingInfoFor(zone);
+    if(!info) return '';
+    if(info==='uncertain') return t.walkingUncertain;
+    const mins=Math.max(1,Math.round(info.duration/60));
+    return t.walkingSentence(Math.round(info.distance),mins);
+  }
+  function sortWalkingPool(pool){
+    return pool.slice().sort((a,b)=>{
+      const infoA=walkingDataCache.get(coordKey(a.latitude,a.longitude));
+      const infoB=walkingDataCache.get(coordKey(b.latitude,b.longitude));
+      const okA=infoA&&infoA!=='uncertain',okB=infoB&&infoB!=='uncertain';
+      if(okA&&okB) return infoA.distance-infoB.distance;
+      if(okA&&!okB) return -1;
+      if(!okA&&okB) return 1;
+      return 0;
+    });
+  }
+
+  /* ════════════════════════════════════════
+     VÄGBESKRIVNING — live steg-för-steg gångnavigering till en zon.
+     Samma routing.openstreetmap.de/routed-foot-tjänst som Gång-filtret,
+     men anropar /route (inte /table) för faktiska svängar. Appens redan
+     existerande kontinuerliga GPS-bevakning (watchPosition i initGeo())
+     driver framstegskontrollen — inget nytt positionsspårande behövs.
+     Ett enda anrop vid start, plus ett nytt om man avviker för mycket
+     från rutten (med paus mellan omräkningar).
+  ════════════════════════════════════════ */
+  const NAV_APPROACH_M=20;        // varna om kommande sväng inom detta avstånd
+  const NAV_REACHED_M=8;          // anses ha nått fram till en manöverpunkt
+  const NAV_ARRIVE_M=10;          // anses ha anlänt till själva zonen
+  const NAV_DEVIATION_M=30;       // avviker för mycket från rutten, räkna om
+  const NAV_SNAP_LIMIT_M=50;      // OSRM snappade för långt bort — rutten går inte att lita på
+  const NAV_REROUTE_COOLDOWN_MS=15000;
+
+  let navActive=false;
+  let navZone=null;
+  let navSteps=null;      // OSRM steg-array för aktuell rutt
+  let navStepIndex=0;     // index för steget vi går just nu (mot navSteps[navStepIndex+1])
+  let navWarnedIndex=-1;  // senaste steg-index vi redan aviserat närmandet för
+  let navTotalDist=0,navTotalDur=0; // hela ruttens längd/tid, för minutuppskattningen
+  let navLastRerouteAt=0;
+  let navFetchInFlight=false;
+
+  async function fetchWalkingRoute(fromLat,fromLon,toLat,toLon){
+    const url=`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${fromLon},${fromLat};${toLon},${toLat}?overview=false&geometries=geojson&steps=true`;
+    const r=await fetch(url);
+    if(!r.ok) throw new Error(`HTTP ${r.status}`);
+    const data=await r.json();
+    if(data.code!=='Ok'||!data.routes?.length) throw new Error(data.code||'NoRoute');
+    const startSnap=data.waypoints?.[0]?.distance??0;
+    const endSnap=data.waypoints?.[1]?.distance??0;
+    if(Math.max(startSnap,endSnap)>NAV_SNAP_LIMIT_M) throw new Error('SnapTooFar');
+    return data.routes[0].legs[0].steps;
+  }
+
+  function navModifierPhrase(modifier){
+    switch(modifier){
+      case 'left': return t.navModifierLeft;
+      case 'right': return t.navModifierRight;
+      case 'sharp left': return t.navModifierSharpLeft;
+      case 'sharp right': return t.navModifierSharpRight;
+      case 'slight left': return t.navModifierSlightLeft;
+      case 'slight right': return t.navModifierSlightRight;
+      case 'uturn': return t.navModifierUturn;
+      default: return t.navModifierStraight;
+    }
+  }
+  /* Bygger en enda instruktionsmening från ett OSRM-steg. Gatunamn saknas
+     ofta även i välkartlagda områden (namnlösa gångstigar) — hanteras som
+     normalfall med en generisk formulering, inte som specialfall. Okända
+     manövertyper faller tillbaka på en säker generisk fras istället för
+     att krascha eller visa något oöversatt. */
+  function navStepInstruction(step,distanceOverride){
+    const type=step.maneuver.type;
+    const modifier=step.maneuver.modifier;
+    const name=(step.name||'').trim();
+    const dist=Math.max(1,Math.round(distanceOverride??step.distance));
+    if(type==='depart') return t.navGoOn(dist,name);
+    if(type==='roundabout'||type==='rotary'||type==='roundabout turn') return t.navRoundabout(step.maneuver.exit);
+    if(type==='continue'||type==='new name'||type==='notification') return t.navContinueOn(name);
+    if(type==='turn'||type==='merge'||type==='fork'||type==='end of road'||type==='ramp'||
+       type==='on ramp'||type==='off ramp'||type==='exit rotary'||type==='exit roundabout'){
+      return t.navTurn(navModifierPhrase(modifier),dist,name);
+    }
+    return name?t.navContinueOn(name):t.navModifierStraight+'.';
+  }
+
+  function minDistToGeometryM(lat,lon,coords){
+    let min=Infinity;
+    for(const c of coords){
+      const d=haversineKm(lat,lon,c[1],c[0])*1000;
+      if(d<min) min=d;
+    }
+    return min;
+  }
+
+  /* Kvarvarande sträcka = liveavstånd till nästa manöverpunkt plus summan
+     av alla efterföljande hela steg. Tiden uppskattas proportionellt mot
+     hela ruttens ursprungliga takt (sekunder per meter) — samma
+     "cirka X minuter"-princip som Cykling/Gång-filtrens sentence redan
+     använder, inte den exakta sekundprecisionen som annars gäller för
+     upplästa tider (se formatDurationSpoken). */
+  function navRemainingInfo(){
+    const target=navSteps[navStepIndex+1];
+    if(!target) return {distM:0,mins:1};
+    let remM=haversineKm(userLat,userLon,target.maneuver.location[1],target.maneuver.location[0])*1000;
+    for(let i=navStepIndex+1;i<navSteps.length-1;i++) remM+=navSteps[i].distance;
+    const pace=navTotalDist>0?navTotalDur/navTotalDist:0.83; // sek/m, ~1.2 m/s gångfart som fallback
+    const mins=Math.max(1,Math.round((remM*pace)/60));
+    return {distM:Math.round(remM),mins};
+  }
+
+  function navProgressSuffix(){
+    const {distM,mins}=navRemainingInfo();
+    const clock=(directionToZone(navZone.latitude,navZone.longitude)||'').split(',')[0];
+    return t.navProgress(clock,distM,mins,navZone.name);
+  }
+
+  function setNavStatus(text){
+    const el=document.getElementById('nav-status');
+    if(el) el.textContent=text;
+  }
+  function updateNavToggleUI(){
+    const btn=document.getElementById('btn-nav-toggle');
+    if(!btn) return;
+    const zone=navZone||activeZone;
+    btn.textContent=navActive?t.navStopBtn:t.navStartBtn;
+    btn.setAttribute('aria-pressed',navActive?'true':'false');
+    if(zone) btn.setAttribute('aria-label',navActive?t.navStopAria(zone.name):t.navStartAria(zone.name));
+  }
+
+  async function startNavigation(){
+    if(navActive){ stopNavigation(); return; }
+    if(userLat===null||userLon===null){ setNavStatus(t.navNoGps); return; }
+    if(navFetchInFlight||!activeZone) return;
+    navFetchInFlight=true;
+    setNavStatus(t.navFetching);
+    try{
+      const steps=await fetchWalkingRoute(userLat,userLon,activeZone.latitude,activeZone.longitude);
+      navSteps=steps;
+      navZone=activeZone;
+      navStepIndex=0;
+      navWarnedIndex=-1;
+      navTotalDist=steps.reduce((s,st)=>s+st.distance,0);
+      navTotalDur=steps.reduce((s,st)=>s+st.duration,0);
+      navActive=true;
+      updateNavToggleUI();
+      const msg=`${t.navStartedPrefix}${navStepInstruction(steps[0])} ${navProgressSuffix()}`;
+      setNavStatus(msg);
+      announceSystemMessage(msg);
+    }catch(e){
+      const reason=e&&e.message;
+      const msg=reason==='SnapTooFar'?t.navUnreliableRoute:(reason==='NoRoute'?t.navNoRouteFound:t.navRouteError);
+      setNavStatus(msg);
+      announceSystemMessage(msg);
+    }finally{
+      navFetchInFlight=false;
+    }
+  }
+
+  function stopNavigation(){
+    if(!navActive&&!navZone) return;
+    navActive=false;navZone=null;navSteps=null;navStepIndex=0;navWarnedIndex=-1;
+    updateNavToggleUI();
+    setNavStatus('');
+  }
+
+  function rerouteNavigation(){
+    if(navFetchInFlight||userLat===null||!navZone) return;
+    navLastRerouteAt=Date.now();
+    navFetchInFlight=true;
+    fetchWalkingRoute(userLat,userLon,navZone.latitude,navZone.longitude).then(steps=>{
+      navSteps=steps;
+      navStepIndex=0;
+      navWarnedIndex=-1;
+      navTotalDist=steps.reduce((s,st)=>s+st.distance,0);
+      navTotalDur=steps.reduce((s,st)=>s+st.duration,0);
+      const msg=`${t.navRerouted}${navStepInstruction(steps[0])} ${navProgressSuffix()}`;
+      setNavStatus(msg);
+      announceSystemMessage(msg);
+    }).catch(()=>{
+      /* Tyst fel — fortsätter följa den gamla (möjligen inaktuella) rutten
+         istället för att avbryta helt; nästa avvikelsekontroll försöker
+         igen efter cooldown-perioden. */
+    }).finally(()=>{navFetchInFlight=false;});
+  }
+
+  /* Körs vid varje ny GPS-position medan navigering är aktiv — hakar in i
+     samma watchPosition-callback som allt annat positionsberoende i appen. */
+  function checkNavigationProgress(){
+    if(!navActive||!navSteps||userLat===null) return;
+    const target=navSteps[navStepIndex+1];
+    if(!target) return;
+    const distToTarget=haversineKm(userLat,userLon,target.maneuver.location[1],target.maneuver.location[0])*1000;
+
+    if(target.maneuver.type==='arrive'){
+      if(distToTarget<=NAV_ARRIVE_M){
+        const msg=t.navArrived(navZone.name);
+        setNavStatus(msg);
+        announceSystemMessage(msg);
+        stopNavigation();
+        return;
+      }
+    } else if(distToTarget<=NAV_APPROACH_M&&navWarnedIndex!==navStepIndex+1){
+      navWarnedIndex=navStepIndex+1;
+      const msg=`${navStepInstruction(target,distToTarget)} ${navProgressSuffix()}`;
+      setNavStatus(msg);
+      announceSystemMessage(msg);
+    }
+
+    if(distToTarget<=NAV_REACHED_M){
+      navStepIndex++;
+      return;
+    }
+
+    const curStep=navSteps[navStepIndex];
+    const coords=curStep?.geometry?.coordinates;
+    if(coords?.length){
+      const dev=minDistToGeometryM(userLat,userLon,coords);
+      if(dev>NAV_DEVIATION_M&&Date.now()-navLastRerouteAt>NAV_REROUTE_COOLDOWN_MS) rerouteNavigation();
+    }
   }
 
   /* ════════════════════════════════════════
@@ -4443,12 +4792,13 @@
          height first. */
       const pathInfo=[elevationSentence(zone),obstacleSentence(zone)].filter(Boolean).join(' ');
       const dirElevPart=pathInfo?`${dirPart}${pathInfo} `:dirPart;
-      /* Cykling: bike distance/time comes before the plain straight-line
+      /* Cykling/Gång: route distance/time comes before the plain straight-line
          distance, which stays as a secondary reference. "Bort"/"away" is
          dropped everywhere — a bare distance reads faster and is already
-         understood in context. */
-      const cycSentence=cyclingSentence(zone);
-      const distPart=cycSentence?`${cycSentence} ${ds}. `:`${ds}. `;
+         understood in context. Mutually exclusive — only one filter is ever
+         active at a time. */
+      const routeSentence=cyclingSentence(zone)||walkingSentence(zone);
+      const distPart=routeSentence?`${routeSentence} ${ds}. `:`${ds}. `;
       if(isMyZone) return`${zone.name}. ${distPart}${dirElevPart}${t.myZone}.`;
       if(skipOwner){
         if(b.blocked===true){
@@ -4569,10 +4919,11 @@
     zoneList.innerHTML='';emptyState.hidden=true;
     const filtered=getFilteredZones();
     let visible=filtered.slice(0,shownCount);
-    /* Cykling re-sorts just the currently visible slice by actual bike
-       distance — the pool grows via the normal "Load more"/shownCount
+    /* Cykling/Gång re-sort just the currently visible slice by actual
+       route distance — the pool grows via the normal "Load more"/shownCount
        mechanism, it just also gets re-ordered each time. */
     if(activeFilter==='cycling') visible=sortCyclingPool(visible);
+    if(activeFilter==='walking') visible=sortWalkingPool(visible);
     if(!filtered.length){
       emptyState.textContent=allZonesSorted.length?t.emptyFiltered:t.emptyState;
       emptyState.hidden=false;btnLoadMore.hidden=true;return;
@@ -4587,9 +4938,10 @@
       btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
     }
     fetchOwnerBlocktimes(visible);startBlockTicker();
-    if(activeFilter==='advanced'||activeFilter==='advancedObstacle'||activeFilter==='cycling') ensureElevationData(visible);
+    if(activeFilter==='advanced'||activeFilter==='advancedObstacle'||activeFilter==='cycling'||activeFilter==='walking') ensureElevationData(visible);
     if(activeFilter==='advancedObstacle') ensureObstacleData(visible);
     if(activeFilter==='cycling') ensureCyclingData(visible);
+    if(activeFilter==='walking') ensureWalkingData(visible);
   }
 
   function loadMore(){
@@ -4597,8 +4949,8 @@
     const prev=shownCount;
     shownCount=Math.min(shownCount+PAGE_SIZE,filtered.length);
     if(shownCount===prev)return;
-    if(activeFilter==='cycling'){
-      /* Re-sorting by bike distance can reorder already-shown zones too, not
+    if(activeFilter==='cycling'||activeFilter==='walking'){
+      /* Re-sorting by route distance can reorder already-shown zones too, not
          just append at the bottom — rebuild fully instead of incrementally. */
       renderZoneSlice();
       return;
@@ -4775,8 +5127,10 @@
          recomputing a separate, simpler text from getFilteredZones()[0] —
          that used to pick the fågelväg-nearest zone even in Cykling mode,
          which could disagree with what was actually shown as the first card
-         once the pool got re-sorted by bike distance. */
-      if(isAuto){
+         once the pool got re-sorted by bike distance. Suppressed entirely
+         while live vägbeskrivning is active — that channel takes over the
+         announcement slot instead, so the two never compete. */
+      if(isAuto&&!navActive){
         const firstCard=zoneList.querySelector('.zone-card');
         const z=firstCard?._zone;
         const ownLabel=firstCard?.querySelector('.zone-btn')?.getAttribute('aria-label');
@@ -4857,6 +5211,7 @@
           }
         }
         if(first){btnRefresh.disabled=false;fetchNearbyZones(false);startPlayerMonitor();startGpsHealthCheck();}
+        checkNavigationProgress();
       },
       err=>{const msgs={1:t.geoErr1,2:t.geoErr2,3:t.geoErr3};setStatus(msgs[err.code]||t.geoErrUnknown,'error')},
       {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:5000}
@@ -4943,6 +5298,10 @@
     tipsContent.hidden=true;
     tipsToggle.setAttribute('aria-expanded','false');
     tipsToggle.focus();
+  });
+
+  document.getElementById('btn-nav-toggle').addEventListener('click',()=>{
+    if(navActive) stopNavigation(); else startNavigation();
   });
 
   /* Back buttons — work in both Safari and standalone home screen mode */

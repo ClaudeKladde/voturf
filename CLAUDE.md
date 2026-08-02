@@ -376,7 +376,7 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 ### Filter
 
 Alla zoner, Tillgängliga, Blockerade, Närmsta unikazoner, Sök zoner,
-Avancerad visning med höjd, Avancerat läge med hinder, Cykling.
+Avancerad visning med höjd, Avancerat läge med hinder, Cykling, Gång.
 
 **Sök zoner** använder Nominatim för adressgeokodning, pausar automatiska
 uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar.
@@ -450,11 +450,104 @@ fågelvägs-ordningen). Ett request-nivå-fel (nätverk/HTTP) lämnar `needed`
 ocachat så nästa uppdateringscykel försöker igen automatiskt, samma mönster
 som höjd. Samma engångsdiagnos-princip via `aria-live` (`#advanced-status`).
 
+**Gång** — exakt samma mönster som Cykling ovan, egen cache
+(`walkingDataCache`), eget diagnosmeddelande (`t.walkingStatusOk`/
+`t.walkingStatusFail`), samma `CYCLING_POOL_SIZE` (15) återanvänd som
+gemensam konstant för båda filtrens startpool. Enda skillnaden är
+tjänsteprofilen: **`routing.openstreetmap.de/routed-foot`** istället för
+`routed-bike`. `cyclingSentence(zone)||walkingSentence(zone)` i
+`buildZoneItem` — ömsesidigt uteslutande eftersom bara ett filter kan vara
+aktivt åt gången, så det spelar ingen roll i vilken ordning de testas.
+
 **Zontyp** (`zone.type.name` från Turfs egen `/zones`-respons, redan hämtad,
 inga extra anrop) visas i **alla** vyer, inte bara de avancerade filtren,
 direkt efter zonens namn, före "Unik." om båda gäller (`zoneTypeName()` i
 `buildZoneItem`, återanvänds av `buildOwnedZoneItem`). Visas bara när namnet
 inte är det generiska `"Okänd"`/`"Unknown"`.
+
+### Vägbeskrivning — live steg-för-steg gångnavigering
+
+Knapp (`#btn-nav-toggle`, "Starta vägbeskrivning") direkt efter zonnamnet
+högst upp på zonens detaljsida, före `#detail-list`. En egen visuell
+statusrad (`#nav-status`) under knappen visar samma text som annonseras —
+själva uppläsningen sker via `announceSystemMessage()` (samma
+dubbelkanal-funktion som GPS-varningar redan använder: VO-aviseringar via
+`#vo-alert-region`, Röstläge via talsyntes), **inte** en egen ny
+aria-live-region. `#nav-status` har medvetet ingen egen `aria-live` — bara
+en vanlig synlig textuppdatering, exakt samma princip som `#status-msg`,
+för att undvika dubbeluppläsning.
+
+**Datakälla:** samma `routing.openstreetmap.de/routed-foot` som
+Gång-filtret, men `/route` (inte `/table`) med `steps=true` för faktiska
+svängar och `geometries=geojson` för stegens geometri (används för
+avvikelsekontroll). Tjänsten ger **inga** färdiga meningar — bara rådata
+(`maneuver.type`, `maneuver.modifier`, gatunamn, avstånd) som
+`navStepInstruction()` själv översätter till svenska/engelska meningar via
+`t.navGoOn`/`t.navTurn`/`t.navContinueOn`/`t.navRoundabout` plus en
+modifier-till-fras-tabell (`navModifierPhrase()`). Namnlösa gångstigar
+(`step.name===''`) är **normalfall** även i välkartlagda områden (t.ex.
+Djurgården i Stockholm), inte bara i obanad terräng — hanteras med en
+generisk formulering ("Fortsätt rakt fram") istället för ett tomt
+gatunamn. Okända/sällsynta manövertyper faller tillbaka på samma generiska
+fras istället för att krascha eller visa något oöversatt.
+
+**Opålitlig snappning:** testat direkt mot tjänsten mot en punkt utan
+närliggande stig (obanad terräng) — svarade ändå `"code":"Ok"` men
+snappade till närmsta framkomliga led **40 km bort**. `waypoints[].distance`
+i OSRM-svaret avslöjar detta (hur långt den begärda punkten faktiskt
+ligger från den snappade vägen). Överstiger den `NAV_SNAP_LIMIT_M` (50 m,
+för antingen start- eller målpunkten) kastas ett `SnapTooFar`-fel och
+`t.navUnreliableRoute` visas istället — appen litar alltså inte på ett
+"Ok"-svar bara för att koden säger så.
+
+**Framstegsspårning** hakar in i appens redan existerande kontinuerliga
+GPS-bevakning (`checkNavigationProgress()` anropas från samma
+`watchPosition`-callback som allt annat positionsberoende i `initGeo()`) —
+inget nytt positionsspårande behövs. Ett enda state-index
+(`navStepIndex`, "steget vi går just nu, mot `navSteps[navStepIndex+1]`
+som nästa manöverpunkt") styr allt:
+
+- **Närmande** (`NAV_APPROACH_M`, 20 m från nästa manöverpunkt, varnas bara
+  en gång per steg via `navWarnedIndex`): annonserar instruktionen för det
+  steget, med live-beräknat avstånd (inte `step.distance`, som är hela
+  benets längd — inte kvarvarande sträcka dit).
+- **Nått fram** (`NAV_REACHED_M`, 8 m): `navStepIndex++`. Är nästa steg
+  `type==='arrive'` hanteras ankomst separat (se nedan) — annars väntar
+  appen tyst på nästa närmande istället för att annonsera igen, samma
+  "hellre tyst än onödigt pratig"-princip som hinderkollen.
+- **Ankomst** (`NAV_ARRIVE_M`, 10 m, bara när målets `type==='arrive'`):
+  `t.navArrived()`, stoppar navigeringen.
+- **Avvikelse:** minsta avstånd (`minDistToGeometryM()`) mellan aktuell
+  position och **hela** det innevarande stegets geometri (inte bara
+  segment-till-segment) — överstiger `NAV_DEVIATION_M` (30 m) och minst
+  `NAV_REROUTE_COOLDOWN_MS` (15 s) gått sedan senaste omräkning, hämtas en
+  helt ny rutt (`rerouteNavigation()`) från nuvarande position.
+
+**Varje annonsering** kombinerar instruktion + klockriktning + kvarvarande
+avstånd/tid i **en enda** mening (`navProgressSuffix()`), enligt
+uttrycklig instruktion — inte uppdelat i flera aria-live-regioner, för att
+undvika att de triggas nästan samtidigt och avbryter varandra. Klockan
+använder samma `directionToZone()` som resten av appen (fågelväg till
+zonen, relativ kompassriktning om aktiverad) men **utan** väderstrecket
+(`.split(',')[0]`) — bara "Klockan 5.", inte "Klockan 5, syd-sydost." som
+zonlistan. Tiden är avrundad till hela minuter ("cirka X minuter"), samma
+princip som Cykling/Gång-filtrens sentence — inte den exakta
+sekundprecisionen `formatDurationSpoken()` annars använder, eftersom det
+redan bara är en takt-baserad uppskattning.
+
+**Stänger av sig själv** vid `showList()`/`showDetail()` (ny zon)/
+`showProfile()`/`showPlayerDetail()`/`showMedals()` — alla anropar
+`stopNavigation()` direkt. Den vanliga automatiska "närmsta zon"-
+aviseringen i `fetchNearbyZones()` stängs också av helt medan navigering
+pågår (`isAuto&&!navActive`) så de två aldrig konkurrerar om samma
+aria-live-kanal.
+
+**Ej verifierat med riktig GPS ännu** — Playwrights geolocation-emulering
+hänger i den här sandbox-miljön, så hela framstegsspårningen är bara
+verifierad mot riktiga OSRM-svar i en fristående Node-testfil (rätt
+meningar för namngivna/namnlösa steg, korrekt avvikelsedetektering,
+korrekt `SnapTooFar`-avvisning), inte mot en faktisk gående testare. Bör
+testas live av användaren efter driftsättning.
 
 ### Rörelse
 
