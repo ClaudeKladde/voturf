@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 11:45</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 21:59</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -2970,7 +2970,7 @@
       }
 
       /* 4. TurfTracker — omgångsunika zoner samt personliga rekord/rivaler.
-         Separat värd (turf.thorminate.com), inget att göra med Turfs egen
+         Separat värd (turftracker.se), inget att göra med Turfs egen
          hastighetsgräns, så ingen sleep() behövs innan detta anrop. */
       if(isOpen()&&savedUsername){
         const ttData=await fetchTurfTrackerStats(savedUsername);
@@ -3002,14 +3002,20 @@
     }
   }
 
-  /* TurfTracker (turf.thorminate.com) — separat värd, egen CORS-öppna API,
+  /* TurfTracker (turftracker.se) — separat värd, egen CORS-öppna API,
      ingen koppling till Turfs officiella hastighetsgräns. Ger omgångsunika
      zoner samt några bonusrekord/rivaler som Turfs eget API saknar. Fel
      (nätverk, 404 för okänd spelare osv.) ger tyst null — statistiken visas
-     bara om den finns. */
+     bara om den finns.
+     OBS: gamla domänen turf.thorminate.com omdirigerar numera (301) hit,
+     men omdirigeringssvaret saknar CORS-headers så fetch() misslyckas tyst
+     i webbläsaren om man anropar den gamla domänen — måste anropa
+     turftracker.se direkt. v1 av API:t är fortfarande aktivt (sunset
+     tidigast 2027-08-01) — v2 finns men har tagit bort round_stats helt,
+     så vi stannar medvetet på v1. */
   async function fetchTurfTrackerStats(username){
     try{
-      const r=await fetch(`https://turf.thorminate.com/api/v1/turfer/${encodeURIComponent(username)}`);
+      const r=await fetch(`https://turftracker.se/api/v1/turfer/${encodeURIComponent(username)}`);
       if(!r.ok) return null;
       return await r.json();
     }catch(e){ return null; }

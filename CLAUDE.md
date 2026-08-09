@@ -260,12 +260,24 @@ högsta matchande ID.
 Turfs eget API exponerar bara **livstids**-antalet unikazoner
 (`u.uniqueZonesTaken`) — inget fält för hur många av dessa som är unika
 **denna omgång**. Tredjepartssajten **TurfTracker**
-(`turf.thorminate.com/api`) arkiverar Turfs råa take-flöde (som Turfs eget
+(`turftracker.se/api`) arkiverar Turfs råa take-flöde (som Turfs eget
 API bara exponerar ett rullande 30-minutersfönster av) och räknar fram detta
 själv. Endpointen `GET /api/v1/turfer/{namn}` är CORS-öppen
 (`Access-Control-Allow-Origin: *`), kräver ingen nyckel och har en generös
 gräns (60 anrop/minut) — helt separat värd och helt separat från Turfs egen
 hastighetsgräns, så inget `sleep()` behövs runt detta anrop.
+
+**Domänbyte (upptäckt och fixat i efterhand):** tjänsten hette ursprungligen
+`turf.thorminate.com` men flyttade till `turftracker.se`. Den gamla domänen
+omdirigerar (301) till den nya, men omdirigeringssvaret saknar
+CORS-headers — `fetch()` i webbläsaren misslyckas då tyst mitt i
+redirect-kedjan (samma "fails silently"-design som alla andra fel för den
+här integrationen, se nedan), även om ett verktyg som `curl` som inte bryr
+sig om CORS ser ut att fungera fint. Lösningen är att anropa
+`turftracker.se` direkt, inte den gamla domänen. En v2 av API:t finns
+(`Link`-header med `rel="successor-version"`) men har tagit bort hela
+`round_stats`-delen — v1 används därför medvetet kvar, garanterat aktivt
+till åtminstone 2027-08-01 enligt `Sunset`-headern.
 
 **Vad det löser:** `round_stats.zones` (omgångsunika zoner, dvs. distinkta
 zoner tagna denna omgång oavsett historik) visas som en ny rad **direkt
@@ -333,8 +345,9 @@ ny spelare utan `longest_session` än) döljs bara den raden
 `aria-live`-avbrott, appen fungerar precis som innan TurfTracker fanns.
 
 **Ej verifierat i den riktiga appen ännu** (bara testat med `curl` från
-sandboxmiljön mot `turf.thorminate.com`) — bör testas live av användaren
-efter driftsättning.
+sandboxmiljön mot `turftracker.se`, plus headeranalys som förklarar varför
+den gamla domänen tystnade i webbläsaren — se domänbytet ovan) — bör
+testas live av användaren efter driftsättning.
 
 ### Centrala hjälpfunktioner
 
