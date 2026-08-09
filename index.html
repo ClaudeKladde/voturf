@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 23:01</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 23:18</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -3700,7 +3700,15 @@
       /* Trying an alternate public Overpass mirror — the main overpass-api.de
          instance gave a generic "Load failed" network error (CORS/connectivity),
          not an HTTP error from a bad query, so the query itself isn't the problem. */
-      const r=await fetch('https://overpass.kumi.systems/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query)});
+      /* Client-side timeout tied to the current refresh cadence (min 10 s) —
+         confirmed by direct testing that this mirror can hang for minutes
+         with no response at all. Without a timeout, a single hung request
+         keeps obstacleFetchInFlight=true and silently blocks every retry
+         from every following automatic update cycle, so a stale crossing
+         verdict (computed from an old position) can keep being read aloud
+         long after the user has actually moved past it. */
+      const timeoutMs=Math.max(refreshInterval*1000,10000);
+      const r=await fetch('https://overpass.kumi.systems/api/interpreter',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'data='+encodeURIComponent(query),signal:AbortSignal.timeout(timeoutMs)});
       if(!r.ok) throw new Error(`HTTP ${r.status}`);
       const data=await r.json();
       if(data.remark) throw new Error(data.remark);
@@ -3720,6 +3728,12 @@
       }
       if(activeVisning==='advancedObstacle') renderZoneSlice();
     }catch(e){
+      /* Discard any stale ways/verdicts on every failure (including a
+         timeout) instead of leaving them in place — showing no obstacle
+         sentence at all is safer than serving a crossing verdict computed
+         from a position the user has since moved away from. */
+      obstacleWays=[];
+      obstacleCache=new Map();
       if(!obstacleDiagnosticShown){
         obstacleDiagnosticShown=true;
         const stEl=document.getElementById('advanced-status');
@@ -3729,6 +3743,7 @@
         const detail=e&&e.message?` (${e.message})`:'';
         if(stEl){stEl.textContent=t.obstacleStatusFail+detail;setTimeout(()=>{stEl.textContent='';},10000);}
       }
+      if(activeVisning==='advancedObstacle') renderZoneSlice();
     }finally{
       obstacleFetchInFlight=false;
     }

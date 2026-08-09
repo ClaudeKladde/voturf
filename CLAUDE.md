@@ -510,6 +510,26 @@ session om hämtningen lyckades. **Känd begränsning:** en bro eller tunnel vid
 korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte
 skiljer på "korsar" och "går över/under".
 
+**Fixad bugg — inaktuellt hinderbesked kvarstod efter att användaren gått
+vidare:** rapporterat av användaren efter en riktig gångtur ("vatten
+mellan"/"motorväg" fortsatte sägas långt efter att zonen och hindret
+passerats). Verifierat med upprepade riktiga anrop mot
+`overpass.kumi.systems` att tjänsten kan hänga i flera minuter utan svar
+(inget svar alls på över 2 minuter i ett test). `fetch()`-anropet saknade
+en egen timeout, och eftersom `obstacleFetchInFlight` blockerar alla nya
+försök tills det pågående anropet är klart, frös hela funktionen — varje
+efterföljande automatisk uppdateringscykel avbröts tyst av samma vakt,
+utan att någonsin göra ett nytt försök. Vid ett faktiskt fel (nätverk,
+timeout) rensades dessutom varken `obstacleWays` eller `obstacleCache`,
+så den gamla, positionsberoende bedömningen låg kvar orörd. Fix: anropet
+har nu en klientsidig timeout via `AbortSignal.timeout()`, satt till den
+aktuella uppdateringsfrekvensen (`refreshInterval`, samma reglage som
+Rörelse-profilerna styr) men lägst 10 sekunder — ett hängande anrop kan
+alltså aldrig blockera mer än en cykel. Vid **varje** misslyckande
+(inklusive timeout) töms nu både `obstacleWays` och `obstacleCache`
+istället för att lämnas orörda, så appen tystnar (ingen hindermening
+alls) hellre än att läsa upp inaktuell information.
+
 **Cykling** — till skillnad från de två Visning-alternativen ovan (som bara
 berikar text på den redan fågelvägs-sorterade listan) **sorterar om**
 listan efter faktiskt cykelruttavstånd. `getFilteredZones()` gör ingen egen
