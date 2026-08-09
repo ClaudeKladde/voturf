@@ -275,9 +275,11 @@ redirect-kedjan (samma "fails silently"-design som alla andra fel för den
 här integrationen, se nedan), även om ett verktyg som `curl` som inte bryr
 sig om CORS ser ut att fungera fint. Lösningen är att anropa
 `turftracker.se` direkt, inte den gamla domänen. En v2 av API:t finns
-(`Link`-header med `rel="successor-version"`) men har tagit bort hela
-`round_stats`-delen — v1 används därför medvetet kvar, garanterat aktivt
-till åtminstone 2027-08-01 enligt `Sunset`-headern.
+(`Link`-header med `rel="successor-version"`) och flyttade `round_stats`
+till en egen `/round`-underendpoint istället för att ta bort den helt (en
+tidigare felaktig uppfattning i det här dokumentet) — v1 används ändå
+medvetet kvar för denna del eftersom den ger allt i ett enda anrop,
+garanterat aktivt till åtminstone 2027-08-01 enligt `Sunset`-headern.
 
 **Vad det löser:** `round_stats.zones` (omgångsunika zoner, dvs. distinkta
 zoner tagna denna omgång oavsett historik) visas som en ny rad **direkt
@@ -285,6 +287,37 @@ under** "Unika zoner tagna" (`pi-round-unique`/`pdi-round-unique`), på både
 egen profil och vänners profilsida. `round_stats.takeovers` (antalet
 tagningar denna omgång) visas som nästa rad
 (`pi-round-takeovers`/`pdi-round-takeovers`).
+
+### TurfTracker v2 — extra spelarstatistik (Aktivitetsmönster, Senaste sessionen, Områden)
+
+Utöver v1-anropet ovan görs tre parallella anrop mot v2-endpoints, samma
+tysta-null-vid-fel-princip. Byggd efter att användaren frågade om
+`turftracker.se/api` (v2-dokumentationen) kunde ge fler "roliga" tal —
+scope medvetet begränsat till spelarspecifik data
+("kör bara på spelare just nu, utforskar mer framöver"); globala/
+platsbundna v2-resurser (Leaderboards, Dynastier, Tournaments, per-zon-
+och områdes-historik) är avsiktligt **inte** byggda ännu.
+
+- **`GET /api/v2/turfer/{namn}/activity`** ger `hourly` (gles array,
+  `{hour, takes}`, omgångsscopad enligt `since`) och `daily` (hela
+  historiken). `peakActivityHour()` hittar timmen med flest tagningar och
+  visas som **Mest aktiv timme** (`pi-peak-hour`/`pdi-peak-hour`).
+- **`GET /api/v2/turfer/{namn}/sessions?date=X&to=Y&limit=1`** ger senaste
+  sessionen inom intervallet. **Fallgrop:** `date` är den **äldre**
+  gränsen och `to` den **senare** — motsatt vad namnen först antyder
+  (testat och bekräftat via ett riktigt felsvar: "to must be a later date
+  than date."). Frågas med `date`=29 dagar sedan, `to`=idag. Visas som
+  **Senaste sessionen** (`pi-latest-session`/`pdi-latest-session`):
+  datum, antal tagningar, sessionslängd (`formatDurationSpoken()`) och
+  distans (`distStr()`). En session kan vara noll sekunder/noll meter
+  (en enda tagning) — visas då bara med de siffrorna, ingen specialhantering.
+- **`GET /api/v2/turfer/{namn}/areas?limit=3`** ger de områden spelaren
+  tagit flest zoner i denna omgång, sorterat. Visas som **Områden denna
+  omgång** (`pi-top-areas`/`pdi-top-areas`), en kommaseparerad lista
+  `områdesnamn (antal tagningar)`.
+
+Alla tre fält döljs individuellt (`hidden`) om data saknas, precis som
+`records`/`rivals`-fälten ovan — inget separat felmeddelande.
 
 ### Nya unikazoner denna omgång (Metric B) — egen baseline/delta via Turfs /rounds
 

@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 21:59</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 22:53</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -718,6 +718,9 @@
       <li id="pi-favourite-area" hidden>—</li>
       <li id="pi-rival-steals" hidden>—</li>
       <li id="pi-rival-victims" hidden>—</li>
+      <li id="pi-peak-hour" hidden>—</li>
+      <li id="pi-latest-session" hidden>—</li>
+      <li id="pi-top-areas" hidden>—</li>
     </ul>
 
     <!-- Unique zones section — at the very end of profile page -->
@@ -795,6 +798,9 @@
       <li id="pdi-favourite-area" hidden>—</li>
       <li id="pdi-rival-steals" hidden>—</li>
       <li id="pdi-rival-victims" hidden>—</li>
+      <li id="pdi-peak-hour" hidden>—</li>
+      <li id="pdi-latest-session" hidden>—</li>
+      <li id="pdi-top-areas" hidden>—</li>
     </ul>
     <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
@@ -1113,6 +1119,10 @@
       piFavouriteArea:(areaName,takes)=>`Favoritområde: ${areaName} (${takes} tagningar)`,
       piRivalSteals:(name,count)=>`Stjäl mest från dig: ${name} (${count} ggr)`,
       piRivalVictims:(name,count)=>`Du tar oftast zoner från: ${name} (${count} ggr)`,
+      piPeakHour:(hour)=>`Mest aktiv timme: klockan ${hour}`,
+      piLatestSession:(date,takeovers,durationSpoken,distance)=>`Senaste sessionen: ${date}, ${takeovers} tagning${takeovers===1?'':'ar'} på ${durationSpoken}. ${distance}`,
+      piTopAreas:(list)=>`Områden denna omgång: ${list}`,
+      piTopAreaEntry:(areaName,takeovers)=>`${areaName} (${takeovers} tagningar)`,
       myZone:'Din zon',
       intervalLabel:'Uppdateringsfrekvens:',
       intervalAria:(s)=>`Uppdateringsfrekvens: ${s} sekunder.`,
@@ -1416,6 +1426,10 @@
       piFavouriteArea:(areaName,takes)=>`Favourite area: ${areaName} (${takes} takes)`,
       piRivalSteals:(name,count)=>`Steals most from you: ${name} (${count} times)`,
       piRivalVictims:(name,count)=>`You most often take zones from: ${name} (${count} times)`,
+      piPeakHour:(hour)=>`Most active hour: ${hour}:00`,
+      piLatestSession:(date,takeovers,durationSpoken,distance)=>`Latest session: ${date}, ${takeovers} takeover${takeovers===1?'':'s'} in ${durationSpoken}. ${distance}`,
+      piTopAreas:(list)=>`Areas this round: ${list}`,
+      piTopAreaEntry:(areaName,takeovers)=>`${areaName} (${takeovers} takeovers)`,
       myZone:'Your zone',
       intervalLabel:'Update frequency:',
       intervalAria:(s)=>`Update frequency: ${s} seconds.`,
@@ -2448,7 +2462,7 @@
     document.getElementById('player-detail-heading').textContent=player.name;
     ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
       .forEach(id=>{document.getElementById(id).textContent='—'});
-    ['pdi-round-unique','pdi-round-takeovers','pdi-round-new-unique','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims']
+    ['pdi-round-unique','pdi-round-takeovers','pdi-round-new-unique','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims','pdi-peak-hour','pdi-latest-session','pdi-top-areas']
       .forEach(id=>{document.getElementById(id).hidden=true});
     document.getElementById('player-owned-zones-heading').textContent='—';
     document.getElementById('player-owned-zones-list').innerHTML='';
@@ -2975,6 +2989,12 @@
       if(isOpen()&&savedUsername){
         const ttData=await fetchTurfTrackerStats(savedUsername);
         if(isOpen()) renderTurfTrackerStats('pi',ttData);
+        const [activity,session,areas]=await Promise.all([
+          fetchTurfTrackerActivity(savedUsername),
+          fetchTurfTrackerLatestSession(savedUsername),
+          fetchTurfTrackerAreas(savedUsername)
+        ]);
+        if(isOpen()) renderTurfTrackerExtras('pi',{peak:peakActivityHour(activity),session,areas});
       }
     } finally {
       profileRefreshInFlight=false;
@@ -3011,8 +3031,10 @@
      men omdirigeringssvaret saknar CORS-headers så fetch() misslyckas tyst
      i webbläsaren om man anropar den gamla domänen — måste anropa
      turftracker.se direkt. v1 av API:t är fortfarande aktivt (sunset
-     tidigast 2027-08-01) — v2 finns men har tagit bort round_stats helt,
-     så vi stannar medvetet på v1. */
+     tidigast 2027-08-01) — v2 finns, och flyttade round_stats till en
+     separat /round-endpoint istället för att ta bort det, men vi stannar
+     medvetet på v1 för denna del eftersom den redan ger allt vi behöver i
+     ett enda anrop. */
   async function fetchTurfTrackerStats(username){
     try{
       const r=await fetch(`https://turftracker.se/api/v1/turfer/${encodeURIComponent(username)}`);
@@ -3024,6 +3046,47 @@
   function formatApiDate(iso){
     if(!iso) return '';
     try{ return new Date(iso).toLocaleDateString(lang==='sv'?'sv-SE':'en-GB'); }catch(e){ return ''; }
+  }
+
+  /* TurfTracker v2 — extra "roliga" spelarstatistik som inte finns i v1:
+     mest aktiva timme, senaste sessionen, samt vilka områden som tagits
+     mest denna omgång. Tre separata v2-endpoints, samma tysta-null-vid-fel-
+     princip som ovan. */
+  function isoDateDaysAgo(days){
+    const d=new Date();
+    d.setUTCDate(d.getUTCDate()-days);
+    return d.toISOString().slice(0,10);
+  }
+  async function fetchTurfTrackerActivity(username){
+    try{
+      const r=await fetch(`https://turftracker.se/api/v2/turfer/${encodeURIComponent(username)}/activity`);
+      if(!r.ok) return null;
+      return await r.json();
+    }catch(e){ return null; }
+  }
+  async function fetchTurfTrackerLatestSession(username){
+    try{
+      const date=isoDateDaysAgo(29), to=isoDateDaysAgo(0);
+      const r=await fetch(`https://turftracker.se/api/v2/turfer/${encodeURIComponent(username)}/sessions?date=${date}&to=${to}&limit=1`);
+      if(!r.ok) return null;
+      const data=await r.json();
+      return (data&&data.sessions&&data.sessions[0])||null;
+    }catch(e){ return null; }
+  }
+  async function fetchTurfTrackerAreas(username){
+    try{
+      const r=await fetch(`https://turftracker.se/api/v2/turfer/${encodeURIComponent(username)}/areas?limit=3`);
+      if(!r.ok) return null;
+      const data=await r.json();
+      return (data&&data.areas)||null;
+    }catch(e){ return null; }
+  }
+  function peakActivityHour(activity){
+    const hourly=activity&&activity.hourly;
+    if(!hourly||!hourly.length) return null;
+    let best=hourly[0];
+    for(const h of hourly){ if(h.takes>best.takes) best=h; }
+    return best;
   }
 
   function renderTurfTrackerStats(prefix,data){
@@ -3051,6 +3114,25 @@
     set(`${prefix}-rival-steals`, steals?t.piRivalSteals(steals.user_name,steals.count):'', !!steals);
     const victims=data&&data.rivals&&data.rivals.your_victims&&data.rivals.your_victims[0];
     set(`${prefix}-rival-victims`, victims?t.piRivalVictims(victims.user_name,victims.count):'', !!victims);
+  }
+
+  function renderTurfTrackerExtras(prefix,extras){
+    const set=(id,text,visible)=>{
+      const el=document.getElementById(id);
+      if(!el) return;
+      if(visible){ el.textContent=text; el.hidden=false; }
+      else { el.hidden=true; }
+    };
+    const peak=extras&&extras.peak;
+    set(`${prefix}-peak-hour`, peak?t.piPeakHour(peak.hour):'', !!peak);
+    const s=extras&&extras.session;
+    set(`${prefix}-latest-session`,
+      s?t.piLatestSession(formatApiDate(s.started_at),s.takeovers,formatDurationSpoken(s.duration_seconds),distStr((s.distance_meters||0)/1000)):'',
+      !!s);
+    const areas=extras&&extras.areas;
+    set(`${prefix}-top-areas`,
+      (areas&&areas.length)?t.piTopAreas(areas.map(a=>t.piTopAreaEntry(a.area,a.takeovers)).join(', ')):'',
+      !!(areas&&areas.length));
   }
 
 
@@ -3337,6 +3419,12 @@
          Separat värd, ingen koppling till Turfs egen hastighetsgräns. */
       const ttData=await fetchTurfTrackerStats(playerName);
       if(playerDetailCurrentUser?.name===u.name) renderTurfTrackerStats('pdi',ttData);
+      const [activity,session,areas]=await Promise.all([
+        fetchTurfTrackerActivity(playerName),
+        fetchTurfTrackerLatestSession(playerName),
+        fetchTurfTrackerAreas(playerName)
+      ]);
+      if(playerDetailCurrentUser?.name===u.name) renderTurfTrackerExtras('pdi',{peak:peakActivityHour(activity),session,areas});
     }catch(e){
       document.getElementById('player-detail-heading').textContent=t.playerLoadError;
     }
