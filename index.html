@@ -274,7 +274,7 @@
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
           <li id="tip-7">Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
-          <li id="tip-7a">Visning-knappen öppnar en meny med fem alternativ, bara ett i taget: Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.</li>
+          <li id="tip-7a">Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.</li>
           <li id="tip-7b">Sök zoner under Visning låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
           <li id="tip-7c">Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7d">Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
@@ -372,6 +372,7 @@
             <span id="btn-visning-label">Visning</span>
           </button>
           <ul id="visning-menu" role="listbox" aria-label="Välj visning" hidden>
+            <li><button role="option" data-visning="none"              aria-checked="true">Standard</button></li>
             <li><button role="option" data-visning="walking"          aria-checked="false">Gång</button></li>
             <li><button role="option" data-visning="cycling"          aria-checked="false">Cykling</button></li>
             <li><button role="option" data-visning="advanced"         aria-checked="false">Visning med höjd</button></li>
@@ -613,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-02 14:05</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 11:45</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -849,7 +850,7 @@
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
         'Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
-        'Visning-knappen öppnar en meny med fem alternativ, bara ett i taget: Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.',
+        'Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.',
         'Sök zoner under Visning låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
         'Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
@@ -1152,7 +1153,7 @@
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
         'The Filter button opens a menu with three checkboxes: Available, Blocked, and Unique zones. They combine freely, for example Available and Unique zones at the same time. No box checked shows all zones. Unique zones requires you to have uploaded your unique zones list under My profile.',
-        'The View button opens a menu with five options, one at a time: Walking, Cycling, View with height, View with height and obstacles, and Zone search. View is completely independent from the Filter checkboxes and combines freely with them, for example Unique zones together with Cycling.',
+        'The View button opens a menu with six options, one at a time: Standard, Walking, Cycling, View with height, View with height and obstacles, and Zone search. Standard returns to the normal view. View is completely independent from the Filter checkboxes and combines freely with them, for example Unique zones together with Cycling.',
         'Zone search under View lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
         'View with height works like the standard view but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'View with height and obstacles works like the standard view but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
@@ -2739,7 +2740,7 @@
     updateFilterButtonUI();
     /* Visning menu — option texts */
     const visningOpts=visningMenu.querySelectorAll('button[data-visning]');
-    const visningNames={walking:t.filterWalking,cycling:t.filterCycling,advanced:t.filterAdvanced,advancedObstacle:t.filterAdvancedObstacle,search:t.filterSearch};
+    const visningNames={none:t.visningStandard,walking:t.filterWalking,cycling:t.filterCycling,advanced:t.filterAdvanced,advancedObstacle:t.filterAdvancedObstacle,search:t.filterSearch};
     visningOpts.forEach(b=>{b.textContent=visningNames[b.dataset.visning];});
     updateVisningLabel();
     updateMovementMenuUI();
@@ -3412,38 +3413,40 @@
   function updateVisningLabel(){
     btnVisningLabel.textContent=t.visningBtnLabel;
     btnVisning.setAttribute('aria-label',t.visningBtnAria(visningLabel()));
-    visningMenu.querySelectorAll('button[data-visning]').forEach(b=>{b.setAttribute('aria-checked',b.dataset.visning===activeVisning?'true':'false')});
+    visningMenu.querySelectorAll('button[data-visning]').forEach(b=>{
+      const val=b.dataset.visning==='none'?null:b.dataset.visning;
+      b.setAttribute('aria-checked',val===activeVisning?'true':'false');
+    });
   }
   btnVisning.addEventListener('click',()=>{
     const open=!visningMenu.hidden;visningMenu.hidden=open;btnVisning.setAttribute('aria-expanded',String(!open));
     if(!open){
-      const cur=activeVisning?visningMenu.querySelector(`button[data-visning="${activeVisning}"]`):null;
-      (cur||visningMenu.querySelector('button[data-visning]')).focus();
+      const curSelector=activeVisning?`button[data-visning="${activeVisning}"]`:'button[data-visning="none"]';
+      (visningMenu.querySelector(curSelector)||visningMenu.querySelector('button[data-visning]')).focus();
     }
   });
   document.addEventListener('click',e=>{if(!e.target.closest('#visning-wrap')){visningMenu.hidden=true;btnVisning.setAttribute('aria-expanded','false');}});
   visningMenu.querySelectorAll('button[data-visning]').forEach(btn=>{
     btn.addEventListener('click',()=>{
-      const chosen=btn.dataset.visning;
+      /* "Standard" (data-visning="none") är ett eget, explicit alternativ
+         för att återgå till standardvisning — tydligare än att behöva
+         komma ihåg att klicka på det redan aktiva alternativet igen. */
+      const chosen=btn.dataset.visning==='none'?null:btn.dataset.visning;
       const wasSearch=activeVisning==='search';
-      /* Klickar man på det redan aktiva alternativet stängs det av,
-         tillbaka till standardvisning — ingen separat "Standard"-rad
-         behövs i menyn. */
-      const newVisning=(chosen===activeVisning)?null:chosen;
-      activeVisning=newVisning;
+      activeVisning=chosen;
       visningMenu.hidden=true;
       btnVisning.setAttribute('aria-expanded','false');
       btnVisning.focus();
       updateVisningLabel();
       /* Handle search mode transitions */
-      if(newVisning==='search'){
+      if(chosen==='search'){
         activateSearchMode();
       } else {
         deactivateSearchMode(wasSearch);
       }
       /* Cykling/Gång startar med en mindre pool — varje kandidat kostar en
          ruttberäkning, så färre än den vanliga sidstorleken som standard. */
-      shownCount=(newVisning==='cycling'||newVisning==='walking')?CYCLING_POOL_SIZE:INITIAL_MAX;
+      shownCount=(chosen==='cycling'||chosen==='walking')?CYCLING_POOL_SIZE:INITIAL_MAX;
       renderZoneSlice();
     });
   });

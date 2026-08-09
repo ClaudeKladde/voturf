@@ -394,12 +394,15 @@ Cykling. Uppdelat i två oberoende tillstånd efter användarönskemål:
   krav ovanpå blockeringsvalet (`getFilteredZones()`), så "Tillgängliga +
   Unikazoner" ger just tillgängliga zoner som också är unika. Ingen egen
   kryssruta för "Alla zoner" — ingen ikryssad ruta betyder implicit allt.
-- **Visning** (`activeVisning`, sträng eller `null`) — Gång, Cykling,
-  Avancerad visning med höjd, Avancerat läge med hinder, Sök zoner. Samma
-  enval-lista-mönster (`role="listbox"`, `aria-checked`) som Filter hade
-  förut. Klick på det redan aktiva alternativet stänger av det (tillbaka
-  till `null`/standardvisning) — ingen separat "Standard"-rad behövs i
-  menyn för det.
+- **Visning** (`activeVisning`, sträng eller `null`) — Standard, Gång,
+  Cykling, Avancerad visning med höjd, Avancerat läge med hinder, Sök
+  zoner. Samma enval-lista-mönster (`role="listbox"`, `aria-checked`) som
+  Filter hade förut. **Standard** (`data-visning="none"` i HTML, mappas
+  till `activeVisning=null` i JS) är en egen, explicit rad längst upp i
+  menyn för att återgå till normal visning — testades först utan denna rad
+  (klick på redan aktivt alternativ skulle stänga av det), men det visade
+  sig inte vara tillräckligt tydligt/påtagligt i praktiken, så en riktig
+  Standard-rad lades till istället.
 
 De två är helt oberoende av varandra och kombineras fritt — det var hela
 poängen med uppdelningen. Sök zoner (`activeVisning==='search'`) stänger
