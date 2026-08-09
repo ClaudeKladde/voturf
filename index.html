@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 22:53</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 23:01</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -966,12 +966,12 @@
       geoErr2:'Position ej tillgänglig. Kontrollera platsinställningar.',
       geoErr3:'Navigering tog för lång tid. Försöker igen…',
       geoErrUnknown:'Navigeringsfel.',geoNotSupported:'Navigering stöds inte av denna webbläsare.',
-      unowned:'Ej ägd',ownedBy:(n)=>`Ägs av ${n}.`,
+      unowned:'Ej ägd',ownedBy:(n)=>`Ägare ${n}.`,
       available:'Tillgänglig',neverTaken:'Neutral zon',
       blocked:(d)=>`Blockerad — ${d} kvar`,
-      blockedBy:(name,d)=>`Blockerad av ${name} — ${d} kvar.`,
+      blockedBy:(name,d)=>`Blockerad ${name} — ${d} kvar.`,
       blockedSpoken:(d)=>`Blockerad i ${d}.`,
-      blockedBySpoken:(name,d)=>`Blockerad av ${name} i ${d}.`,
+      blockedBySpoken:(name,d)=>`Blockerad ${name} i ${d}.`,
       checkingBlock:'Kontrollerar blocktid…',
       takenAgo:(d)=>`Tagen ${d} sedan`,agoSuffix:'sedan',
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
@@ -1273,12 +1273,12 @@
       geoErr2:'Position unavailable. Check your device location settings.',
       geoErr3:'Navigation timed out. Retrying…',
       geoErrUnknown:'Navigation error.',geoNotSupported:'Navigation not supported by this browser.',
-      unowned:'Unowned',ownedBy:(n)=>`Owned by ${n}.`,
+      unowned:'Unowned',ownedBy:(n)=>`Owner ${n}.`,
       available:'Available',neverTaken:'Neutral zone',
       blocked:(d)=>`Blocked — ${d} remaining`,
-      blockedBy:(name,d)=>`Blocked by ${name} — ${d} remaining.`,
+      blockedBy:(name,d)=>`Blocked ${name} — ${d} remaining.`,
       blockedSpoken:(d)=>`Blocked for ${d}.`,
-      blockedBySpoken:(name,d)=>`Blocked by ${name} for ${d}.`,
+      blockedBySpoken:(name,d)=>`Blocked ${name} for ${d}.`,
       checkingBlock:'Checking block time…',
       takenAgo:(d)=>`Taken ${d} ago`,agoSuffix:'ago',
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
@@ -5316,7 +5316,7 @@
         const z=firstCard?._zone;
         const ownLabel=firstCard?.querySelector('.zone-btn')?.getAttribute('aria-label');
         if(z&&ownLabel){
-          const prefix=lang==='sv'?'Närmsta zon. ':'Nearest zone. ';
+          const prefix=lang==='sv'?'Närmsta. ':'Nearest. ';
           const announcementText=`${prefix}${ownLabel}`;
           /* Voice Mode — Speech Synthesis */
           if(isMonitorActive()) announceZone(z,announcementText);
