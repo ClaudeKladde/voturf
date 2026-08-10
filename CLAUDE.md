@@ -463,9 +463,24 @@ jämbördiga Visning-alternativ snarare än ett särskilt "avancerat läge").
 Interna nycklar (`'advanced'`/`'advancedObstacle'`) är oförändrade — bara
 den svenska/engelska visningstexten är ny.
 
-**Sök zoner** använder Nominatim för adressgeokodning, pausar automatiska
-uppdateringar, rensar zonlistan, och visar upp till 5 adressförslag som knappar.
-Avstånd och riktning beräknas relativt adressen, inte GPS-positionen.
+**Sök zoner** söker i samma textfält på **både** en adress (Nominatim,
+geokodning) **och** ett exakt zonnamn (Turfs eget `/zones`-API,
+`{"name":"..."}` — dokumenterat och verifierat att detta stödjer exakt namn,
+skiftlägesokänsligt, men **ingen** delsträngsmatchning: `"platt"` ger inget
+resultat, bara `"plattan"` gör det). Båda sökningarna körs alltid parallellt
+vid varje sökning (`doAddressSearch()`); matchar sökningen både en zon och
+en adress visas båda i samma resultatlista, zonträffar först, med
+`t.searchZoneResultLabel(namn,region)` (`"Zon: {namn} — {region}"`) som
+prefix för att skilja dem från adressresultaten. Ett klick på ett zonresultat
+återanvänder exakt samma `loadZonesForLocation(lat,lon,namn)` som ett
+adressresultat — zonens egna koordinater blir bara den nya "centrumpunkten"
+istället för en geokodad adress, ingen separat kodväg. `loadZonesForLocation`
+kör numera via `fetchJsonWithRetry` (var tidigare ett rått `fetch()`-anrop)
+eftersom zonnamnsökningen redan gör ett Turf-anrop strax innan i samma
+sökflöde — retry-vid-hastighetsgräns-skyddet behövs nu på riktigt om
+användaren hinner klicka ett resultat snabbt.
+Pausar automatiska uppdateringar, rensar zonlistan under sökningen.
+Avstånd och riktning beräknas relativt den valda platsen, inte GPS-positionen.
 **Kombineras i den här versionen bara med Filter** — Cykling/Gång/Höjd-
 visningarna stängs av om man väljer Sök zoner (och tvärtom), eftersom de
 skulle kräva att cykel-/gångdatan räknades från adressen istället för GPS-

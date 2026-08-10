@@ -275,7 +275,7 @@
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
           <li id="tip-7">Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
           <li id="tip-7a">Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.</li>
-          <li id="tip-7b">Sök zoner under Visning låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
+          <li id="tip-7b">Sök zoner under Visning låter dig söka på en adress eller ett exakt zonnamn och se närmsta zoner relativt den platsen. Skriv adressen med stad, eller zonnamnet exakt, för bästa resultat. Matchar sökningen både en adress och en zon visas båda bland förslagen. Välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [namnet]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
           <li id="tip-7c">Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7d">Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
           <li id="tip-7e">Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.</li>
@@ -396,12 +396,12 @@
         <div class="settings-control" style="gap:.4rem">
           <input type="text" id="search-address-input"
             autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-            placeholder="Adress, stad — t.ex. Drottninggatan 1, Stockholm"
-            aria-label="Ange adress att söka zoner kring"
+            placeholder="Adress eller zonnamn — t.ex. Drottninggatan 1, Stockholm eller Plattan"
+            aria-label="Ange adress eller zonnamn att söka zoner kring"
             style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.35rem .5rem;"/>
           <button id="btn-address-search"
             style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.3rem .75rem;cursor:pointer;background:transparent;color:var(--accent2);white-space:nowrap;"
-            aria-label="Sök zoner vid angiven adress">
+            aria-label="Sök zoner vid angiven adress eller zonnamn">
             Sök
           </button>
         </div>
@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-09 23:18</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-10 14:12</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -857,7 +857,7 @@
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
         'Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
         'Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.',
-        'Sök zoner under Visning låter dig söka på en adress och se närmsta zoner relativt den adressen. Skriv adressen med stad för bästa resultat, välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [adressnamn]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
+        'Sök zoner under Visning låter dig söka på en adress eller ett exakt zonnamn och se närmsta zoner relativt den platsen. Skriv adressen med stad, eller zonnamnet exakt, för bästa resultat. Matchar sökningen både en adress och en zon visas båda bland förslagen. Välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [namnet]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
         'Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
         'Cykling tar de 15 närmaste zonerna och sorterar om dem efter faktiskt cykelavstånd istället för fågelvägen, med höjdskillnad kvar men utan hinderkollen (en riktig cykelrutt kan ju redan inte gå genom vatten eller en motorväg). Zoner utan hittad cykelrutt taggas "Tveksam cykling" och hamnar sist istället för att döljas. Cykeldata hämtas från en extern tjänst (routing.openstreetmap.de) — appen meddelar en gång per session om hämtningen lyckades.',
@@ -1024,13 +1024,14 @@
       navModifierSlightLeft:'Sväng svagt vänster',navModifierSlightRight:'Sväng svagt höger',
       navModifierStraight:'Fortsätt rakt fram',navModifierUturn:'Vänd om',
       navProgress:(clock,dist,mins,name)=>`${clock?clock+'. ':''}${dist} m kvar, cirka ${mins} minut${mins===1?'':'er'} till ${name}.`,
-      searchPlaceholder:'Adress, stad — t.ex. Drottninggatan 1, Stockholm',
-      searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress',
+      searchPlaceholder:'Adress eller zonnamn — t.ex. Drottninggatan 1, Stockholm eller Plattan',
+      searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress eller zonnamn',
       searchHeading:'Sök zoner',searchResultsHeading:'Sökresultat',
       searchLoading:'Söker…',
-      searchNoResults:'Inga adresser hittades. Försök med en mer specifik adress.',
+      searchNoResults:'Ingen adress eller zon med det namnet hittades. Zonnamn måste anges exakt.',
       searchError:'Söktjänsten svarar inte. Kontrollera internetanslutningen och försök igen.',
-      searchSelectPrompt:'Välj en adress:',
+      searchSelectPrompt:'Välj ett sökresultat:',
+      searchZoneResultLabel:(name,region)=>`Zon: ${name}${region?` — ${region}`:''}`,
       backToLive:'↩ Återgå till live-läge',
       backToLiveAria:'Återgå till live-läge. Återupptar automatiska uppdateringar från din GPS-position.',
       uniqueZonesReminder:'Kom ihåg att uppdatera din lista manuellt regelbundet om du inte aktiverat automatisk hämtning, framför allt efter resor eller intensiva spelperioder.',
@@ -1164,7 +1165,7 @@
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
         'The Filter button opens a menu with three checkboxes: Available, Blocked, and Unique zones. They combine freely, for example Available and Unique zones at the same time. No box checked shows all zones. Unique zones requires you to have uploaded your unique zones list under My profile.',
         'The View button opens a menu with six options, one at a time: Standard, Walking, Cycling, View with height, View with height and obstacles, and Zone search. Standard returns to the normal view. View is completely independent from the Filter checkboxes and combines freely with them, for example Unique zones together with Cycling.',
-        'Zone search under View lets you search by address and see the nearest zones relative to that address. Type the address with the city for the best results, pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [address]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
+        'Zone search under View lets you search by address or by an exact zone name and see the nearest zones relative to that location. Type the address with the city, or the exact zone name, for the best results. If the search matches both an address and a zone, both appear among the suggestions. Pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [name]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
         'View with height works like the standard view but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'View with height and obstacles works like the standard view but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
         'Cycling takes the 15 nearest zones and re-sorts them by actual bike-route distance instead of the straight line, keeping the height difference but dropping the obstacle check (a real bike route can\'t already run through water or a motorway). Zones with no bike route found are tagged "Uncertain cycling" and moved to the end instead of being hidden. Cycling data is fetched from an external service (routing.openstreetmap.de) — the app announces once per session whether the fetch succeeded.',
@@ -1331,13 +1332,14 @@
       navModifierSlightLeft:'Turn slightly left',navModifierSlightRight:'Turn slightly right',
       navModifierStraight:'Continue straight ahead',navModifierUturn:'Make a U-turn',
       navProgress:(clock,dist,mins,name)=>`${clock?clock+'. ':''}${dist} m left, about ${mins} minute${mins===1?'':'s'} to ${name}.`,
-      searchPlaceholder:'Address, city — e.g. King Street 1, London',
-      searchBtn:'Search',searchBtnAria:'Search zones near the given address',
+      searchPlaceholder:'Address or zone name — e.g. King Street 1, London or Plattan',
+      searchBtn:'Search',searchBtnAria:'Search zones near the given address or zone name',
       searchHeading:'Zone search',searchResultsHeading:'Search results',
       searchLoading:'Searching…',
-      searchNoResults:'No addresses found. Try a more specific address.',
+      searchNoResults:'No address or zone with that name was found. Zone names must be entered exactly.',
       searchError:'Search service not responding. Check your internet connection and try again.',
-      searchSelectPrompt:'Select an address:',
+      searchSelectPrompt:'Select a search result:',
+      searchZoneResultLabel:(name,region)=>`Zone: ${name}${region?` — ${region}`:''}`,
       backToLive:'↩ Back to live mode',
       backToLiveAria:'Back to live mode. Resumes automatic updates from your GPS position.',
       uniqueZonesReminder:'Remember to update your list manually on a regular basis if you have not activated automatic fetching, especially after trips or intensive play sessions.',
@@ -4220,41 +4222,60 @@
     shownCount=INITIAL_MAX;renderZoneSlice();
   });
 
+  /* Search supports both a free-text address (Nominatim) and an exact Turf
+     zone name (Turfs eget /zones-API, {"name":"..."} — kräver exakt namn,
+     ingen delsträngsmatchning). Bägge körs vid varje sökning; hittas träffar
+     i båda visas de tillsammans i samma resultatlista, zoner först. */
   async function doAddressSearch(){
     const query=searchAddressInput.value.trim();
     if(!query) return;
     searchAddressStatus.textContent=t.searchLoading;
     searchResultsSection.hidden=true;
     searchResultsList.innerHTML='';
+    let zoneMatches=[];
+    let addressMatches=[];
+    try{
+      zoneMatches=await fetchJsonWithRetry(`${API_BASE}/zones`,JSON.stringify([{name:query}]))||[];
+    }catch(e){ /* zone name lookup failed — address results, if any, are still shown */ }
     try{
       const url=`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(query)}&format=json&limit=5&addressdetails=1`;
       const r=await fetch(url,{headers:{'Accept-Language':lang==='sv'?'sv':'en','User-Agent':'VOTurfList/1.0'}});
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const results=await r.json();
-      if(!results.length){
-        searchAddressStatus.textContent=t.searchNoResults;
-        return;
-      }
-      searchAddressStatus.textContent=t.searchSelectPrompt;
-      searchResultsSection.hidden=false;
-      results.forEach(result=>{
-        const displayName=result.display_name;
-        const lat=parseFloat(result.lat);
-        const lon=parseFloat(result.lon);
-        const li=document.createElement('li');
-        li.innerHTML=`<button class="zone-btn" style="width:100%;text-align:left;padding:.5rem .75rem;font-family:var(--font-mono);font-size:.82rem;"
-          aria-label="${escAttr(displayName)}">
-          <span aria-hidden="true">${escHtml(displayName)}</span>
-        </button>`;
-        const btn=li.querySelector('button');
-        btn.addEventListener('click',()=>loadZonesForLocation(lat,lon,displayName));
-        searchResultsList.appendChild(li);
-      });
-      /* Focus first result for VoiceOver */
-      searchResultsList.querySelector('button')?.focus();
-    }catch(e){
-      searchAddressStatus.textContent=t.searchError;
+      if(r.ok) addressMatches=await r.json();
+    }catch(e){ /* address lookup failed — zone results, if any, are still shown */ }
+
+    if(!zoneMatches.length&&!addressMatches.length){
+      searchAddressStatus.textContent=t.searchNoResults;
+      return;
     }
+    searchAddressStatus.textContent=t.searchSelectPrompt;
+    searchResultsSection.hidden=false;
+    zoneMatches.forEach(zone=>{
+      const region=[zone.region?.name,zone.region?.country?.toUpperCase()].filter(Boolean).join(', ');
+      const label=t.searchZoneResultLabel(zone.name,region);
+      const li=document.createElement('li');
+      li.innerHTML=`<button class="zone-btn" style="width:100%;text-align:left;padding:.5rem .75rem;font-family:var(--font-mono);font-size:.82rem;"
+        aria-label="${escAttr(label)}">
+        <span aria-hidden="true">${escHtml(label)}</span>
+      </button>`;
+      const btn=li.querySelector('button');
+      btn.addEventListener('click',()=>loadZonesForLocation(zone.latitude,zone.longitude,zone.name));
+      searchResultsList.appendChild(li);
+    });
+    addressMatches.forEach(result=>{
+      const displayName=result.display_name;
+      const lat=parseFloat(result.lat);
+      const lon=parseFloat(result.lon);
+      const li=document.createElement('li');
+      li.innerHTML=`<button class="zone-btn" style="width:100%;text-align:left;padding:.5rem .75rem;font-family:var(--font-mono);font-size:.82rem;"
+        aria-label="${escAttr(displayName)}">
+        <span aria-hidden="true">${escHtml(displayName)}</span>
+      </button>`;
+      const btn=li.querySelector('button');
+      btn.addEventListener('click',()=>loadZonesForLocation(lat,lon,displayName));
+      searchResultsList.appendChild(li);
+    });
+    /* Focus first result for VoiceOver */
+    searchResultsList.querySelector('button')?.focus();
   }
 
   async function loadZonesForLocation(lat,lon,displayName){
@@ -4263,9 +4284,7 @@
     try{
       const half=BBOX_DEG/2;
       const body=JSON.stringify([{northEast:{latitude:lat+half,longitude:lon+half},southWest:{latitude:lat-half,longitude:lon-half}}]);
-      const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
-      if(!r.ok) throw new Error(`HTTP ${r.status}`);
-      const zones=await r.json();
+      const zones=await fetchJsonWithRetry(`${API_BASE}/zones`,body);
       /* Calculate distances relative to the searched address, not GPS */
       zones.forEach(z=>{z._dist=haversineKm(lat,lon,z.latitude,z.longitude)});
       zones.sort((a,b)=>a._dist-b._dist);
