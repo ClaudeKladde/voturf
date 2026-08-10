@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-10 14:12</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-10 14:35</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -962,6 +962,8 @@
       emptyState:'Inga zoner hittades i närheten.',
       emptyFiltered:'Inga zoner matchar det valda filtret.',
       loadMore:(n)=>`Ladda ${n} fler zoner`,loadMoreAria:(n,r)=>`Ladda ${n} fler zoner. ${r} återstår.`,
+      expandSearchArea:'Sök i ett större område',
+      expandSearchAreaAria:'Sök i ett större område för fler zoner som matchar filtret.',
       geoErr1:'Navigering nekad. Tillåt plats i Safari-inställningar.',
       geoErr2:'Position ej tillgänglig. Kontrollera platsinställningar.',
       geoErr3:'Navigering tog för lång tid. Försöker igen…',
@@ -1270,6 +1272,8 @@
       emptyState:'No zones found near your location.',
       emptyFiltered:'No zones match the current filter.',
       loadMore:(n)=>`Load ${n} more zones`,loadMoreAria:(n,r)=>`Load ${n} more zones. ${r} remaining.`,
+      expandSearchArea:'Search a wider area',
+      expandSearchAreaAria:'Search a wider area for more zones matching the filter.',
       geoErr1:'Navigation access denied. Please allow location in Safari settings.',
       geoErr2:'Position unavailable. Check your device location settings.',
       geoErr3:'Navigation timed out. Retrying…',
@@ -1569,6 +1573,11 @@
   let compassHeading=null,compassAvailable=false;
   let compassEnabled=true;   /* toggled by compass settings button */
   let allZonesSorted=[],shownCount=INITIAL_MAX;
+  /* Index into BBOX_TIERS (declared further down, near fetchNearbyZones) for
+     the search radius actually used by the live GPS zone list — lets "Load
+     more" widen the search on demand once a filter has fewer matches than
+     the already-fetched area contains. */
+  let lastFetchTierIndex=0;
   /* Filter (kryssrutor, kombinerbara) och Visning (ett val i taget) är
      medvetet separata tillstånd — ersätter den tidigare enda activeFilter
      som gjorde det omöjligt att t.ex. kombinera Unikazoner med Cykling. */
@@ -5130,6 +5139,29 @@
   /* ════════════════════════════════════════
      RENDER LIST
   ════════════════════════════════════════ */
+  /* Whether "Load more" can widen the live GPS search radius (BBOX_TIERS)
+     once a filter has fewer matches than the already-fetched area contains.
+     Not offered in Sök zoner (fixed single bbox around the searched point)
+     or Cykling/Gång (own route-sorted pool, own growth mechanism). */
+  function canWidenZoneSearch(){
+    return activeVisning!=='search'&&activeVisning!=='cycling'&&activeVisning!=='walking'&&
+      userLat!==null&&lastFetchTierIndex<BBOX_TIERS.length-1;
+  }
+  function updateLoadMoreButton(filtered){
+    if(shownCount<filtered.length){
+      btnLoadMore.hidden=false;
+      const r=filtered.length-shownCount,n=Math.min(PAGE_SIZE,r);
+      btnLoadMore.textContent=t.loadMore(n);
+      btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
+    } else if(canWidenZoneSearch()){
+      btnLoadMore.hidden=false;
+      btnLoadMore.textContent=t.expandSearchArea;
+      btnLoadMore.setAttribute('aria-label',t.expandSearchAreaAria);
+    } else {
+      btnLoadMore.hidden=true;
+    }
+  }
+
   function renderZoneSlice(){
     zoneList.innerHTML='';emptyState.hidden=true;
     const filtered=getFilteredZones();
@@ -5141,17 +5173,18 @@
     if(activeVisning==='walking') visible=sortWalkingPool(visible);
     if(!filtered.length){
       emptyState.textContent=allZonesSorted.length?t.emptyFiltered:t.emptyState;
-      emptyState.hidden=false;btnLoadMore.hidden=true;return;
+      emptyState.hidden=false;
+      btnLoadMore.hidden=!canWidenZoneSearch();
+      if(!btnLoadMore.hidden){
+        btnLoadMore.textContent=t.expandSearchArea;
+        btnLoadMore.setAttribute('aria-label',t.expandSearchAreaAria);
+      }
+      return;
     }
     const frag=document.createDocumentFragment();
     visible.forEach((z,i)=>frag.appendChild(buildZoneItem(z,i+1)));
     zoneList.appendChild(frag);
-    btnLoadMore.hidden=shownCount>=filtered.length;
-    if(!btnLoadMore.hidden){
-      const r=filtered.length-shownCount,n=Math.min(PAGE_SIZE,r);
-      btnLoadMore.textContent=t.loadMore(n);
-      btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
-    }
+    updateLoadMoreButton(filtered);
     fetchOwnerBlocktimes(visible);startBlockTicker();
     if(activeVisning==='advanced'||activeVisning==='advancedObstacle'||activeVisning==='cycling'||activeVisning==='walking') ensureElevationData(visible);
     if(activeVisning==='advancedObstacle') ensureObstacleData(visible);
@@ -5159,9 +5192,38 @@
     if(activeVisning==='walking') ensureWalkingData(visible);
   }
 
-  function loadMore(){
+  /* Fetches the next, wider BBOX_TIERS radius from the live GPS position and
+     replaces allZonesSorted — used when a filter (e.g. Unikazoner) has fewer
+     matches than the already-fetched area contains. Same rate-limit-safe
+     helper as the initial fetch; no manual sleep() needed since this is a
+     single on-demand call, not a sequence. */
+  async function widenZoneSearch(){
+    if(!canWidenZoneSearch()) return;
+    const nextTier=lastFetchTierIndex+1;
+    setStatus(t.statusExpanding,'loading');
+    try{
+      const half=BBOX_TIERS[nextTier]/2;
+      const body=JSON.stringify([{northEast:{latitude:userLat+half,longitude:userLon+half},southWest:{latitude:userLat-half,longitude:userLon-half}}]);
+      const zones=await fetchJsonWithRetry(`${API_BASE}/zones`,body);
+      zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});
+      zones.sort((a,b)=>a._dist-b._dist);
+      allZonesSorted=zones;
+      lastFetchTierIndex=nextTier;
+      renderZoneSlice();
+      const filtered=getFilteredZones();
+      setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
+    }catch(e){
+      setStatus(t.statusError(e.message),'error');
+    }
+  }
+
+  async function loadMore(){
     const filtered=getFilteredZones();
     const prev=shownCount;
+    if(shownCount>=filtered.length){
+      await widenZoneSearch();
+      return;
+    }
     shownCount=Math.min(shownCount+PAGE_SIZE,filtered.length);
     if(shownCount===prev)return;
     if(activeVisning==='cycling'||activeVisning==='walking'){
@@ -5174,11 +5236,7 @@
     const frag=document.createDocumentFragment();
     slice.forEach((z,i)=>frag.appendChild(buildZoneItem(z,prev+i+1)));
     zoneList.appendChild(frag);
-    btnLoadMore.hidden=shownCount>=filtered.length;
-    if(!btnLoadMore.hidden){
-      const r=filtered.length-shownCount,n=Math.min(PAGE_SIZE,r);
-      btnLoadMore.textContent=t.loadMore(n);btnLoadMore.setAttribute('aria-label',t.loadMoreAria(n,r));
-    }
+    updateLoadMoreButton(filtered);
     fetchOwnerBlocktimes(slice);
     if(activeVisning==='advanced'||activeVisning==='advancedObstacle') ensureElevationData(slice);
     if(activeVisning==='advancedObstacle') ensureObstacleData(slice);
@@ -5305,6 +5363,7 @@
     setStatus(t.statusLoading,'loading');
     let zones=[];
     let rateLimited=false;
+    let usedTierIndex=0;
     try{
       for(let i=0;i<BBOX_TIERS.length;i++){
         /* API allows only one request per second per resource — wait before
@@ -5315,6 +5374,7 @@
         const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
         if(!r.ok){const e=await r.json().catch(()=>({}));throw new Error(e.errorMessage||`HTTP ${r.status}`)}
         zones=await r.json();
+        usedTierIndex=i;
         if(zones.length>0||i===BBOX_TIERS.length-1) break;
         /* Nothing found at this tier — widen the search area for this fetch only */
         setStatus(t.statusExpanding,'loading');
@@ -5322,6 +5382,7 @@
       zones.forEach(z=>{z._dist=haversineKm(userLat,userLon,z.latitude,z.longitude)});
       zones.sort((a,b)=>a._dist-b._dist);
       allZonesSorted=zones;
+      lastFetchTierIndex=usedTierIndex;
       const filtered=getFilteredZones();
       shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
       renderZoneSlice();

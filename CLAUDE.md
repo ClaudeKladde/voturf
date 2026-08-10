@@ -450,6 +450,25 @@ Cykling. Uppdelat i två oberoende tillstånd efter användarönskemål:
   sig inte vara tillräckligt tydligt/påtagligt i praktiken, så en riktig
   Standard-rad lades till istället.
 
+**"Ladda fler zoner" breddar sökradien vid behov.** Den vanliga (GPS-baserade)
+zonlistan hämtas i nivåer (`BBOX_TIERS`: ~5/10/20/40 km) — hämtningen slutar
+söka så fort **någon** zon alls hittas i den minsta nivån, oavsett aktivt
+filter. I ett tätbefolkat område hittas gott om zoner redan inom 5 km, så
+sökningen breddas normalt aldrig automatiskt. Filtreras listan sedan ner
+(t.ex. Unikazoner) kan träffarna inom det redan hämtade området bli färre än
+`INITIAL_MAX` (30) — knappen visade tidigare ingenting mer att bläddra fram,
+även om fler matchande zoner fanns strax utanför den hämtade radien.
+Lösning: när det inte finns fler redan hämtade zoner att visa (`shownCount
+>= filtered.length`) men sökradien inte nått sin maxnivå än, visar
+"Ladda fler zoner"-knappen sig ändå, med texten "Sök i ett större område"
+(`canWidenZoneSearch()`/`updateLoadMoreButton()`). Ett klick hämtar nästa,
+bredare nivå (`widenZoneSearch()`, samma `fetchJsonWithRetry`-skydd som
+den vanliga hämtningen) och ersätter `allZonesSorted` — filtret appliceras
+sedan om automatiskt. Gäller bara den vanliga GPS-listan
+(`lastFetchTierIndex` sätts om vid varje vanlig auto-uppdatering) — inte
+Sök zoner (fast bbox kring den sökta platsen) eller Cykling/Gång (egen
+ruttsorterad pool, egen tillväxtmekanism).
+
 De två är helt oberoende av varandra och kombineras fritt — det var hela
 poängen med uppdelningen. Sök zoner (`activeVisning==='search'`) stänger
 fortfarande av sig själv när ett annat Visning-alternativ väljs (samma
