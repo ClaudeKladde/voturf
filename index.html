@@ -391,7 +391,7 @@
 
     <!-- Search zone area — shown only when Sök zoner filter is active -->
     <div id="search-zone-section" hidden>
-      <h2 id="search-zone-heading" tabindex="-1" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:.75rem 0 .5rem;">Sök zoner</h2>
+      <h2 id="search-zone-heading" tabindex="-1" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:.75rem 0 .5rem;">Sök zonnamn eller adress</h2>
       <div>
         <div class="settings-control" style="gap:.4rem">
           <input type="text" id="search-address-input"
@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-10 14:35</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-10 14:43</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -1028,7 +1028,7 @@
       navProgress:(clock,dist,mins,name)=>`${clock?clock+'. ':''}${dist} m kvar, cirka ${mins} minut${mins===1?'':'er'} till ${name}.`,
       searchPlaceholder:'Adress eller zonnamn — t.ex. Drottninggatan 1, Stockholm eller Plattan',
       searchBtn:'Sök',searchBtnAria:'Sök zoner vid angiven adress eller zonnamn',
-      searchHeading:'Sök zoner',searchResultsHeading:'Sökresultat',
+      searchHeading:'Sök zonnamn eller adress',searchResultsHeading:'Sökresultat',
       searchLoading:'Söker…',
       searchNoResults:'Ingen adress eller zon med det namnet hittades. Zonnamn måste anges exakt.',
       searchError:'Söktjänsten svarar inte. Kontrollera internetanslutningen och försök igen.',
@@ -1338,7 +1338,7 @@
       navProgress:(clock,dist,mins,name)=>`${clock?clock+'. ':''}${dist} m left, about ${mins} minute${mins===1?'':'s'} to ${name}.`,
       searchPlaceholder:'Address or zone name — e.g. King Street 1, London or Plattan',
       searchBtn:'Search',searchBtnAria:'Search zones near the given address or zone name',
-      searchHeading:'Zone search',searchResultsHeading:'Search results',
+      searchHeading:'Search zone name or address',searchResultsHeading:'Search results',
       searchLoading:'Searching…',
       searchNoResults:'No address or zone with that name was found. Zone names must be entered exactly.',
       searchError:'Search service not responding. Check your internet connection and try again.',
