@@ -586,6 +586,15 @@
       </button>
     </div>
 
+    <!-- Experimental: movement-based clock direction, falls back to compass -->
+    <div class="settings-control">
+      <span class="settings-label" id="lbl-movement-direction">Rörelsebaserad riktning (experimentell):</span>
+      <button id="btn-movement-direction" aria-pressed="false"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;">
+        Av
+      </button>
+    </div>
+
     <!-- Independent tips panel at the bottom — separate from the start screen one -->
     <div style="margin-bottom:.5rem">
       <button id="tips-toggle-bottom" aria-expanded="false"
@@ -614,7 +623,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-11 19:56</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-11 20:05</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -1043,6 +1052,8 @@
       monitorOffAria:'Röstläge av',
       compassOn:'Kompass på',compassOff:'Kompass av',
       compassLabel:'Kompass:',
+      movementDirectionOn:'Rörelsebaserad riktning på',movementDirectionOff:'Rörelsebaserad riktning av',
+      movementDirectionLabel:'Rörelsebaserad riktning (experimentell):',
       gpsReminder:'Se till att tillåta GPS och kompass för att appen ska fungera korrekt.',
       volumeLabel:'Röstvolym:',
       volumeAria:(v)=>`Röstvolym: ${v}.`,
@@ -1353,6 +1364,8 @@
       monitorOffAria:'Voice mode off',
       compassOn:'Compass on',compassOff:'Compass off',
       compassLabel:'Compass:',
+      movementDirectionOn:'Movement-based direction on',movementDirectionOff:'Movement-based direction off',
+      movementDirectionLabel:'Movement-based direction (experimental):',
       gpsReminder:'Be sure to allow GPS and compass to work properly.',
       volumeLabel:'Voice volume:',
       volumeAria:(v)=>`Voice volume: ${v}.`,
@@ -1572,6 +1585,17 @@
   let userLat=null,userLon=null;
   let compassHeading=null,compassAvailable=false;
   let compassEnabled=true;   /* toggled by compass settings button */
+  /* Experimental: clock direction derived from actual GPS movement instead
+     of the phone's physical compass orientation — tracked continuously in
+     the background regardless of the toggle (cheap, no network cost), so
+     a fresh reading is already available the moment the setting is turned
+     on. relativeBearing() prefers this over the compass when it's fresh
+     enough (see MOVE_HEADING_STALE_MS), falling back to the compass, then
+     to an absolute (north-relative) bearing, same as before this existed. */
+  let movementDirectionEnabled=false;
+  let moveHeadingRefLat=null,moveHeadingRefLon=null,moveHeadingRefAt=null;
+  let moveHeading=null,moveHeadingAt=null;
+  const MOVE_HEADING_MIN_M=10,MOVE_HEADING_STALE_MS=20000,MOVE_HEADING_REF_MAX_AGE_MS=90000;
   let allZonesSorted=[],shownCount=INITIAL_MAX;
   /* Index into BBOX_TIERS (declared further down, near fetchNearbyZones) for
      the search radius actually used by the live GPS zone list — lets "Load
@@ -2179,6 +2203,8 @@
       playerRadius=movementProfiles[movementMode].playerRadius;
       const savedCompass=localStorage.getItem('turf-compass');
       if(savedCompass==='false') compassEnabled=false;
+      const savedMovementDirection=localStorage.getItem('turf-movement-direction');
+      if(savedMovementDirection==='true') movementDirectionEnabled=true;
       const sUser=localStorage.getItem('turf-username');
       if(sUser) savedUsername=sUser;
       try{
@@ -2581,6 +2607,7 @@
     document.getElementById('settings-heading').textContent=t.settingsHeading;
     document.getElementById('lbl-speed').textContent=t.speedLabel;
     document.getElementById('lbl-compass').textContent=t.compassLabel;
+    document.getElementById('lbl-movement-direction').textContent=t.movementDirectionLabel;
     document.getElementById('gps-reminder').textContent=t.gpsReminder;
     /* Nearby zones heading */
     const nzHeading=document.getElementById('nearby-zones-heading');
@@ -2664,6 +2691,7 @@
       if(medalsView.classList.contains('active')) renderMedals(medalsCurrentUser);
     }
     updateCompassBtn();
+    updateMovementDirectionBtn();
     document.getElementById('lbl-username').textContent=t.usernameLabel;
     usernameInput.placeholder=t.usernamePlaceholder;
     usernameInput.setAttribute('aria-label',t.usernameInputAria);
@@ -4862,6 +4890,29 @@
     if(allZonesSorted.length) renderZoneSlice();
   });
 
+  const btnMovementDirection=document.getElementById('btn-movement-direction');
+
+  function updateMovementDirectionBtn(){
+    btnMovementDirection.textContent=movementDirectionEnabled?t.movementDirectionOn:t.movementDirectionOff;
+    btnMovementDirection.setAttribute('aria-pressed',movementDirectionEnabled?'true':'false');
+    if(movementDirectionEnabled){
+      btnMovementDirection.style.background='var(--accent)';
+      btnMovementDirection.style.color='#000';
+      btnMovementDirection.style.borderColor='var(--accent)';
+    } else {
+      btnMovementDirection.style.background='transparent';
+      btnMovementDirection.style.color='var(--muted)';
+      btnMovementDirection.style.borderColor='var(--border)';
+    }
+  }
+
+  btnMovementDirection.addEventListener('click',()=>{
+    movementDirectionEnabled=!movementDirectionEnabled;
+    updateMovementDirectionBtn();
+    try{localStorage.setItem('turf-movement-direction',String(movementDirectionEnabled))}catch(e){}
+    if(allZonesSorted.length) renderZoneSlice();
+  });
+
   /* ════════════════════════════════════════
      TIPS TOGGLE
   ════════════════════════════════════════ */
@@ -4917,7 +4968,34 @@
     const y=Math.sin(Δλ)*Math.cos(φ2),x=Math.cos(φ1)*Math.sin(φ2)-Math.sin(φ1)*Math.cos(φ2)*Math.cos(Δλ);
     return(Math.atan2(y,x)*180/Math.PI+360)%360;
   }
-  function relativeBearing(abs){if(!compassAvailable||compassHeading===null) return abs;return(abs-compassHeading+360)%360;}
+  /* Called on every GPS fix (initGeo's watchPosition). Only recomputes the
+     movement heading once the user has moved MOVE_HEADING_MIN_M since the
+     last checkpoint — short of that, GPS jitter while standing still would
+     otherwise produce a meaningless "heading". */
+  function updateMoveHeading(lat,lon){
+    /* A checkpoint left over from before a long gap (app backgrounded, GPS
+       lost and regained elsewhere) would otherwise produce a heading from
+       an old, unrelated position — reset instead of computing across it,
+       even if the user never moved far enough to trigger a normal update
+       while the gap was happening. */
+    if(moveHeadingRefLat===null||(moveHeadingRefAt!==null&&Date.now()-moveHeadingRefAt>MOVE_HEADING_REF_MAX_AGE_MS)){
+      moveHeadingRefLat=lat;moveHeadingRefLon=lon;moveHeadingRefAt=Date.now();
+      return;
+    }
+    const distM=haversineKm(moveHeadingRefLat,moveHeadingRefLon,lat,lon)*1000;
+    if(distM>=MOVE_HEADING_MIN_M){
+      moveHeading=bearingDeg(moveHeadingRefLat,moveHeadingRefLon,lat,lon);
+      moveHeadingAt=Date.now();
+      moveHeadingRefLat=lat;moveHeadingRefLon=lon;moveHeadingRefAt=Date.now();
+    }
+  }
+  function relativeBearing(abs){
+    if(movementDirectionEnabled&&moveHeading!==null&&moveHeadingAt!==null&&(Date.now()-moveHeadingAt)<MOVE_HEADING_STALE_MS){
+      return(abs-moveHeading+360)%360;
+    }
+    if(!compassAvailable||compassHeading===null) return abs;
+    return(abs-compassHeading+360)%360;
+  }
   function clockDir(deg){return t.clock.find(d=>deg<d[0])?.[1]??t.clock[0][1]}
   function directionToZone(zoneLat,zoneLon){
     if(!compassEnabled) return '';
@@ -5484,6 +5562,7 @@
         const first=userLat===null;
         userLat=pos.coords.latitude;userLon=pos.coords.longitude;
         lastGpsTimestamp=Date.now();
+        updateMoveHeading(userLat,userLon);
         /* GPS signal restored after being lost */
         if(gpsSignalLostWarned){
           gpsSignalLostWarned=false;
@@ -5676,6 +5755,7 @@
   updateSpeedUI();
   updateVolumeUI();
   updateCompassBtn();
+  updateMovementDirectionBtn();
   applyUsernameUI();
   /* If username was saved, fetch fresh profile silently in background — do NOT navigate */
   if(savedUsername){

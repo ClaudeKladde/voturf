@@ -767,7 +767,7 @@ egen.
 
 ```
 turf-lang, turf-speed, turf-volume, turf-voice-mode,
-turf-compass, turf-username, turf-hide-taken, turf-player-notify,
+turf-compass, turf-movement-direction, turf-username, turf-hide-taken, turf-player-notify,
 turf-movement-mode, turf-movement-profiles, turf-friends,
 turf-friends-show-nearby, turf-players-hidden-nearby,
 turf-unique-zones, turf-pause, turf-unique-auto-fetch,
@@ -829,6 +829,35 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
   nya API-anrop, bara att sluta frysa värdet. Avståndet (`ds`/`zone._dist`)
   lämnades medvetet oförändrat eftersom det även styr listans sorteringsordning,
   som inte ska kastas om mitt i en tick.
+- **Rörelsebaserad riktning (experimentell):** uppföljning på buggen ovan —
+  användaren undrade om telefonens fysiska kompass (`compassHeading`, från
+  `deviceorientation`/`webkitCompassHeading`) verkligen är rätt referens när
+  man går med telefonen i fickan/väskan istället för att hålla den pekandes
+  rakt fram. En toggle i Inställningar (`btn-movement-direction`,
+  `movementDirectionEnabled`, av som standard) byter källa för
+  `relativeBearing()` till en riktning uträknad från faktisk GPS-förflyttning
+  (`updateMoveHeading()`, bäringen mellan en referenspunkt och nuvarande
+  position) istället för telefonens fysiska vridning — men **bara** när den
+  är tillräckligt färsk. Medveten fusion, inte ett rent ersättningsläge:
+  - Referenspunkten flyttas bara fram när användaren rört sig minst
+    `MOVE_HEADING_MIN_M` (10 m) sedan senaste beräkningen — annars skulle
+    GPS-brus när man står still ge en påhittad riktning.
+  - En beräknad riktning används i `relativeBearing()` bara om den är yngre
+    än `MOVE_HEADING_STALE_MS` (20 s) — annars faller den tillbaka på
+    kompassen (om tillgänglig), sedan på en absolut nordrelaterad bäring,
+    exakt samma fallback-kedja som fanns innan denna funktion byggdes.
+  - Själva referenspunkten nollställs om den blir äldre än
+    `MOVE_HEADING_REF_MAX_AGE_MS` (90 s, tre gånger `MOVE_HEADING_STALE_MS`)
+    utan att ha uppdaterats — annars skulle en lucka (appen i bakgrunden,
+    GPS förlorad och återfunnen på en helt annan plats) kunna räkna ut en
+    "riktning" mellan två orelaterade positioner.
+  - Spåras kontinuerligt i bakgrunden via `updateMoveHeading()` i
+    `initGeo()`s `watchPosition`-callback **oavsett** om togglen är på —
+    billig lokal trigonometri, inga nätverksanrop — så en färsk beräkning
+    redan finns tillgänglig direkt när man slår på inställningen mitt i en
+    promenad, istället för att behöva vänta in nästa 10 meter.
+  **Ej verifierat med riktig GPS** — samma sandbox-begränsning som
+  Vägbeskrivning ovan. Bör testas live av användaren efter driftsättning.
 
 ---
 
