@@ -814,6 +814,21 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
 - **`refreshAllBlockLabels()`** körs varje sekund och skriver över `aria-label`.
   Den måste använda samma etikettbyggare som den ursprungliga renderingen,
   annars försvinner t.ex. "Unik." inom en sekund.
+- **Fixad bugg — klockriktningen frös mellan uppdateringar:** användaren
+  rapporterade att klockriktningen ("Klockan 5") ibland inte stämde när han
+  gick, trots att avståndet brukade stämma. Orsak: `clock` beräknades bara
+  **en gång** i `buildZoneItem()` och låstes in i `buildLabel`-closuren —
+  `refreshAllBlockLabels()` (som redan körs varje sekund för blockstatusen)
+  byggde om etiketten med samma inlåsta värde varje gång, så riktningen
+  kunde vara upp till en hel `refreshInterval` gammal (30 sekunder som
+  standard för Gång) trots att `userLat`/`userLon` redan uppdaterats i
+  bakgrunden av `watchPosition`. Fix: `clock` räknas nu om från grunden
+  varje gång `buildLabel` anropas (inte bara vid själva renderingen), och
+  den synliga riktningstexten (`.js-dir-val`, nytt) uppdateras av samma
+  sekund-tickare som redan sköter `.js-block-val` — ingen ny timer, inga
+  nya API-anrop, bara att sluta frysa värdet. Avståndet (`ds`/`zone._dist`)
+  lämnades medvetet oförändrat eftersom det även styr listans sorteringsordning,
+  som inte ska kastas om mitt i en tick.
 
 ---
 

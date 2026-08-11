@@ -614,7 +614,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-10 14:43</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-11 19:56</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -5002,14 +5002,21 @@
     /* Auto-detect own zone if username is saved */
     if(!isMyZone&&savedUsername&&zone.currentOwner?.name===savedUsername) isMyZone=true;
     const ds=distStr(zone._dist??0);
-    const clock=directionToZone(zone.latitude,zone.longitude);
     const owner=zone.currentOwner?.name??null;
     const isUnowned=!owner;
     const ownerDisplay=isUnowned?t.unowned:owner;
     const ownerClass=isUnowned?'unowned':'owner';
     const block=getBlockStatus(zone);
 
+    /* Recomputed fresh on every call (including from the once-per-second
+       refreshAllBlockLabels() ticker), not captured once here — the user's
+       GPS position keeps updating in the background between full refreshes,
+       so a direction frozen from the original render can read up to a full
+       refreshInterval out of date while walking. distStr(zone._dist) is left
+       as-is since it also drives the list's sort order, which shouldn't
+       reshuffle mid-tick. */
     function buildLabel(b){
+      const clock=directionToZone(zone.latitude,zone.longitude);
       const dirPart=clock?`${clock}. `:'';
       /* Height is shown in all three advanced filters; obstacle only in
          Avancerat läge med hinder — so both can appear together there,
@@ -5087,6 +5094,7 @@
       ?`<div class="zv-field"><span class="zv-label">${t.dkCycling}</span><span class="zv-value">${escHtml(cyclingVal)}</span></div>`
       :'';
 
+    const clock=directionToZone(zone.latitude,zone.longitude);
     const li=document.createElement('li');
     li.className='zone-card';
     li.innerHTML=`
@@ -5096,7 +5104,7 @@
           <div class="zv-strip">
             ${cyclingField}
             <div class="zv-field"><span class="zv-label">${t.dkDist}</span><span class="zv-value dist">${ds}</span></div>
-            <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value">${clock.split(',')[0]}</span></div>
+            <div class="zv-field"><span class="zv-label">${t.dkDir}</span><span class="zv-value js-dir-val">${clock.split(',')[0]}</span></div>
             ${heightField}
             ${obstacleField}
             ${ownerField}
@@ -5256,6 +5264,13 @@
       const btn=card.querySelector('.zone-btn');
       if(span){span.textContent=block.label;span.className=`zv-value ${block.css} js-block-val`}
       if(btn&&card._buildLabel) btn.setAttribute('aria-label',escAttr(card._buildLabel(block)));
+      /* Visible clock direction — kept in sync with the same live position
+         used for the aria-label above, not just the initial render. */
+      const dirSpan=card.querySelector('.js-dir-val');
+      if(dirSpan){
+        const clock=directionToZone(card._zone.latitude,card._zone.longitude);
+        dirSpan.textContent=clock.split(',')[0];
+      }
     });
   }
 
