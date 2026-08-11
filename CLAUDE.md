@@ -840,8 +840,14 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
   position) istället för telefonens fysiska vridning — men **bara** när den
   är tillräckligt färsk. Medveten fusion, inte ett rent ersättningsläge:
   - Referenspunkten flyttas bara fram när användaren rört sig minst
-    `MOVE_HEADING_MIN_M` (10 m) sedan senaste beräkningen — annars skulle
-    GPS-brus när man står still ge en påhittad riktning.
+    `moveHeadingThreshold(accuracy)` sedan senaste beräkningen — annars
+    skulle GPS-brus när man står still ge en påhittad riktning. **Adaptiv,
+    inte längre ett fast värde:** skalar med GPS-fixens egen rapporterade
+    noggrannhet (`pos.coords.accuracy`, `× 1.5`), klämt mellan 8 och 30 m,
+    med 15 m som standard när noggrannhet saknas. Ändrat efter att
+    användaren testat live utomhus och inte märkt någon skillnad — ett
+    fast 10 m-tal var antingen för snävt vid dålig GPS-signal (tolkade
+    brus som rörelse) eller onödigt försiktigt vid bra signal.
   - En beräknad riktning används i `relativeBearing()` bara om den är yngre
     än `MOVE_HEADING_STALE_MS` (20 s) — annars faller den tillbaka på
     kompassen (om tillgänglig), sedan på en absolut nordrelaterad bäring,
@@ -855,7 +861,24 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
     `initGeo()`s `watchPosition`-callback **oavsett** om togglen är på —
     billig lokal trigonometri, inga nätverksanrop — så en färsk beräkning
     redan finns tillgänglig direkt när man slår på inställningen mitt i en
-    promenad, istället för att behöva vänta in nästa 10 meter.
+    promenad, istället för att behöva vänta in den nya adaptiva gränsen.
+  - **`maximumAge` sänkt från 5000 till 1000 ms** i `initGeo()`s
+    `watchPosition`-anrop — webbläsaren fick tidigare returnera en cachad
+    position upp till 5 sekunder gammal, vilket kunde göra både den
+    sekund-tickande riktningsuppdateringen och rörelseriktningen
+    verkningslösa även om logiken i sig var korrekt. `enableHighAccuracy`
+    (oförändrad) styr batteriåtgången, inte `maximumAge`, så ändringen
+    bedöms inte påverka batteritiden märkbart. 1 sekund valt för att matcha
+    den egna sekund-tickaren — ingen anledning att kräva färskare data än
+    vad som ändå visas.
+  - **Diagnosstatus** (`#movement-direction-status`, `updateMovementDirectionDiag()`)
+    under togglen i Inställningar visar GPS-noggrannhet och om
+    rörelseriktningen faktiskt är aktiv just nu, eller väntar på
+    tillräcklig rörelse — byggd efter att ett första liveförsök utomhus
+    inte gav märkbar skillnad, för att kunna se vad som faktiskt händer
+    istället för att gissa. Medvetet **inte** `aria-live` (skulle läsas upp
+    kontinuerligt vid varje GPS-fix under en promenad) — vanlig text,
+    navigerbar på begäran, samma princip som `#status-msg`/`#nav-status`.
   **Ej verifierat med riktig GPS** — samma sandbox-begränsning som
   Vägbeskrivning ovan. Bör testas live av användaren efter driftsättning.
 

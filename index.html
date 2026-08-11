@@ -594,6 +594,11 @@
         Av
       </button>
     </div>
+    <!-- Plain status text, not aria-live — updates continuously in the
+         background while walking, so an aria-live region here would read
+         aloud on every GPS fix. Navigable on demand instead, same
+         principle as #status-msg/#nav-status. -->
+    <div id="movement-direction-status" hidden style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin:-.4rem 0 .5rem;"></div>
 
     <!-- Independent tips panel at the bottom — separate from the start screen one -->
     <div style="margin-bottom:.5rem">
@@ -623,7 +628,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-11 20:05</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-11 21:55</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -1054,6 +1059,10 @@
       compassLabel:'Kompass:',
       movementDirectionOn:'Rörelsebaserad riktning på',movementDirectionOff:'Rörelsebaserad riktning av',
       movementDirectionLabel:'Rörelsebaserad riktning (experimentell):',
+      moveDirStatus:(active,acc)=>{
+        const accPart=(typeof acc==='number'&&isFinite(acc))?` GPS-noggrannhet: ~${Math.round(acc)} m.`:'';
+        return(active?'Rörelsebaserad riktning: aktiv.':'Rörelsebaserad riktning: väntar på tillräcklig rörelse.')+accPart;
+      },
       gpsReminder:'Se till att tillåta GPS och kompass för att appen ska fungera korrekt.',
       volumeLabel:'Röstvolym:',
       volumeAria:(v)=>`Röstvolym: ${v}.`,
@@ -1366,6 +1375,10 @@
       compassLabel:'Compass:',
       movementDirectionOn:'Movement-based direction on',movementDirectionOff:'Movement-based direction off',
       movementDirectionLabel:'Movement-based direction (experimental):',
+      moveDirStatus:(active,acc)=>{
+        const accPart=(typeof acc==='number'&&isFinite(acc))?` GPS accuracy: ~${Math.round(acc)} m.`:'';
+        return(active?'Movement-based direction: active.':'Movement-based direction: waiting for enough movement.')+accPart;
+      },
       gpsReminder:'Be sure to allow GPS and compass to work properly.',
       volumeLabel:'Voice volume:',
       volumeAria:(v)=>`Voice volume: ${v}.`,
@@ -1595,7 +1608,18 @@
   let movementDirectionEnabled=false;
   let moveHeadingRefLat=null,moveHeadingRefLon=null,moveHeadingRefAt=null;
   let moveHeading=null,moveHeadingAt=null;
-  const MOVE_HEADING_MIN_M=10,MOVE_HEADING_STALE_MS=20000,MOVE_HEADING_REF_MAX_AGE_MS=90000;
+  const MOVE_HEADING_STALE_MS=20000,MOVE_HEADING_REF_MAX_AGE_MS=90000;
+  /* How far the user must move before a new checkpoint bearing is trusted —
+     scaled to the GPS fix's own reported accuracy instead of a fixed 10 m,
+     since a fixed value was either too tight in poor-signal conditions
+     (mistaking GPS jitter for real movement) or unnecessarily conservative
+     in good ones. Clamped to a sane range; falls back to the default when
+     accuracy isn't reported by the browser. */
+  const MOVE_HEADING_ACCURACY_MULT=1.5,MOVE_HEADING_MIN_M_FLOOR=8,MOVE_HEADING_MIN_M_CEIL=30,MOVE_HEADING_MIN_M_DEFAULT=15;
+  function moveHeadingThreshold(accuracy){
+    if(typeof accuracy!=='number'||!isFinite(accuracy)) return MOVE_HEADING_MIN_M_DEFAULT;
+    return Math.min(MOVE_HEADING_MIN_M_CEIL,Math.max(MOVE_HEADING_MIN_M_FLOOR,accuracy*MOVE_HEADING_ACCURACY_MULT));
+  }
   let allZonesSorted=[],shownCount=INITIAL_MAX;
   /* Index into BBOX_TIERS (declared further down, near fetchNearbyZones) for
      the search radius actually used by the live GPS zone list — lets "Load
@@ -2692,6 +2716,7 @@
     }
     updateCompassBtn();
     updateMovementDirectionBtn();
+    updateMovementDirectionDiag(gpsAccuracyHistory[gpsAccuracyHistory.length-1]);
     document.getElementById('lbl-username').textContent=t.usernameLabel;
     usernameInput.placeholder=t.usernamePlaceholder;
     usernameInput.setAttribute('aria-label',t.usernameInputAria);
@@ -4911,7 +4936,19 @@
     updateMovementDirectionBtn();
     try{localStorage.setItem('turf-movement-direction',String(movementDirectionEnabled))}catch(e){}
     if(allZonesSorted.length) renderZoneSlice();
+    updateMovementDirectionDiag(gpsAccuracyHistory[gpsAccuracyHistory.length-1]);
   });
+
+  /* Plain status text (not aria-live, see HTML comment) — lets the user
+     check, on demand, whether movement-based direction is actually
+     engaging and what GPS accuracy looks like, instead of guessing. */
+  function updateMovementDirectionDiag(accuracy){
+    const el=document.getElementById('movement-direction-status');
+    if(!el) return;
+    if(!movementDirectionEnabled){ el.hidden=true; return; }
+    el.hidden=false;
+    el.textContent=t.moveDirStatus(isMoveHeadingFresh(),accuracy);
+  }
 
   /* ════════════════════════════════════════
      TIPS TOGGLE
@@ -4969,10 +5006,10 @@
     return(Math.atan2(y,x)*180/Math.PI+360)%360;
   }
   /* Called on every GPS fix (initGeo's watchPosition). Only recomputes the
-     movement heading once the user has moved MOVE_HEADING_MIN_M since the
-     last checkpoint — short of that, GPS jitter while standing still would
-     otherwise produce a meaningless "heading". */
-  function updateMoveHeading(lat,lon){
+     movement heading once the user has moved far enough since the last
+     checkpoint (moveHeadingThreshold(accuracy)) — short of that, GPS jitter
+     while standing still would otherwise produce a meaningless "heading". */
+  function updateMoveHeading(lat,lon,accuracy){
     /* A checkpoint left over from before a long gap (app backgrounded, GPS
        lost and regained elsewhere) would otherwise produce a heading from
        an old, unrelated position — reset instead of computing across it,
@@ -4983,14 +5020,19 @@
       return;
     }
     const distM=haversineKm(moveHeadingRefLat,moveHeadingRefLon,lat,lon)*1000;
-    if(distM>=MOVE_HEADING_MIN_M){
+    if(distM>=moveHeadingThreshold(accuracy)){
       moveHeading=bearingDeg(moveHeadingRefLat,moveHeadingRefLon,lat,lon);
       moveHeadingAt=Date.now();
       moveHeadingRefLat=lat;moveHeadingRefLon=lon;moveHeadingRefAt=Date.now();
     }
   }
+  /* Shared by relativeBearing() and the Settings diagnostic status so the
+     two can never disagree about what "active" means. */
+  function isMoveHeadingFresh(){
+    return moveHeading!==null&&moveHeadingAt!==null&&(Date.now()-moveHeadingAt)<MOVE_HEADING_STALE_MS;
+  }
   function relativeBearing(abs){
-    if(movementDirectionEnabled&&moveHeading!==null&&moveHeadingAt!==null&&(Date.now()-moveHeadingAt)<MOVE_HEADING_STALE_MS){
+    if(movementDirectionEnabled&&isMoveHeadingFresh()){
       return(abs-moveHeading+360)%360;
     }
     if(!compassAvailable||compassHeading===null) return abs;
@@ -5562,7 +5604,8 @@
         const first=userLat===null;
         userLat=pos.coords.latitude;userLon=pos.coords.longitude;
         lastGpsTimestamp=Date.now();
-        updateMoveHeading(userLat,userLon);
+        updateMoveHeading(userLat,userLon,pos.coords.accuracy);
+        updateMovementDirectionDiag(pos.coords.accuracy);
         /* GPS signal restored after being lost */
         if(gpsSignalLostWarned){
           gpsSignalLostWarned=false;
@@ -5584,7 +5627,14 @@
         checkNavigationProgress();
       },
       err=>{const msgs={1:t.geoErr1,2:t.geoErr2,3:t.geoErr3};setStatus(msgs[err.code]||t.geoErrUnknown,'error')},
-      {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:5000}
+      /* maximumAge kept short (1 s, matching the once-per-second UI refresh
+         cadence) so the browser doesn't hand back a stale cached fix —
+         previously 5000, which could leave both the live direction refresh
+         and the movement-heading tracker working from minutes-old data on
+         some devices/browsers. enableHighAccuracy (not maximumAge) is what
+         drives GPS power draw, so this shouldn't noticeably affect battery
+         life. */
+      {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:1000}
     );
   }
 
@@ -5756,6 +5806,7 @@
   updateVolumeUI();
   updateCompassBtn();
   updateMovementDirectionBtn();
+  updateMovementDirectionDiag(gpsAccuracyHistory[gpsAccuracyHistory.length-1]);
   applyUsernameUI();
   /* If username was saved, fetch fresh profile silently in background — do NOT navigate */
   if(savedUsername){
