@@ -628,7 +628,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-12 11:26</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-12 11:35</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -5546,7 +5546,7 @@
         const z=firstCard?._zone;
         const ownLabel=firstCard?.querySelector('.zone-btn')?.getAttribute('aria-label');
         if(z&&ownLabel){
-          const prefix=lang==='sv'?'Nära. ':'Nearby. ';
+          const prefix=lang==='sv'?'Nära ':'Nearby ';
           const announcementText=`${prefix}${ownLabel}`;
           /* Voice Mode — Speech Synthesis */
           if(isMonitorActive()) announceZone(z,announcementText);
