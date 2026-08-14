@@ -463,11 +463,27 @@ Lösning: när det inte finns fler redan hämtade zoner att visa (`shownCount
 "Ladda fler zoner"-knappen sig ändå, med texten "Sök i ett större område"
 (`canWidenZoneSearch()`/`updateLoadMoreButton()`). Ett klick hämtar nästa,
 bredare nivå (`widenZoneSearch()`, samma `fetchJsonWithRetry`-skydd som
-den vanliga hämtningen) och ersätter `allZonesSorted` — filtret appliceras
-sedan om automatiskt. Gäller bara den vanliga GPS-listan
-(`lastFetchTierIndex` sätts om vid varje vanlig auto-uppdatering) — inte
-Sök zoner (fast bbox kring den sökta platsen) eller Cykling/Gång (egen
-ruttsorterad pool, egen tillväxtmekanism).
+den vanliga hämtningen), ersätter `allZonesSorted`, växer `shownCount` med
+`PAGE_SIZE` och flyttar fokus till den första nya zonen (samma mönster som
+`loadMore()`) — filtret appliceras sedan om automatiskt. Gäller bara den
+vanliga GPS-listan, inte Sök zoner (fast bbox kring den sökta platsen)
+eller Cykling/Gång (egen ruttsorterad pool, egen tillväxtmekanism).
+
+**Fixad bugg — breddad sökning och sidnumrering återställdes tyst varje
+uppdatering:** rapporterat av användaren som att zoner "försvann" mitt i
+VoiceOver-svepning och att "Sök i ett större område"/"Ladda fler zoner"
+flimrade mellan lägena. Orsak: `fetchNearbyZones()` startade **alltid**
+om sökningen från minsta radienivån (`i=0`) och nollställde `shownCount`
+till `INITIAL_MAX`, oavsett vad en tidigare `widenZoneSearch()`/`loadMore()`
+redan hade byggt upp — nästa vanliga automatiska uppdatering (var 10:e–30:e
+sekund beroende på Rörelse-profil) rev alltså tyst bort både den breddade
+radien och sidnumreringen, vilket i praktiken tömde `<ul>`:n och byggde om
+den med färre kort mitt i en VoiceOver-navigering. Fix: `fetchNearbyZones()`
+startar nu tier-loopen från `lastFetchTierIndex` istället för `0`, och
+`shownCount` krymps aldrig under sitt nuvarande värde (bara upp mot
+`INITIAL_MAX` vid själva förstagångshämtningen) — båda bevaras nu över
+alla efterföljande uppdateringscykler tills något annat (filter/visning-
+byte) uttryckligen sätter om dem.
 
 De två är helt oberoende av varandra och kombineras fritt — det var hela
 poängen med uppdelningen. Sök zoner (`activeVisning==='search'`) stänger

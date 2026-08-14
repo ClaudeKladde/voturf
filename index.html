@@ -628,7 +628,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-14 12:16</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-14 12:27</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -5346,6 +5346,7 @@
   async function widenZoneSearch(){
     if(!canWidenZoneSearch()) return;
     const nextTier=lastFetchTierIndex+1;
+    const prevShownCount=shownCount;
     setStatus(t.statusExpanding,'loading');
     try{
       const half=BBOX_TIERS[nextTier]/2;
@@ -5355,8 +5356,16 @@
       zones.sort((a,b)=>a._dist-b._dist);
       allZonesSorted=zones;
       lastFetchTierIndex=nextTier;
-      renderZoneSlice();
       const filtered=getFilteredZones();
+      /* Grow the visible slice right away instead of only widening the pool
+         for a future "Load more" click — a click on this button should
+         itself produce new, visible zones. Focus lands on the first one,
+         same pattern as loadMore()'s incremental append. */
+      shownCount=Math.min(prevShownCount+PAGE_SIZE,filtered.length||prevShownCount);
+      renderZoneSlice();
+      if(shownCount>prevShownCount){
+        zoneList.querySelectorAll('.zone-card')[prevShownCount]?.querySelector('.zone-btn')?.focus();
+      }
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
     }catch(e){
       setStatus(t.statusError(e.message),'error');
@@ -5516,12 +5525,19 @@
     setStatus(t.statusLoading,'loading');
     let zones=[];
     let rateLimited=false;
-    let usedTierIndex=0;
+    /* Start from whatever tier the search is already at (0 initially, wider
+       if the user has pressed "Sök i ett större område") instead of always
+       restarting from the smallest radius. Every ordinary auto-refresh used
+       to silently re-fetch tier 0 and overwrite allZonesSorted, undoing a
+       manual widen the very next cycle — the search would quietly shrink
+       back down (and the visible "Load more"/"Sök i ett större område"
+       button would flip-flop) without any explicit action from the user. */
+    let usedTierIndex=lastFetchTierIndex;
     try{
-      for(let i=0;i<BBOX_TIERS.length;i++){
+      for(let i=lastFetchTierIndex;i<BBOX_TIERS.length;i++){
         /* API allows only one request per second per resource — wait before
            every retry beyond the first to stay safely within that limit. */
-        if(i>0) await sleep(1100);
+        if(i>lastFetchTierIndex) await sleep(1100);
         const half=BBOX_TIERS[i]/2;
         const body=JSON.stringify([{northEast:{latitude:userLat+half,longitude:userLon+half},southWest:{latitude:userLat-half,longitude:userLon-half}}]);
         const r=await fetch(`${API_BASE}/zones`,{method:'POST',headers:{'Content-Type':'application/json','Accept-Encoding':'gzip'},body});
@@ -5537,7 +5553,11 @@
       allZonesSorted=zones;
       lastFetchTierIndex=usedTierIndex;
       const filtered=getFilteredZones();
-      shownCount=Math.min(INITIAL_MAX,filtered.length||INITIAL_MAX);
+      /* Keep any pagination progress the user already reached ("Load more"
+         clicks) instead of snapping back to the first page every refresh
+         cycle — only grow shownCount up to INITIAL_MAX on the very first
+         fetch (shownCount still at its initial default), never shrink it. */
+      shownCount=Math.min(Math.max(shownCount,INITIAL_MAX),filtered.length||INITIAL_MAX);
       renderZoneSlice();
       setStatus(t.statusUpdated(new Date().toLocaleTimeString(),Math.min(shownCount,filtered.length),allZonesSorted.length),'success');
       /* Keep "Min profil" button, and if open the full Profile page (Vänner, Min
