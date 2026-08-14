@@ -628,7 +628,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-12 11:35</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-14 12:16</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -750,6 +750,10 @@
       <button id="btn-fetch-unique"
         style="display:block;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem .75rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
         Aktivera automatisk hämtning
+      </button>
+      <button id="btn-refresh-unique" hidden
+        style="display:block;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem .75rem;cursor:pointer;background:transparent;color:var(--accent2);margin-bottom:.5rem;text-align:left;">
+        Uppdatera unikazoner nu
       </button>
       <p id="unique-zones-count" style="font-family:var(--font-mono);font-size:.85rem;color:var(--muted);margin-bottom:.5rem">Inga unikazoner inlästa ännu.</p>
       <p id="unique-zones-reminder" style="font-family:var(--font-mono);font-size:.75rem;color:var(--muted);margin-bottom:.75rem;line-height:1.6;">Kom ihåg att uppdatera din lista manuellt regelbundet om du inte aktiverat automatisk hämtning, framför allt efter resor eller intensiva spelperioder.</p>
@@ -959,6 +963,7 @@
       uniqueZonesCount:(n)=>`${n} unikazoner inlästa.`,
       fetchUniqueBtn:'Aktivera automatisk hämtning',
       uniqueAutoFetchActiveLabel:'Automatisk hämtning aktiverad',
+      refreshUniqueBtn:'Uppdatera unikazoner nu',
       fetchUniqueLoading:'Hämtar unikazoner…',
       fetchUniqueSuccess:(n)=>`Klart! ${n} unikazoner inlästa.`,
       fetchUniqueCorsError:'Direkthämtning blockerades. Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.',
@@ -1275,6 +1280,7 @@
       uniqueZonesCount:(n)=>`${n} unique zones loaded.`,
       fetchUniqueBtn:'Activate automatic fetch',
       uniqueAutoFetchActiveLabel:'Automatic fetch activated',
+      refreshUniqueBtn:'Refresh unique zones now',
       fetchUniqueLoading:'Fetching unique zones…',
       fetchUniqueSuccess:(n)=>`Done! ${n} unique zones loaded.`,
       fetchUniqueCorsError:'Direct fetch blocked. Download the KML file manually from turf.lundkvist.com and upload it below.',
@@ -3321,9 +3327,16 @@
   });
 
   /* Reflects uniqueAutoFetchActive on the button: a clickable activation button
-     before, a disabled status confirmation after — never a toggle to turn off. */
+     before, a disabled status confirmation after — never a toggle to turn off.
+     The separate refresh button only appears once active, since before that
+     the activation button itself already does an initial fetch. Covers the
+     rare case where turf.lundkvist.com's list was already a zone behind
+     Turfs own uniqueZonesTaken counter at the moment the baseline was
+     recorded — the automatic silent re-fetch only triggers on a further
+     rise in that counter, so such a gap would otherwise never self-heal. */
   function applyAutoFetchButtonState(){
     const btn=document.getElementById('btn-fetch-unique');
+    const refreshBtn=document.getElementById('btn-refresh-unique');
     if(!btn) return;
     if(uniqueAutoFetchActive){
       btn.textContent=t.uniqueAutoFetchActiveLabel;
@@ -3337,6 +3350,10 @@
       btn.style.color='var(--accent2)';
       btn.style.borderColor='var(--accent2)';
       btn.style.cursor='pointer';
+    }
+    if(refreshBtn){
+      refreshBtn.textContent=t.refreshUniqueBtn;
+      refreshBtn.hidden=!uniqueAutoFetchActive;
     }
   }
 
@@ -3377,6 +3394,7 @@
     }
   }
   document.getElementById('btn-fetch-unique')?.addEventListener('click',()=>fetchUniqueZonesAuto(false));
+  document.getElementById('btn-refresh-unique')?.addEventListener('click',()=>fetchUniqueZonesAuto(false));
 
   let friendStatusTimer=null;
   function setFriendStatus(msg){

@@ -911,6 +911,21 @@ hämtningen lämnas baslinjen orörd så nästa cykel försöker igen automatisk
 Detta undviker att belasta turf.lundkvist.com med ett eget separat
 pollningsintervall.
 
+**Manuell omsynk (`btn-refresh-unique`):** rapporterad bugg — användarens
+egen räknare (`uniqueZonesTaken`, Turfs officiella livstidsantal) visade
+966, medan den lokalt sparade listan (`uniqueZoneNames.size`) bara innehöll
+965 namn. Orsak: om lundkvist.com:s data redan låg en zon efter Turfs egen
+räknare **vid det ögonblick baslinjen sparades** (en timing-lucka mellan de
+två separata tjänsterna), upptäcks det aldrig av mekanismen ovan — den
+triggar bara på att räknaren **stiger vidare**, inte på att de två redan
+skiljer sig åt. Eftersom aktiveringsknappen medvetet är en engångsknapp
+(inte en toggle) fanns inget sätt att manuellt tvinga fram en ny hämtning.
+Lösning: en till, alltid klickbar knapp ("Uppdatera unikazoner nu") som
+visas först efter aktivering, direkt under statusbekräftelsen. Anropar
+samma `fetchUniqueZonesAuto(false)` som aktiveringsknappen — hämtar om
+listan och sätter samtidigt om baslinjen till nuvarande `uniqueZonesTaken`,
+så både listan och jämförelsevärdet synkas i samma klick.
+
 **Bakgrund:** filuppladdning stödjer `.txt` (tabb-separerad) och `.kml`.
 Ett verkligt exportfilexempel (944 zoner, `Placemark`-struktur, alla regioner
 i Sverige) har verifierats fungera med befintlig `parseKml()` utan ändringar.
