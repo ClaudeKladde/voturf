@@ -273,8 +273,8 @@
           <li id="tip-4">Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Rörelse. Rad 2: Filter, Visning, Avisera spelare, Dölj tagna.</li>
           <li id="tip-5">Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.</li>
           <li id="tip-6">Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.</li>
-          <li id="tip-7">Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
-          <li id="tip-7a">Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.</li>
+          <li id="tip-7">Filter-knappen öppnar en meny med fyra alternativ, bara ett i taget: Alla zoner, Tillgängliga, Blockerade och Unikazoner. Ett tryck väljer direkt och stänger menyn. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.</li>
+          <li id="tip-7a">Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter och går att kombinera fritt med det, till exempel Unikazoner tillsammans med Cykel.</li>
           <li id="tip-7b">Sök zoner under Visning låter dig söka på en adress eller ett exakt zonnamn och se närmsta zoner relativt den platsen. Skriv adressen med stad, eller zonnamnet exakt, för bästa resultat. Matchar sökningen både en adress och en zon visas båda bland förslagen. Välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [namnet]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.</li>
           <li id="tip-7c">Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.</li>
           <li id="tip-7d">Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.</li>
@@ -358,13 +358,14 @@
       <!-- Row 2: Filter | Visning | Avisera spelare | Dölj tagna -->
       <div id="toolbar-row2">
         <div id="filter-wrap">
-          <button id="btn-filter" aria-expanded="false" aria-haspopup="true" aria-label="Filter: Alla zoner">
+          <button id="btn-filter" aria-expanded="false" aria-haspopup="listbox" aria-label="Filter: Alla zoner">
             <span id="btn-filter-label">Filter</span>
           </button>
-          <ul id="filter-menu" hidden>
-            <li><label><input type="checkbox" id="chk-filter-available"> <span id="lbl-chk-available">Tillgängliga</span></label></li>
-            <li><label><input type="checkbox" id="chk-filter-blocked"> <span id="lbl-chk-blocked">Blockerade</span></label></li>
-            <li><label><input type="checkbox" id="chk-filter-unique"> <span id="lbl-chk-unique">Unikazoner</span></label></li>
+          <ul id="filter-menu" role="listbox" aria-label="Välj filter" hidden>
+            <li><button role="option" data-filter="none"      aria-checked="true">Alla zoner</button></li>
+            <li><button role="option" data-filter="available" aria-checked="false">Tillgängliga</button></li>
+            <li><button role="option" data-filter="blocked"   aria-checked="false">Blockerade</button></li>
+            <li><button role="option" data-filter="unique"    aria-checked="false">Unikazoner</button></li>
           </ul>
         </div>
         <div id="visning-wrap">
@@ -628,7 +629,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-14 12:27</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-17 12:51</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -873,8 +874,8 @@
         'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Rörelse. Rad 2: Filter, Visning, Avisera spelare, Dölj tagna.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
         'Dölj tagna tar bort dina egna zoner från listan så att nästa tillgängliga zon visas överst. Kräver att du lagt till ditt användarnamn.',
-        'Filter-knappen öppnar en meny med tre kryssrutor: Tillgängliga, Blockerade och Unikazoner. De går att kombinera fritt, till exempel Tillgängliga och Unikazoner samtidigt. Ingen ikryssad ruta visar alla zoner. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
-        'Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter-kryssrutorna och går att kombinera fritt med dem, till exempel Unikazoner tillsammans med Cykel.',
+        'Filter-knappen öppnar en meny med fyra alternativ, bara ett i taget: Alla zoner, Tillgängliga, Blockerade och Unikazoner. Ett tryck väljer direkt och stänger menyn. Unikazoner kräver att du laddat upp din unikazoner-lista under Min profil.',
+        'Visning-knappen öppnar en meny med sex alternativ, bara ett i taget: Standard, Gång, Cykel, Visning med höjd, Visning med höjd och hinder samt Sök zoner. Standard återgår till normal visning. Visning är helt fristående från Filter och går att kombinera fritt med det, till exempel Unikazoner tillsammans med Cykel.',
         'Sök zoner under Visning låter dig söka på en adress eller ett exakt zonnamn och se närmsta zoner relativt den platsen. Skriv adressen med stad, eller zonnamnet exakt, för bästa resultat. Matchar sökningen både en adress och en zon visas båda bland förslagen. Välj bland förslagen och zonlistan uppdateras. Rubriken på zonlistan visar då "Zoner vid [namnet]". Automatiska uppdateringar pausas under sökningen. Tryck Återgå till live-läge längst ner i listan för att återgå till GPS-läget.',
         'Visning med höjd fungerar som standardvisningen men lägger till höjdskillnad relativt din position direkt efter riktningen (avrundat till 5 m, bara vid minst 10 m skillnad). Höjddata hämtas från en extern tjänst (Open-Elevation) — appen meddelar en gång per session om hämtningen lyckades.',
         'Visning med höjd och hinder fungerar som standardvisningen men lägger till både höjdskillnad och en koll på om fågelvägen mellan dig och zonen korsar vatten, motorväg eller järnväg, direkt efter riktningen. Hittas inget hinder sägs inget alls om det, för en snabbare uppläsning. Hinderdata hämtas från en extern tjänst (Overpass/OpenStreetMap) — appen meddelar en gång per session om hämtningen lyckades. Observera: en bro eller tunnel vid korsningspunkten kan ge ett missvisande hinderbesked, eftersom rådatan inte skiljer på det.',
@@ -1190,8 +1191,8 @@
         'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Movement. Row 2: Filter, View, Notify players, Hide taken.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
         'Hide taken removes your own zones from the list so the next available zone appears at the top. Requires your username to be added.',
-        'The Filter button opens a menu with three checkboxes: Available, Blocked, and Unique zones. They combine freely, for example Available and Unique zones at the same time. No box checked shows all zones. Unique zones requires you to have uploaded your unique zones list under My profile.',
-        'The View button opens a menu with six options, one at a time: Standard, Walking, Cycling, View with height, View with height and obstacles, and Zone search. Standard returns to the normal view. View is completely independent from the Filter checkboxes and combines freely with them, for example Unique zones together with Cycling.',
+        'The Filter button opens a menu with four options, one at a time: All zones, Available, Blocked, and Unique zones. Tapping one selects it immediately and closes the menu. Unique zones requires you to have uploaded your unique zones list under My profile.',
+        'The View button opens a menu with six options, one at a time: Standard, Walking, Cycling, View with height, View with height and obstacles, and Zone search. Standard returns to the normal view. View is completely independent from Filter and combines freely with it, for example Unique zones together with Cycling.',
         'Zone search under View lets you search by address or by an exact zone name and see the nearest zones relative to that location. Type the address with the city, or the exact zone name, for the best results. If the search matches both an address and a zone, both appear among the suggestions. Pick from the suggestions, and the zone list updates. The zone list heading then shows "Zones near [name]". Automatic updates pause during the search. Tap Return to live mode at the bottom of the list to go back to GPS mode.',
         'View with height works like the standard view but adds the height difference relative to your position right after the direction (rounded to 5 m, only shown at a 10 m difference or more). Elevation data is fetched from an external service (Open-Elevation) — the app announces once per session whether the fetch succeeded.',
         'View with height and obstacles works like the standard view but adds both the height difference and a check for whether the straight line between you and the zone crosses water, a motorway, or a railway, right after the direction. If no obstacle is found, nothing is said about it, for a faster read. Obstacle data is fetched from an external service (Overpass/OpenStreetMap) — the app announces once per session whether the fetch succeeded. Note: a bridge or tunnel at the crossing point can give a misleading obstacle notice, since the raw data does not distinguish that.',
@@ -1632,10 +1633,13 @@
      more" widen the search on demand once a filter has fewer matches than
      the already-fetched area contains. */
   let lastFetchTierIndex=0;
-  /* Filter (kryssrutor, kombinerbara) och Visning (ett val i taget) är
-     medvetet separata tillstånd — ersätter den tidigare enda activeFilter
-     som gjorde det omöjligt att t.ex. kombinera Unikazoner med Cykling. */
-  let filterAvailable=false,filterBlocked=false,filterUnique=false;
+  /* Filter (ett val i taget, sträng eller null) och Visning (också ett val
+     i taget) är oberoende av varandra och kombineras fritt — t.ex. Unikazoner
+     tillsammans med Cykling går bra. Filter var tidigare kryssrutor som
+     gick att kombinera sinsemellan (Tillgängliga+Unikazoner osv), men
+     återställdes till enval på användarens begäran — kombinationerna
+     användes aldrig i praktiken. */
+  let activeFilter=null; // null | 'available' | 'blocked' | 'unique'
   let activeVisning=null; // null | 'advanced' | 'advancedObstacle' | 'cycling' | 'walking' | 'search'
   /* Advanced view — elevation lookups via Open-Elevation (open, key-free, batchable),
      used the same way for the user's own position and every zone so both sides of the
@@ -2183,9 +2187,6 @@
   const btnVisning     =document.getElementById('btn-visning');
   const btnVisningLabel=document.getElementById('btn-visning-label');
   const visningMenu    =document.getElementById('visning-menu');
-  const chkFilterAvailable=document.getElementById('chk-filter-available');
-  const chkFilterBlocked  =document.getElementById('chk-filter-blocked');
-  const chkFilterUnique   =document.getElementById('chk-filter-unique');
   const tipsToggle    =document.getElementById('tips-toggle');
   const tipsContent   =document.getElementById('tips-content');
   const speedVal      =document.getElementById('speed-val');
@@ -2814,13 +2815,10 @@
       const lblR=document.getElementById(`lbl-${mode}-player-radius`);
       if(lblR) lblR.textContent=t.playerRadiusLabel;
     });
-    /* Filter checkboxes — labels */
-    const lblChkAvailable=document.getElementById('lbl-chk-available');
-    if(lblChkAvailable) lblChkAvailable.textContent=t.filterAvailable;
-    const lblChkBlocked=document.getElementById('lbl-chk-blocked');
-    if(lblChkBlocked) lblChkBlocked.textContent=t.filterBlocked;
-    const lblChkUnique=document.getElementById('lbl-chk-unique');
-    if(lblChkUnique) lblChkUnique.textContent=t.filterUnique;
+    /* Filter menu — option texts */
+    const filterOpts=filterMenu.querySelectorAll('button[data-filter]');
+    const filterNames={none:t.filterAll,available:t.filterAvailable,blocked:t.filterBlocked,unique:t.filterUnique};
+    filterOpts.forEach(b=>{b.textContent=filterNames[b.dataset.filter];});
     updateFilterButtonUI();
     /* Visning menu — option texts */
     const visningOpts=visningMenu.querySelectorAll('button[data-visning]');
@@ -3537,46 +3535,53 @@
   }
 
   /* ════════════════════════════════════════
-     FILTER — kryssrutor, fritt kombinerbara (Tillgängliga/Blockerade/
-     Unikazoner). Separat och oberoende av Visning nedan — det är just det
-     som gör t.ex. Unikazoner + Cykling möjligt, till skillnad från den
-     tidigare enda activeFilter som gjorde alla nio alternativen ömsesidigt
-     uteslutande.
+     FILTER — ett val i taget (samma enval-listmönster som Visning), separat
+     och oberoende av Visning nedan — Unikazoner + Cykling går fortfarande
+     att kombinera fritt, det är bara Filter-alternativen sinsemellan som är
+     ömsesidigt uteslutande. Var tidigare kryssrutor (kombinerbara), men
+     återställt till enval på användarens begäran.
   ════════════════════════════════════════ */
   function filterSummaryLabel(){
-    const parts=[];
-    if(filterAvailable) parts.push(t.filterAvailable);
-    if(filterBlocked) parts.push(t.filterBlocked);
-    if(filterUnique) parts.push(t.filterUnique);
-    return parts.length?parts.join(', '):t.filterAll;
+    if(activeFilter==='available') return t.filterAvailable;
+    if(activeFilter==='blocked') return t.filterBlocked;
+    if(activeFilter==='unique') return t.filterUnique;
+    return t.filterAll;
   }
   function updateFilterButtonUI(){
     btnFilterLabel.textContent=t.filterBtnLabel;
     btnFilter.setAttribute('aria-label',t.filterBtnAria(filterSummaryLabel()));
+    filterMenu.querySelectorAll('button[data-filter]').forEach(b=>{
+      const val=b.dataset.filter==='none'?null:b.dataset.filter;
+      b.setAttribute('aria-checked',val===activeFilter?'true':'false');
+    });
   }
   btnFilter.addEventListener('click',()=>{
     const open=!filterMenu.hidden;filterMenu.hidden=open;btnFilter.setAttribute('aria-expanded',String(!open));
-    if(!open) chkFilterAvailable.focus();
+    if(!open){
+      const curSelector=activeFilter?`button[data-filter="${activeFilter}"]`:'button[data-filter="none"]';
+      (filterMenu.querySelector(curSelector)||filterMenu.querySelector('button[data-filter]')).focus();
+    }
   });
   document.addEventListener('click',e=>{if(!e.target.closest('#filter-wrap')){filterMenu.hidden=true;btnFilter.setAttribute('aria-expanded','false');}});
-  function onFilterCheckboxChange(){
-    filterAvailable=chkFilterAvailable.checked;
-    filterBlocked=chkFilterBlocked.checked;
-    filterUnique=chkFilterUnique.checked;
-    updateFilterButtonUI();
-    if(filterUnique&&uniqueZoneNames.size===0){
-      setStatus(t.filterUniqueNoList,'');
-    }
-    shownCount=INITIAL_MAX;
-    renderZoneSlice();
-  }
-  chkFilterAvailable.addEventListener('change',onFilterCheckboxChange);
-  chkFilterBlocked.addEventListener('change',onFilterCheckboxChange);
-  chkFilterUnique.addEventListener('change',onFilterCheckboxChange);
+  filterMenu.querySelectorAll('button[data-filter]').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      const chosen=btn.dataset.filter==='none'?null:btn.dataset.filter;
+      activeFilter=chosen;
+      filterMenu.hidden=true;
+      btnFilter.setAttribute('aria-expanded','false');
+      btnFilter.focus();
+      updateFilterButtonUI();
+      if(activeFilter==='unique'&&uniqueZoneNames.size===0){
+        setStatus(t.filterUniqueNoList,'');
+      }
+      shownCount=INITIAL_MAX;
+      renderZoneSlice();
+    });
+  });
 
   /* ════════════════════════════════════════
-     VISNING — ett val i taget (samma enval-mönster som Filter hade förut),
-     men helt oberoende av Filter-kryssrutorna ovan.
+     VISNING — ett val i taget, samma enval-listmönster som Filter ovan,
+     men helt oberoende av Filter — de två kombineras fritt.
   ════════════════════════════════════════ */
   function visningLabel(){
     if(activeVisning==='advanced')  return t.filterAdvanced;
@@ -3632,16 +3637,14 @@
     if(hideTakenActive&&savedUsername){
       zones=zones.filter(z=>z.currentOwner?.name!==savedUsername);
     }
-    /* Filter-kryssrutor: Tillgängliga/Blockerade kombineras som "endera"
-       eftersom de är motsatta tillstånd av samma egenskap; Unikazoner är
-       ett separat, extra krav ovanpå det. */
-    if(filterAvailable||filterBlocked){
-      zones=zones.filter(z=>{
-        const b=getBlockStatus(z);
-        return (filterAvailable&&b.blocked===false)||(filterBlocked&&(b.blocked===true||b.blocked===null));
-      });
+    /* Filter — ett val i taget */
+    if(activeFilter==='available'){
+      zones=zones.filter(z=>getBlockStatus(z).blocked===false);
+    } else if(activeFilter==='blocked'){
+      zones=zones.filter(z=>{const b=getBlockStatus(z);return b.blocked===true||b.blocked===null;});
+    } else if(activeFilter==='unique'){
+      zones=zones.filter(z=>isUniqueZone(z.name));
     }
-    if(filterUnique) zones=zones.filter(z=>isUniqueZone(z.name));
     /* Cykling: no extra filtering here — the candidate pool is just the
        nearest `shownCount` zones (standard pagination), re-sorted by actual
        bike distance in renderZoneSlice()/loadMore() once fetched. This keeps

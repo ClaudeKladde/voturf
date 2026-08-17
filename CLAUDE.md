@@ -424,28 +424,24 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 
 ### Filter och Visning
 
-Tidigare var alla nio zonvisningsalternativen (Alla zoner, Tillgängliga,
-Blockerade, Närmsta unikazoner, Sök zoner, Avancerad visning med höjd,
-Avancerat läge med hinder, Cykling, Gång) ömsesidigt uteslutande via en enda
-`activeFilter`-variabel — det gick t.ex. inte att kombinera Unikazoner med
-Cykling. Uppdelat i två oberoende tillstånd efter användarönskemål:
+Filter och Visning är två oberoende, fritt kombinerbara tillstånd — t.ex.
+Unikazoner (Filter) tillsammans med Cykling (Visning) går bra. Båda är
+enval-listor (`role="listbox"`, `aria-checked`, ett klick väljer direkt
+och stänger menyn), samma mönster för båda:
 
-- **Filter** (`filterAvailable`/`filterBlocked`/`filterUnique`, booleaner) —
-  riktiga `<input type="checkbox">` i `#filter-menu` (medvetet inte
-  `role="listbox"`+`aria-checked`-knappar som tidigare — semantisk HTML
-  räcker för "kryssa i flera", ingen extra ARIA behövs). Fritt
-  kombinerbara. Tillgängliga/Blockerade kombineras som "endera" (de är
-  motsatta tillstånd av samma egenskap — ikryssade båda ger samma resultat
-  som ingen ikryssad, bara redundant). Unikazoner är ett separat, extra
-  krav ovanpå blockeringsvalet (`getFilteredZones()`), så "Tillgängliga +
-  Unikazoner" ger just tillgängliga zoner som också är unika. Ingen egen
-  kryssruta för "Alla zoner" — ingen ikryssad ruta betyder implicit allt.
+- **Filter** (`activeFilter`, sträng eller `null`) — Alla zoner,
+  Tillgängliga, Blockerade, Unikazoner. **Var tidigare riktiga
+  `<input type="checkbox">`, fritt kombinerbara** (byggt efter ett tidigare
+  önskemål om att kunna kryssa i flera samtidigt, t.ex. Tillgängliga +
+  Unikazoner) — **återställt till enval-lista på användarens begäran**:
+  kombinationerna användes aldrig i praktiken, och en vanlig lista där ett
+  tryck väljer direkt kändes snabbare. `getFilteredZones()` filtrerar nu på
+  ett enda `activeFilter`-värde istället för tre booleaner.
 - **Visning** (`activeVisning`, sträng eller `null`) — Standard, Gång,
   Cykling, Avancerad visning med höjd, Avancerat läge med hinder, Sök
-  zoner. Samma enval-lista-mönster (`role="listbox"`, `aria-checked`) som
-  Filter hade förut. **Standard** (`data-visning="none"` i HTML, mappas
-  till `activeVisning=null` i JS) är en egen, explicit rad längst upp i
-  menyn för att återgå till normal visning — testades först utan denna rad
+  zoner. **Standard** (`data-visning="none"` i HTML, mappas till
+  `activeVisning=null` i JS) är en egen, explicit rad längst upp i menyn
+  för att återgå till normal visning — testades först utan denna rad
   (klick på redan aktivt alternativ skulle stänga av det), men det visade
   sig inte vara tillräckligt tydligt/påtagligt i praktiken, så en riktig
   Standard-rad lades till istället.
@@ -488,8 +484,8 @@ byte) uttryckligen sätter om dem.
 De två är helt oberoende av varandra och kombineras fritt — det var hela
 poängen med uppdelningen. Sök zoner (`activeVisning==='search'`) stänger
 fortfarande av sig själv när ett annat Visning-alternativ väljs (samma
-`deactivateSearchMode()` som förut), men påverkar inte Filter-kryssrutorna
-alls — de fortsätter gälla på de sökta zonerna också.
+`deactivateSearchMode()` som förut), men påverkar inte Filter alls — det
+fortsätter gälla på de sökta zonerna också.
 
 **Namnbyte:** "Avancerad visning med höjd" → **Visning med höjd**,
 "Avancerat läge med hinder" → **Visning med höjd och hinder** (kortare,
