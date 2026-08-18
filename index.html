@@ -45,6 +45,19 @@
     .btn-back:hover{border-color:var(--accent);color:var(--accent)}
     .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 
+    /* Bottom "back" buttons only — sticks to the bottom of the viewport
+       once a long list (owned zones, nearby zones, friends, medals) would
+       otherwise push it far below the fold, so it's always reachable
+       without scrolling all the way down. Opaque background so scrolling
+       content doesn't show through underneath it. */
+    .btn-back-bottom{
+      position:sticky;
+      bottom:calc(env(safe-area-inset-bottom,0px) + .4rem);
+      z-index:5;
+      width:100%;justify-content:center;box-sizing:border-box;
+      background:var(--bg);
+    }
+
     /* ── Skip links ── */
     #skip-links a{
       display:block;font-family:var(--font-mono);font-size:.75rem;
@@ -630,7 +643,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-18 13:55</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-18 14:05</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -658,10 +671,6 @@
       <li id="di-zone">—</li>
       <li id="di-created">—</li>
     </ul>
-    <div id="owned-section" hidden>
-      <h2 id="owned-heading">—</h2>
-      <ul id="owned-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
-    </div>
     <button id="btn-nearby-to-zone" aria-expanded="false"
       style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:1rem;text-align:left;">
       Visa närliggande zoner
@@ -670,7 +679,11 @@
       <h2 id="nearby-to-zone-heading">—</h2>
       <ul id="nearby-to-zone-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
-    <button id="btn-back-detail-bottom" class="btn-back" aria-label="Tillbaka till zonlistan" style="margin-top:1rem;">&#8592; <span id="lbl-back-detail-bottom">Tillbaka till zonlistan</span></button>
+    <div id="owned-section" hidden>
+      <h2 id="owned-heading">—</h2>
+      <ul id="owned-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
+    <button id="btn-back-detail-bottom" class="btn-back btn-back-bottom" aria-label="Tillbaka till zonlistan" style="margin-top:1rem;">&#8592; <span id="lbl-back-detail-bottom">Tillbaka till zonlistan</span></button>
   </div>
 
   <!-- ══ PROFILE VIEW ══ -->
@@ -782,7 +795,7 @@
 
     </div><!-- end profile-stats-section -->
 
-    <button id="btn-back-profile-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
+    <button id="btn-back-profile-bottom" class="btn-back btn-back-bottom" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
   </div>
 
   <!-- ══ PLAYER DETAIL VIEW (for nearby players and friends) ══ -->
@@ -830,7 +843,7 @@
       <li id="pdi-latest-session" hidden>—</li>
       <li id="pdi-top-areas" hidden>—</li>
     </ul>
-    <button id="btn-back-player-detail-bottom" class="btn-back" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
+    <button id="btn-back-player-detail-bottom" class="btn-back btn-back-bottom" aria-label="Tillbaka till listan" style="margin-top:.5rem;">&#8592; <span id="lbl-back-player-detail-bottom">Tillbaka till listan</span></button>
   </div>
 
   <!-- ══ MEDALS VIEW (nås från egen profil och från vänners sida) ══ -->
@@ -845,7 +858,7 @@
       <h2 id="medals-remaining-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Återstående medaljer</h2>
       <div id="medals-remaining-list"></div>
     </div>
-    <button id="btn-back-medals-bottom" class="btn-back" aria-label="Tillbaka till profilen" style="margin-top:1rem;">&#8592; <span id="lbl-back-medals-bottom">Tillbaka till profilen</span></button>
+    <button id="btn-back-medals-bottom" class="btn-back btn-back-bottom" aria-label="Tillbaka till profilen" style="margin-top:1rem;">&#8592; <span id="lbl-back-medals-bottom">Tillbaka till profilen</span></button>
   </div>
 
   <!-- VO alert live region — outside all views so VoiceOver never swipes to it normally -->

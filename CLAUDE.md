@@ -322,8 +322,11 @@ Alla tre fält döljs individuellt (`hidden`) om data saknas, precis som
 ### Zoner nära en vald zon
 
 Knapp (`#btn-nearby-to-zone`, "Visa närliggande zoner"/"Dölj närliggande
-zoner") längst ner på zonens detaljsida, efter `#owned-section` ("zoner
-ägda av samma ägare" — sorterat efter avstånd från **dig**). Denna nya
+zoner") direkt efter zonens statistiklista (`#detail-list`), före
+`#owned-section` ("zoner ägda av samma ägare" — sorterat efter avstånd
+från **dig**). Flyttad hit (från efter `#owned-section`) på användarens
+begäran, för att ligga direkt efter statistiken istället för efter
+ägar-rubriken. Denna nya
 sektion är avsiktligt en annan referenspunkt: sorterat efter avstånd från
 **den valda zonen**, inte din egen GPS-position — testat och bekräftat med
 en position långt från zonen att sorteringen ändå blir rätt relativt zonen.
@@ -448,6 +451,19 @@ top: calc(env(safe-area-inset-top, 0px) - 1px);
 ```
 
 `role="toolbar"` är medvetet borttaget (orsakade dubbel uppläsning).
+
+**Sticky "tillbaka"-knappar längst ner.** De fyra "Tillbaka..."-knapparna
+i botten av respektive vy (`#btn-back-detail-bottom`,
+`#btn-back-profile-bottom`, `#btn-back-player-detail-bottom`,
+`#btn-back-medals-bottom`) har en extra CSS-klass, `.btn-back-bottom`
+(utöver den vanliga `.btn-back` som även de fyra motsvarande knapparna
+längst **upp** har — de förblir medvetet ostickyade, det är bara botten-
+knapparna som ska följa med). `position:sticky;bottom:...` gör att
+knappen alltid är nåbar utan att scrolla hela vägen ner, även när listorna
+ovanför (ägda zoner, närliggande zoner, vänner, medaljer) blir långa —
+byggt på användarens begäran. Ogenomskinlig bakgrund (`var(--bg)`) så att
+innehåll som scrollar bakom inte syns igenom. Samma `env(safe-area-inset-
+bottom)`-mönster som toolbarens egen sticky-fix ovan, fast i botten.
 
 ### Filter och Visning
 
