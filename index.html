@@ -38,27 +38,26 @@
       display:inline-flex;align-items:center;gap:.4rem;
       font-family:var(--font-mono);font-size:.875rem;font-weight:600;
       border:2px solid var(--accent2);border-radius:var(--radius);
-      padding:.4rem .9rem;cursor:pointer;background:transparent;
-      color:var(--accent2);margin-bottom:1rem;
-      transition:border-color .15s,color .15s;
+      padding:.4rem .9rem;cursor:pointer;
+      background:var(--accent2);color:#000;margin-bottom:1rem;
+      transition:background .15s,border-color .15s,color .15s;
     }
-    .btn-back:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-back:hover{background:var(--accent);border-color:var(--accent)}
     .btn-back:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 
     /* Bottom "back" buttons only — sticks to the bottom of the viewport
        once a long list (owned zones, nearby zones, friends, medals) would
        otherwise push it far below the fold, so it's always reachable
-       without scrolling all the way down. Opaque background so scrolling
-       content doesn't show through underneath it. Wider padding than the
-       plain .btn-back so it reads as a clear, easy-to-hit bar rather than
-       a regular inline button. */
+       without scrolling all the way down. Already opaque via .btn-back's
+       own solid background, so scrolling content never shows through.
+       Wider padding than the plain .btn-back so it reads as a clear,
+       easy-to-hit bar rather than a regular inline button. */
     .btn-back-bottom{
       position:sticky;
       bottom:calc(env(safe-area-inset-bottom,0px) + .4rem);
       z-index:5;
       width:100%;justify-content:center;box-sizing:border-box;
       padding:.65rem .9rem;
-      background:var(--bg);
     }
 
     /* ── Skip links ── */
@@ -646,7 +645,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-18 14:18</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-18 14:22</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
