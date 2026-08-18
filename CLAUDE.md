@@ -319,6 +319,33 @@ och områdes-historik) är avsiktligt **inte** byggda ännu.
 Alla tre fält döljs individuellt (`hidden`) om data saknas, precis som
 `records`/`rivals`-fälten ovan — inget separat felmeddelande.
 
+### Zoner nära en vald zon
+
+Knapp (`#btn-nearby-to-zone`, "Visa närliggande zoner"/"Dölj närliggande
+zoner") längst ner på zonens detaljsida, efter `#owned-section` ("zoner
+ägda av samma ägare" — sorterat efter avstånd från **dig**). Denna nya
+sektion är avsiktligt en annan referenspunkt: sorterat efter avstånd från
+**den valda zonen**, inte din egen GPS-position — testat och bekräftat med
+en position långt från zonen att sorteringen ändå blir rätt relativt zonen.
+
+- Expanderbar knapp (`aria-expanded`), inte en engångsknapp — döljer
+  listan igen vid nästa tryck utan att lämna sidan.
+- Hämtar en gång per zon (`nearbyToZoneLoadedForId`, samma mönster som
+  cachning på andra håll) — döljer/visar bara på efterföljande tryck om
+  redan hämtat, ingen upprepad belastning på Turfs hastighetsgräns.
+- Bara på klick, inte automatiskt vid varje zonbesök (till skillnad från
+  `#owned-section`) — annars skulle varje öppnad zon kosta ett extra
+  Turf-anrop i onödan.
+- Samma bbox-storlek som appens vanliga första sökradie (`BBOX_DEG`,
+  ~5 km), zonen själv exkluderad ur sin egen lista, begränsat till de 20
+  närmaste utan paginering (medvetet enkelt, på användarens begäran).
+- Nollställs helt (`showDetail()`) när man öppnar en annan zon, precis som
+  `#owned-section` redan gjorde.
+- Riktningen (klockan) för varje listad zon är liksom överallt annars i
+  appen beräknad relativt din **egen** position, inte den valda zonen —
+  bara avståndet/sorteringen är zonrelativ. Medvetet konsekvent med hur
+  Sök zoner redan fungerar (`loadZonesForLocation`), inte en ny avvikelse.
+
 ### Nya unikazoner denna omgång (Metric B) — egen baseline/delta via Turfs /rounds
 
 Det egentliga ursprungsönskemålet — "unikazoner som tagits denna omgång OCH

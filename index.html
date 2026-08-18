@@ -266,6 +266,7 @@
           <li id="tip-1">Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.</li>
           <li id="tip-2">Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver. Om appen finns på hemskärmen finns tillbaka-knappar längst upp och längst ner i varje vy.</li>
           <li id="tip-3">Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.</li>
+          <li id="tip-3a">Knappen Visa närliggande zoner, längst ner på zonens detaljsida, visar upp till 20 zoner nära den valda zonen — inte din egen position — sorterade med närmast överst. Ett tryck till döljer listan igen.</li>
           <li id="tip-3b">På zonens detaljsida finns knappen Starta vägbeskrivning, direkt under rubriken. Den ger en levande, steg-för-steg gångnavigering som aviserar nästa sväng när du närmar dig den, tillsammans med klockriktning och kvarvarande avstånd och tid till zonen. Hittas ingen pålitlig gångväg visas bara riktning och avstånd istället.</li>
         </ul>
         <h3 id="tips-h-toolbar">Verktygsfält</h3>
@@ -629,7 +630,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-17 12:51</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-18 13:55</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -660,6 +661,14 @@
     <div id="owned-section" hidden>
       <h2 id="owned-heading">—</h2>
       <ul id="owned-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
+    </div>
+    <button id="btn-nearby-to-zone" aria-expanded="false"
+      style="display:block;width:100%;font-family:var(--font-mono);font-size:.875rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem 1rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:1rem;text-align:left;">
+      Visa närliggande zoner
+    </button>
+    <div id="nearby-to-zone-section" hidden>
+      <h2 id="nearby-to-zone-heading">—</h2>
+      <ul id="nearby-to-zone-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem"></ul>
     </div>
     <button id="btn-back-detail-bottom" class="btn-back" aria-label="Tillbaka till zonlistan" style="margin-top:1rem;">&#8592; <span id="lbl-back-detail-bottom">Tillbaka till zonlistan</span></button>
   </div>
@@ -870,6 +879,7 @@
         'Varje zon i listan läses upp i ett svep — namn, eventuell zontyp (t.ex. Monument eller Bro), avstånd, riktning, ägare och blockstatus.',
         'Tryck på en zon för att öppna fullständiga detaljer. Använd bakåtgestet för att återvända — tvåfingers svep med VoiceOver. Om appen finns på hemskärmen finns tillbaka-knappar längst upp och längst ner i varje vy.',
         'Längst ner på zonens detaljsida hittar du alla zoner som ägs av samma ägare, sorterade efter avstånd från dig. Varje zon visar också när den senast togs, om den inte är blockerad.',
+        'Knappen Visa närliggande zoner, längst ner på zonens detaljsida, visar upp till 20 zoner nära den valda zonen — inte din egen position — sorterade med närmast överst. Ett tryck till döljer listan igen.',
         'På zonens detaljsida finns knappen Starta vägbeskrivning, direkt under rubriken. Den ger en levande, steg-för-steg gångnavigering som aviserar nästa sväng när du närmar dig den, tillsammans med klockriktning och kvarvarande avstånd och tid till zonen. Hittas ingen pålitlig gångväg visas bara riktning och avstånd istället.',
         'Verktygsfältet har tre rader. Längst upp: Min profil. Rad 1: Uppdatera, Pausa, Rörelse. Rad 2: Filter, Visning, Avisera spelare, Dölj tagna.',
         'Pausa-knappen stoppar alla automatiska uppdateringar och aviseringar. Manuell uppdatering fungerar fortfarande när det är pausat.',
@@ -998,6 +1008,12 @@
       takenAgo:(d)=>`Tagen ${d} sedan`,agoSuffix:'sedan',
       unknown:'Okänd',unownedLabel:'Ej ägd',na:'Ej tillgänglig',loadingDots:'Laddar…',
       ownsZones:(name,n)=>`${name} äger ${n} zoner:`,ownsZonesLoading:'Laddar ägda zoner…',
+      nearbyToZoneBtn:'Visa närliggande zoner',nearbyToZoneBtnAria:'Visa zoner nära den här zonen',
+      nearbyToZoneHideBtn:'Dölj närliggande zoner',
+      nearbyToZoneLoading:'Laddar närliggande zoner…',
+      nearbyToZoneHeading:(name,n)=>`Zoner nära ${name} (${n}):`,
+      nearbyToZoneError:'Kunde inte ladda närliggande zoner.',
+      nearbyToZoneEmpty:'Inga andra zoner hittades i närheten.',
       filterAll:'Alla zoner',filterAvailable:'Tillgängliga',filterBlocked:'Blockerade',
       filterUnique:'Unikazoner',filterSearch:'Sök zoner',
       filterAdvanced:'Visning med höjd',
@@ -1187,6 +1203,7 @@
         'Each zone in the list is one swipe — name, zone type when known (e.g. Monument or Bridge), distance, direction, owner, and block status.',
         'Tap a zone to open full details. Use the back gesture to return — two-finger scrub with VoiceOver. If the app is on your home screen, back buttons are also available at the top and bottom of every view.',
         'At the bottom of the zone detail page you find all zones owned by the same owner, sorted by distance from you. Each zone also shows when it was last taken, if not currently blocked.',
+        'The Show nearby zones button, at the bottom of the zone detail page, shows up to 20 zones near the selected zone — not your own position — sorted with the nearest first. Tap again to hide the list.',
         'On a zone\'s detail page there is a Start directions button, right under the heading. It gives live, step-by-step walking navigation that announces the next turn as you approach it, along with the clock direction and remaining distance and time to the zone. If no reliable walking route is found, only direction and distance are shown instead.',
         'The toolbar has three rows. At the top: My profile. Row 1: Refresh, Pause, Movement. Row 2: Filter, View, Notify players, Hide taken.',
         'The Pause button stops all auto-updates and announcements. Manual refresh still works while paused.',
@@ -1315,6 +1332,12 @@
       takenAgo:(d)=>`Taken ${d} ago`,agoSuffix:'ago',
       unknown:'Unknown',unownedLabel:'Unowned',na:'N/A',loadingDots:'Loading…',
       ownsZones:(name,n)=>`${name} owns ${n} zones:`,ownsZonesLoading:'Loading owned zones…',
+      nearbyToZoneBtn:'Show nearby zones',nearbyToZoneBtnAria:'Show zones near this zone',
+      nearbyToZoneHideBtn:'Hide nearby zones',
+      nearbyToZoneLoading:'Loading nearby zones…',
+      nearbyToZoneHeading:(name,n)=>`Zones near ${name} (${n}):`,
+      nearbyToZoneError:'Could not load nearby zones.',
+      nearbyToZoneEmpty:'No other zones found nearby.',
       filterAll:'All zones',filterAvailable:'Available',filterBlocked:'Blocked',
       filterUnique:'Unique zones',filterSearch:'Zone search',
       filterAdvanced:'View with height',
@@ -2489,6 +2512,11 @@
     clearInterval(detailLiveInterval);activeZone=zone;
     document.getElementById('owned-section').hidden=true;
     document.getElementById('owned-list').innerHTML='';
+    nearbyToZoneLoadedForId=null;
+    document.getElementById('nearby-to-zone-section').hidden=true;
+    document.getElementById('nearby-to-zone-list').innerHTML='';
+    document.getElementById('btn-nearby-to-zone').setAttribute('aria-expanded','false');
+    updateNearbyToZoneBtnUI();
     listView.classList.remove('active');
     profileView.classList.remove('active');
     playerDetailView.classList.remove('active');
@@ -2759,7 +2787,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[4,11,1,2,2,4,2,1,3];
+      const sectionSizes=[5,11,1,2,2,4,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -2830,6 +2858,7 @@
     updatePauseBtn();
     updateAllMovementStepperUI();
     updateNavToggleUI();
+    if(typeof updateNearbyToZoneBtnUI==='function') updateNearbyToZoneBtnUI();
     updateSpeedUI();
     if(typeof updateHideTakenBtn==='function') updateHideTakenBtn();
     /* Skip links */
@@ -5517,6 +5546,64 @@
       ul.innerHTML=`<li style="color:var(--danger);font-family:var(--font-mono);font-size:.85rem">Kunde inte ladda zoner</li>`;
     }
   }
+
+  /* ════════════════════════════════════════
+     NEARBY TO ZONE — zones near the currently viewed zone (not the user),
+     shown at the bottom of the zone detail page on demand. Distinct from
+     "owned zones" above, which is sorted by distance from the user.
+  ════════════════════════════════════════ */
+  const NEARBY_TO_ZONE_MAX=20;
+  let nearbyToZoneLoadedForId=null;
+  async function fetchAndRenderNearbyToZone(zone){
+    const hd=document.getElementById('nearby-to-zone-heading');
+    const ul=document.getElementById('nearby-to-zone-list');
+    hd.textContent=t.nearbyToZoneLoading;ul.innerHTML='';
+    try{
+      const half=BBOX_DEG/2;
+      const body=JSON.stringify([{northEast:{latitude:zone.latitude+half,longitude:zone.longitude+half},southWest:{latitude:zone.latitude-half,longitude:zone.longitude-half}}]);
+      const zones=await fetchJsonWithRetry(`${API_BASE}/zones`,body);
+      const others=zones.filter(z=>z.id!==zone.id);
+      others.forEach(z=>{z._dist=haversineKm(zone.latitude,zone.longitude,z.latitude,z.longitude)});
+      others.sort((a,b)=>a._dist-b._dist);
+      const nearest=others.slice(0,NEARBY_TO_ZONE_MAX);
+      hd.textContent=t.nearbyToZoneHeading(zone.name,nearest.length);
+      if(!nearest.length){
+        ul.innerHTML=`<li style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">${t.nearbyToZoneEmpty}</li>`;
+        return;
+      }
+      const frag=document.createDocumentFragment();
+      nearest.forEach((z,i)=>frag.appendChild(buildOwnedZoneItem(z,i+1)));
+      ul.appendChild(frag);
+    }catch(e){
+      hd.textContent=t.nearbyToZoneError;
+      ul.innerHTML='';
+      nearbyToZoneLoadedForId=null; /* allow retry on next click instead of silently staying broken */
+    }
+  }
+  function updateNearbyToZoneBtnUI(){
+    const btn=document.getElementById('btn-nearby-to-zone');
+    if(!btn) return;
+    const expanded=btn.getAttribute('aria-expanded')==='true';
+    btn.textContent=expanded?t.nearbyToZoneHideBtn:t.nearbyToZoneBtn;
+    btn.setAttribute('aria-label',t.nearbyToZoneBtnAria);
+  }
+  document.getElementById('btn-nearby-to-zone').addEventListener('click',async ()=>{
+    const btn=document.getElementById('btn-nearby-to-zone');
+    const sec=document.getElementById('nearby-to-zone-section');
+    if(!sec.hidden){
+      sec.hidden=true;
+      btn.setAttribute('aria-expanded','false');
+      updateNearbyToZoneBtnUI();
+      return;
+    }
+    if(!activeZone) return;
+    sec.hidden=false;
+    btn.setAttribute('aria-expanded','true');
+    updateNearbyToZoneBtnUI();
+    if(nearbyToZoneLoadedForId===activeZone.id) return; /* already fetched for this zone */
+    nearbyToZoneLoadedForId=activeZone.id;
+    await fetchAndRenderNearbyToZone(activeZone);
+  });
 
   /* ════════════════════════════════════════
      FETCH ZONES
