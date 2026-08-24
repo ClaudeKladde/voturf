@@ -889,7 +889,8 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
   `deviceorientation`/`webkitCompassHeading`) verkligen är rätt referens när
   man går med telefonen i fickan/väskan istället för att hålla den pekandes
   rakt fram. En toggle i Inställningar (`btn-movement-direction`,
-  `movementDirectionEnabled`, av som standard) byter källa för
+  `movementDirectionEnabled`, **på som grundinställning** sedan användaren
+  testat live och ville ha den påslagen från start) byter källa för
   `relativeBearing()` till en riktning uträknad från faktisk GPS-förflyttning
   (`updateMoveHeading()`, bäringen mellan en referenspunkt och nuvarande
   position) istället för telefonens fysiska vridning — men **bara** när den

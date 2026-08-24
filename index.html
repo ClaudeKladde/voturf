@@ -606,9 +606,9 @@
     <!-- Experimental: movement-based clock direction, falls back to compass -->
     <div class="settings-control">
       <span class="settings-label" id="lbl-movement-direction">Rörelsebaserad riktning (experimentell):</span>
-      <button id="btn-movement-direction" aria-pressed="false"
-        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--border);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:transparent;color:var(--muted);transition:background .15s,color .15s,border-color .15s;">
-        Av
+      <button id="btn-movement-direction" aria-pressed="true"
+        style="font-family:var(--font-mono);font-size:.8rem;font-weight:700;border:2px solid var(--accent);border-radius:var(--radius);padding:.2rem .75rem;cursor:pointer;background:var(--accent);color:#000;transition:background .15s,color .15s,border-color .15s;">
+        På
       </button>
     </div>
     <!-- Plain status text, not aria-live — updates continuously in the
@@ -645,7 +645,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-18 14:22</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-24 20:47</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -1650,7 +1650,7 @@
      on. relativeBearing() prefers this over the compass when it's fresh
      enough (see MOVE_HEADING_STALE_MS), falling back to the compass, then
      to an absolute (north-relative) bearing, same as before this existed. */
-  let movementDirectionEnabled=false;
+  let movementDirectionEnabled=true;
   let moveHeadingRefLat=null,moveHeadingRefLon=null,moveHeadingRefAt=null;
   let moveHeading=null,moveHeadingAt=null;
   const MOVE_HEADING_STALE_MS=20000,MOVE_HEADING_REF_MAX_AGE_MS=90000;
@@ -2273,7 +2273,7 @@
       const savedCompass=localStorage.getItem('turf-compass');
       if(savedCompass==='false') compassEnabled=false;
       const savedMovementDirection=localStorage.getItem('turf-movement-direction');
-      if(savedMovementDirection==='true') movementDirectionEnabled=true;
+      if(savedMovementDirection==='false') movementDirectionEnabled=false;
       const sUser=localStorage.getItem('turf-username');
       if(sUser) savedUsername=sUser;
       try{
