@@ -827,7 +827,7 @@ turf-movement-mode, turf-movement-profiles, turf-friends,
 turf-friends-show-nearby, turf-players-hidden-nearby,
 turf-unique-zones, turf-pause, turf-unique-auto-fetch,
 turf-unique-count-baseline, turf-round-start-cache,
-turf-round-new-unique-baseline
+turf-round-new-unique-baseline, turf-custom-places
 ```
 
 ---
@@ -985,6 +985,47 @@ så både listan och jämförelsevärdet synkas i samma klick.
 **Bakgrund:** filuppladdning stödjer `.txt` (tabb-separerad) och `.kml`.
 Ett verkligt exportfilexempel (944 zoner, `Placemark`-struktur, alla regioner
 i Sverige) har verifierats fungera med befintlig `parseKml()` utan ändringar.
+
+### Egna platser (klar)
+
+Egen sektion "Egna platser" längst ner på profilsidan, efter Unikazoner —
+helt fristående från Turfs zondata, bara namn + koordinater sparat i
+`localStorage` (`turf-custom-places`, array `{id,name,lat,lon}`). Byggd
+för t.ex. en stuga eller brygga vid en campingplats, inte kopplat till
+Turf-spelet alls.
+
+**Flöde:** "Spara nuvarande position" hämtar en dedikerad, färsk
+`getCurrentPosition()`-fix (`enableHighAccuracy:true, maximumAge:0`, samma
+`GEO_TIMEOUT` som resten av appen) — medvetet **separat** från appens
+kontinuerliga `watchPosition()`, för att ge en så exakt position som
+möjligt just för detta permanenta referensläge, inte bara vad som råkade
+vara senaste bakgrundsfixen. Namnfältet visas först när positionen är
+klar, inte innan.
+
+**Visning:** `customPlaceLabel()` — en egen, mycket enklare uppläsare än
+`buildZoneItem()`: bara namn, avstånd, klockriktning (`"Stugan. 62 m.
+Klockan 1."`). Medvetet **inte** samma funktion som zoner — en egen plats
+har ingen ägare, status, eller zontyp, och att köra den genom
+`buildZoneItem()` hade gett direkt missvisande resultat (t.ex. "Neutral
+zon"-status, eller en felaktig "Unik."-markering) samt slösat
+API-anrop på höjd/cykel/hinder-data för en punkt som inte är en Turf-zon.
+Varje rad i listan är två knappar i samma `<li>`: en läsbar
+namn/avstånd/riktning-knapp (ingen navigering, finns bara för att
+VoiceOver ska läsa hela raden i ett svep, samma princip som zonkort) och
+en "Ta bort"-knapp — ingen bekräftelsedialog, samma direkta mönster som
+`removeFriend()`.
+
+**Automatisk "Nära ..."-avisering, jämförd mot zoner:** användarens
+uttryckliga krav var att en egen plats bara ska läsas upp när den är
+**närmare** än den närmaste zonen just då — aldrig båda samtidigt, för
+att undvika att de två kanalerna krockar. Samma villkor och kanaler som
+den befintliga zon-aviseringen ovan (`isAuto&&!navActive`, båda
+VO-aviseringar och Röstläge) — `nearestCustomPlace()` räknar ut
+avståndet till närmsta sparade plats, jämförs mot den redan kända
+`z._dist` för närmsta zon, och bara den som faktiskt är närmast blir
+`announceTarget`/`announcementText` denna cykel. Rör inte alls den
+befintliga zonlistans kod (`buildZoneItem`, filter, Visning) — bara
+denna fristående jämförelse i annonseringssteget.
 
 ---
 

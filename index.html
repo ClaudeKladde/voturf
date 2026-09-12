@@ -318,6 +318,7 @@
           <li id="tip-12b">Unikazoner kräver att du registrerar ett konto på den fristående tjänsten turf.lundkvist.com enligt instruktionerna där, eftersom Turfs egen data bara ger ett antal, inte namnen på zonerna. <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic" target="_blank" rel="noopener" style="color:var(--accent2);">Se guiden för hur du registrerar dig och hämtar din lista.</a> Tryck sedan Aktivera automatisk hämtning under Min profil första gången — därefter uppdateras listan automatiskt i bakgrunden varje gång du tar en ny zon. Knappen blir en bekräftad status efter aktivering och går inte att stänga av igen.</li>
           <li id="tip-12c">Filuppladdning finns kvar som reserv om automatisk hämtning inte fungerar. Stödjer tabb-separerade textfiler och KML-filer. Zoner som inte finns i din lista markeras med ett U-märke visuellt och läses upp som Unik i talsyntesen.</li>
           <li id="tip-12d">Medaljer visas som en egen knapp på profilsidan och öppnar en fullständig vy med alla dina uppnådda medaljer och vad som krävs för nästa nivå i varje serie.</li>
+          <li id="tip-12e">Egna platser sparas längst ner på profilsidan — praktiskt för till exempel en stuga eller brygga. Tryck Spara nuvarande position, vänta tills positionen uppdaterats, ange ett namn och tryck Spara. Varje sparad plats visas i listan med namn, avstånd och riktning, samt en Ta bort-knapp. Kommer du närmare en egen plats än den närmaste zonen läses platsen upp automatiskt istället, på samma sätt som zoner.</li>
         </ul>
         <h3 id="tips-h-gps">GPS och kompass</h3>
         <ul>
@@ -645,7 +646,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-08-24 20:47</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-09-12 10:09</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -795,6 +796,28 @@
         style="font-family:var(--font-mono);font-size:.8rem;color:var(--accent);margin-bottom:.5rem;min-height:1.4em;font-weight:700;"></div>
     </div>
 
+    <!-- Custom places — at the very end of profile page, after Unique zones -->
+    <div id="custom-places-section">
+      <h2 id="custom-places-heading" style="font-family:var(--font-mono);font-size:1rem;font-weight:700;color:var(--accent);margin:1.25rem 0 .6rem;border-bottom:1px solid var(--border);padding-bottom:.4rem">Egna platser</h2>
+      <ul id="custom-places-list" style="list-style:none;display:flex;flex-direction:column;gap:.35rem">
+        <li id="custom-places-empty" style="color:var(--muted);font-family:var(--font-mono);font-size:.85rem">Inga egna platser sparade.</li>
+      </ul>
+      <button id="btn-save-current-position"
+        style="display:block;width:100%;font-family:var(--font-mono);font-size:.85rem;font-weight:700;border:2px solid var(--accent2);border-radius:var(--radius);padding:.5rem .75rem;cursor:pointer;background:transparent;color:var(--accent2);margin-top:.5rem;margin-bottom:.5rem;text-align:left;">
+        Spara nuvarande position
+      </button>
+      <div id="custom-place-save-status" role="status" aria-live="polite" aria-atomic="true" style="font-family:var(--font-mono);font-size:.8rem;color:var(--muted);margin-bottom:.5rem;min-height:1.2em;"></div>
+      <div class="settings-control" id="custom-place-name-control" hidden>
+        <input type="text" id="custom-place-name-input"
+          autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+          placeholder="Namn på platsen"
+          aria-label="Namn på platsen"
+          style="flex:1;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);color:var(--accent2);font-family:var(--font-mono);font-size:.85rem;padding:.25rem .5rem;"
+        />
+        <button class="stepper-btn" id="btn-confirm-save-place" style="white-space:nowrap;font-size:.75rem;padding:.2rem .6rem;">Spara</button>
+      </div>
+    </div>
+
     </div><!-- end profile-stats-section -->
 
     <button id="btn-back-profile-bottom" class="btn-back btn-back-bottom" aria-label="Tillbaka till listan" style="margin-top:1rem;">&#8592; <span id="lbl-back-profile-bottom">Tillbaka till listan</span></button>
@@ -916,6 +939,7 @@
         'Unikazoner kräver att du registrerar ett konto på den fristående tjänsten turf.lundkvist.com enligt instruktionerna där, eftersom Turfs egen data bara ger ett antal, inte namnen på zonerna. <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic" target="_blank" rel="noopener" style="color:var(--accent2);">Se guiden för hur du registrerar dig och hämtar din lista.</a> Tryck sedan Aktivera automatisk hämtning under Min profil första gången — därefter uppdateras listan automatiskt i bakgrunden varje gång du tar en ny zon. Knappen blir en bekräftad status efter aktivering och går inte att stänga av igen.',
         'Filuppladdning finns kvar som reserv om automatisk hämtning inte fungerar. Stödjer tabb-separerade textfiler och KML-filer. Zoner som inte finns i din lista markeras med ett U-märke visuellt och läses upp som Unik i talsyntesen.',
         'Medaljer visas som en egen knapp på profilsidan och öppnar en fullständig vy med alla dina uppnådda medaljer och vad som krävs för nästa nivå i varje serie.',
+        'Egna platser sparas längst ner på profilsidan — praktiskt för till exempel en stuga eller brygga. Tryck Spara nuvarande position, vänta tills positionen uppdaterats, ange ett namn och tryck Spara. Varje sparad plats visas i listan med namn, avstånd och riktning, samt en Ta bort-knapp. Kommer du närmare en egen plats än den närmaste zonen läses platsen upp automatiskt istället, på samma sätt som zoner.',
         'Kompassläget visar riktningar relativt din rörelseriktning. Stäng av kompass under Inställningar om riktningarna känns felaktiga — då visas bara avstånd.',
         'Appen varnar dig om GPS-signalen försvinner i 45 sekunder, om GPS-noggrannheten är svag under en längre tid, eller om kompassen behöver kalibreras. Varningarna visas i statusraden och läses upp enligt det valda aviseringsläget.',
         'Inställningar finns längst ner på zonlistan bakom en expanderbar knapp. Röstläge, talhastighet och röstvolym justeras direkt där. Under rubriken Rörelse inställningar finns tre egna profiler (Gång, Cykel och Fordon), var och en med egen uppdateringsfrekvens, spelaruppdateringar och spelaravstånd, grupperade under varsin expanderbar rubrik. Platsknappen och kompassknappen är grupperade tillsammans.',
@@ -995,6 +1019,19 @@
       fetchUniqueCorsError:'Direkthämtning blockerades. Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.',
       fetchUniqueError:'Kunde inte hämta unikazoner.',
       fetchUniqueKmlInstructions:'Ladda ner KML-filen manuellt från turf.lundkvist.com och ladda upp den nedan.',
+      customPlacesHeading:'Egna platser',
+      customPlacesEmpty:'Inga egna platser sparade.',
+      customPlaceSaveBtn:'Spara nuvarande position',
+      customPlaceUpdatingGps:'Uppdaterar position…',
+      customPlaceGpsReady:'Position uppdaterad. Ange ett namn nedan.',
+      customPlaceNamePlaceholder:'Namn på platsen',
+      customPlaceNameAria:'Namn på platsen',
+      customPlaceConfirmBtn:'Spara',
+      customPlaceNameRequired:'Ange ett namn innan du sparar.',
+      customPlaceNoPosition:'Ingen position hämtad än — tryck på Spara nuvarande position igen.',
+      customPlaceSaved:(name)=>`${name} sparad.`,
+      customPlaceDeleteBtn:'Ta bort',
+      customPlaceDeleteAria:(name)=>`Ta bort ${name}`,
       fetchUniqueKmlLabel:'Ladda upp KML-fil med unikazoner',
       uniqueBadge:'Unik',
       uniqueZoneSuffix:' Unik.',
@@ -1240,6 +1277,7 @@
         'Unique zones require you to register an account on the independent service turf.lundkvist.com following the instructions there, since Turf\'s own data only gives a count, not the zone names. <a href="https://docs.google.com/document/u/0/d/1uH9mpnIWh3Xfwg37nv0uorCtJEgaw3RlCNuwso2MQYI/mobilebasic" target="_blank" rel="noopener" style="color:var(--accent2);">See the guide for how to register and fetch your list.</a> Then tap Activate automatic fetch under My profile the first time — after that the list updates automatically in the background whenever you take a new zone. The button becomes a confirmed status after activation and cannot be turned off again.',
         'File upload remains as a fallback if automatic fetching does not work. Supports tab-separated text files and KML files. Zones not in your list are marked with a U badge visually and announced as Unique by speech.',
         'Medals appears as its own button on the profile page and opens a full view with all your achieved medals and what is needed for the next level in each series.',
+        'Custom places are saved at the bottom of the profile page — handy for example for a cabin or a dock. Tap Save current position, wait for the position to update, enter a name and tap Save. Each saved place is shown in the list with name, distance and direction, plus a Remove button. If you get closer to a custom place than to the nearest zone, the place is announced automatically instead, the same way zones are.',
         'Compass mode shows directions relative to the way you are facing. Turn off compass under Settings if directions feel inaccurate — only distance will then be shown.',
         'The app warns you if the GPS signal is lost for 45 seconds, if GPS accuracy is weak for a sustained period, or if the compass needs calibration. Warnings appear in the status line and are announced following the selected announcement mode.',
         'Settings are at the bottom of the zone list behind an expandable button. Voice mode, speech rate, and voice volume are adjusted right there. Under the Movement settings heading are three separate profiles (Walking, Biking, and Vehicle), each with their own update frequency, player updates, and player distance, grouped under its own expandable heading. The location button and compass button are grouped together.',
@@ -1319,6 +1357,19 @@
       fetchUniqueCorsError:'Direct fetch blocked. Download the KML file manually from turf.lundkvist.com and upload it below.',
       fetchUniqueError:'Could not fetch unique zones.',
       fetchUniqueKmlInstructions:'Download the KML file manually from turf.lundkvist.com and upload it below.',
+      customPlacesHeading:'Custom places',
+      customPlacesEmpty:'No custom places saved.',
+      customPlaceSaveBtn:'Save current position',
+      customPlaceUpdatingGps:'Updating position…',
+      customPlaceGpsReady:'Position updated. Enter a name below.',
+      customPlaceNamePlaceholder:'Name of the place',
+      customPlaceNameAria:'Name of the place',
+      customPlaceConfirmBtn:'Save',
+      customPlaceNameRequired:'Enter a name before saving.',
+      customPlaceNoPosition:'No position fetched yet — press Save current position again.',
+      customPlaceSaved:(name)=>`${name} saved.`,
+      customPlaceDeleteBtn:'Remove',
+      customPlaceDeleteAria:(name)=>`Remove ${name}`,
       fetchUniqueKmlLabel:'Upload KML file with unique zones',
       uniqueBadge:'Unique',
       uniqueZoneSuffix:' Unique.',
@@ -1741,6 +1792,8 @@
   let lastNearbyPlayers=[]; // cached players list, re-rendered once zone data becomes available
   let friendsStatsCache={}; // name -> {zonesCount, pph}
   let friendsShowNearby=new Set(); // friends opted IN to appearing in nearby players
+  let customPlaces=[]; // array of {id,name,lat,lon}, user-saved personal locations
+  let pendingPlaceLat=null,pendingPlaceLon=null; // fresh GPS fix waiting to be named/saved
   let playersHiddenFromNearby=new Set(); // non-friends explicitly hidden from nearby players
   let uniqueZoneNames=new Set(); // zone names the user has previously taken (loaded from turf.lundkvist.com or KML)
   let uniqueZoneNamesNormalized=new Set(); // lowercase trimmed version for safe matching
@@ -2281,6 +2334,10 @@
         if(Array.isArray(savedFriends)) friendsList=savedFriends;
       }catch(e){friendsList=[];}
       try{
+        const savedPlaces=JSON.parse(localStorage.getItem('turf-custom-places')||'[]');
+        if(Array.isArray(savedPlaces)) customPlaces=savedPlaces;
+      }catch(e){customPlaces=[];}
+      try{
         const savedShowNearby=JSON.parse(localStorage.getItem('turf-friends-show-nearby')||'[]');
         if(Array.isArray(savedShowNearby)) friendsShowNearby=new Set(savedShowNearby);
       }catch(e){friendsShowNearby=new Set();}
@@ -2698,6 +2755,19 @@
     if(lblFileEl) lblFileEl.textContent=t.uniqueZonesFileLabel??'Ladda upp fil (.txt, .kml):';
     if(typeof applyAutoFetchButtonState==='function') applyAutoFetchButtonState();
     if(typeof updateUniqueZonesUI==='function') updateUniqueZonesUI();
+    /* Custom places section */
+    const customPlacesHeadingEl=document.getElementById('custom-places-heading');
+    if(customPlacesHeadingEl) customPlacesHeadingEl.textContent=t.customPlacesHeading;
+    const btnSavePosEl=document.getElementById('btn-save-current-position');
+    if(btnSavePosEl) btnSavePosEl.textContent=t.customPlaceSaveBtn;
+    const placeNameInputEl=document.getElementById('custom-place-name-input');
+    if(placeNameInputEl){
+      placeNameInputEl.placeholder=t.customPlaceNamePlaceholder;
+      placeNameInputEl.setAttribute('aria-label',t.customPlaceNameAria);
+    }
+    const btnConfirmSaveEl=document.getElementById('btn-confirm-save-place');
+    if(btnConfirmSaveEl) btnConfirmSaveEl.textContent=t.customPlaceConfirmBtn;
+    if(typeof renderCustomPlacesList==='function') renderCustomPlacesList();
     /* Player detail page — stats heading */
     const playerStatsHeadingEl=document.getElementById('player-stats-heading');
     if(playerStatsHeadingEl) playerStatsHeadingEl.textContent=t.playerStatsHeading;
@@ -2802,7 +2872,7 @@
     if(bottomTipsList){
       bottomTipsList.innerHTML='';
       /* Tip count per section matching static HTML structure */
-      const sectionSizes=[5,11,1,2,2,4,2,1,3];
+      const sectionSizes=[5,11,1,2,2,5,2,1,3];
       let tipIdx=0;
       (t.tipsHeadings||[]).forEach((heading,si)=>{
         const h=document.createElement('h3');
@@ -3014,6 +3084,7 @@
     renderProfileStatsOnly();
     renderFriendsList();
     updateUniqueZonesUI();
+    renderCustomPlacesList();
     /* Background refresh — fetches in the same order the sections appear on the
        page (Vänner, Min statistik, Mina zoner), one at a time with spacing and
        automatic retry, to avoid colliding with the Turf API's one-request-per-second
@@ -3500,6 +3571,115 @@
 
   btnAddFriend.addEventListener('click',addFriend);
   friendInput.addEventListener('keydown',e=>{if(e.key==='Enter') addFriend();});
+
+  /* ════════════════════════════════════════
+     CUSTOM PLACES — user-saved personal locations (cabin, dock, etc.),
+     shown on the profile page. Independent of Turf's zone data entirely —
+     just a name + coordinates saved to localStorage. Read aloud the same
+     way as a zone card (name, distance, direction) but with none of the
+     zone-specific fields (owner/status/type), since those don't apply.
+  ════════════════════════════════════════ */
+  function customPlaceLabel(place){
+    if(userLat===null) return `${place.name}.`;
+    const km=haversineKm(userLat,userLon,place.lat,place.lon);
+    const clock=directionToZone(place.lat,place.lon);
+    return clock?`${place.name}. ${distStr(km)}. ${clock}.`:`${place.name}. ${distStr(km)}.`;
+  }
+
+  function renderCustomPlacesList(){
+    const ul=document.getElementById('custom-places-list');
+    ul.innerHTML='';
+    if(!customPlaces.length){
+      const li=document.createElement('li');
+      li.id='custom-places-empty';
+      li.style.cssText='color:var(--muted);font-family:var(--font-mono);font-size:.85rem';
+      li.textContent=t.customPlacesEmpty;
+      ul.appendChild(li);
+      return;
+    }
+    const frag=document.createDocumentFragment();
+    customPlaces.forEach(place=>{
+      const label=customPlaceLabel(place);
+      const li=document.createElement('li');
+      li.className='zone-card';
+      li.innerHTML=`
+        <div style="display:flex;align-items:stretch;">
+          <button class="zone-btn" style="flex:1;" aria-label="${escAttr(label)}">
+            <div aria-hidden="true"><div class="zv-name">${escHtml(place.name)}</div></div>
+          </button>
+          <button aria-label="${escAttr(t.customPlaceDeleteAria(place.name))}"
+            style="flex-shrink:0;font-family:var(--font-mono);font-size:.75rem;font-weight:700;border:none;border-left:1px solid var(--border);background:transparent;color:var(--danger);cursor:pointer;padding:0 .9rem;">${escHtml(t.customPlaceDeleteBtn)}</button>
+        </div>`;
+      li.querySelector('button:last-child').addEventListener('click',()=>deleteCustomPlace(place.id));
+      frag.appendChild(li);
+    });
+    ul.appendChild(frag);
+  }
+
+  function deleteCustomPlace(id){
+    customPlaces=customPlaces.filter(p=>p.id!==id);
+    try{localStorage.setItem('turf-custom-places',JSON.stringify(customPlaces))}catch(e){}
+    renderCustomPlacesList();
+  }
+
+  /* Nearest saved place to the user's current position, or null if none
+     saved / no GPS fix yet. Used only by the automatic "Nära ..." zone
+     announcement below, to decide whether a place beats the nearest zone. */
+  function nearestCustomPlace(){
+    if(!customPlaces.length||userLat===null) return null;
+    let best=null,bestDistKm=Infinity;
+    customPlaces.forEach(p=>{
+      const km=haversineKm(userLat,userLon,p.lat,p.lon);
+      if(km<bestDistKm){bestDistKm=km;best=p;}
+    });
+    return best?{place:best,distKm:bestDistKm}:null;
+  }
+
+  document.getElementById('btn-save-current-position').addEventListener('click',()=>{
+    const btn=document.getElementById('btn-save-current-position');
+    const status=document.getElementById('custom-place-save-status');
+    if(!navigator.geolocation){ status.textContent=t.geoNotSupported; return; }
+    btn.disabled=true;
+    status.textContent=t.customPlaceUpdatingGps;
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        pendingPlaceLat=pos.coords.latitude;
+        pendingPlaceLon=pos.coords.longitude;
+        btn.disabled=false;
+        status.textContent=t.customPlaceGpsReady;
+        const nameControl=document.getElementById('custom-place-name-control');
+        nameControl.hidden=false;
+        const nameInput=document.getElementById('custom-place-name-input');
+        nameInput.value='';
+        nameInput.focus();
+      },
+      err=>{
+        btn.disabled=false;
+        const msgs={1:t.geoErr1,2:t.geoErr2,3:t.geoErr3};
+        status.textContent=msgs[err.code]||t.geoErrUnknown;
+      },
+      {enableHighAccuracy:true,timeout:GEO_TIMEOUT,maximumAge:0}
+    );
+  });
+
+  document.getElementById('btn-confirm-save-place').addEventListener('click',()=>{
+    const input=document.getElementById('custom-place-name-input');
+    const status=document.getElementById('custom-place-save-status');
+    const name=input.value.trim();
+    if(!name){ status.textContent=t.customPlaceNameRequired; input.focus(); return; }
+    if(pendingPlaceLat===null||pendingPlaceLon===null){ status.textContent=t.customPlaceNoPosition; return; }
+    customPlaces.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),name,lat:pendingPlaceLat,lon:pendingPlaceLon});
+    try{localStorage.setItem('turf-custom-places',JSON.stringify(customPlaces))}catch(e){}
+    pendingPlaceLat=null;pendingPlaceLon=null;
+    document.getElementById('custom-place-name-control').hidden=true;
+    input.value='';
+    status.textContent=t.customPlaceSaved(name);
+    renderCustomPlacesList();
+  });
+
+  document.getElementById('custom-place-name-input').addEventListener('keydown',e=>{
+    if(e.key==='Enter'){ e.preventDefault(); document.getElementById('btn-confirm-save-place').click(); }
+  });
 
   /* ════════════════════════════════════════
      PLAYER DETAIL — for any nearby player tapped in the list
@@ -5688,11 +5868,23 @@
         const firstCard=zoneList.querySelector('.zone-card');
         const z=firstCard?._zone;
         const ownLabel=firstCard?.querySelector('.zone-btn')?.getAttribute('aria-label');
-        if(z&&ownLabel){
-          const prefix=lang==='sv'?'Nära ':'Nearby ';
-          const announcementText=`${prefix}${ownLabel}`;
+        /* A saved custom place wins this cycle's announcement only if it's
+           genuinely closer right now than the nearest zone — never both,
+           per explicit user request (avoid the two channels competing). */
+        const nearestPlace=nearestCustomPlace();
+        const zoneDistKm=z?._dist??Infinity;
+        let announceTarget=null,announcementText=null;
+        const prefix=lang==='sv'?'Nära ':'Nearby ';
+        if(nearestPlace&&nearestPlace.distKm<zoneDistKm){
+          announceTarget=nearestPlace.place;
+          announcementText=`${prefix}${customPlaceLabel(nearestPlace.place)}`;
+        } else if(z&&ownLabel){
+          announceTarget=z;
+          announcementText=`${prefix}${ownLabel}`;
+        }
+        if(announceTarget&&announcementText){
           /* Voice Mode — Speech Synthesis */
-          if(isMonitorActive()) announceZone(z,announcementText);
+          if(isMonitorActive()) announceZone(announceTarget,announcementText);
           /* VO alerts — aria-live region, delay to let list render first */
           if(isVoAlertsActive()){
             setTimeout(()=>{
