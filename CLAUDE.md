@@ -937,6 +937,33 @@ statisk, utvecklarskriven text, aldrig användarinmatning.
     navigerbar på begäran, samma princip som `#status-msg`/`#nav-status`.
   **Ej verifierat med riktig GPS** — samma sandbox-begränsning som
   Vägbeskrivning ovan. Bör testas live av användaren efter driftsättning.
+- **Fixad bugg — blocktid uppdaterades ibland aldrig efter att en zon blivit
+  tagen:** rapporterat av användaren som att en zon som blivit blockerad
+  medan han var ute inte fick rätt blocktid, trots både automatisk och
+  manuell uppdatering. Orsak: `getBlockStatus()` slår upp ägarens
+  `blocktime` i `ownerCache`, fylld av `fetchOwnerBlocktimes()` — som till
+  skillnad från alla andra Turf-anrop i appen gjorde ett rått `fetch()` utan
+  `fetchJsonWithRetry()`s automatiska återförsök vid "one request per
+  second". Vid **vilket fel som helst** (nätverk, eller just detta
+  hastighetsgräns-fel — fullt möjligt eftersom appen redan gör flera andra
+  Turf-anrop på egna oberoende cyklar i bakgrunden) sattes ägarens post
+  permanent till `null`. `needed`-filtret i `fetchOwnerBlocktimes()` kollar
+  bara `===undefined`, så en post satt till `null` räknades som "redan
+  klar" och hämtades **aldrig om** — zonen fastnade i "Tagen för X sedan"
+  istället för en riktig nedräkning, för resten av sessionen, oavsett hur
+  många gånger listan uppdaterades. Fix: `fetchOwnerBlocktimes()` använder
+  nu `fetchJsonWithRetry()` som resten av appen, och vid ett kvarstående
+  fel (efter dess inbyggda återförsök) lämnas cache-posterna **ounset**
+  istället för permanent `null` — nästa uppdateringscykel försöker då
+  automatiskt igen, samma självläkande princip som redan används för
+  höjd-/cykel-/gång-/hinder-cachen. Endast en genuint tom träff i ett
+  **lyckat** svar (t.ex. ett borttaget konto) räknas fortfarande som
+  permanent okänd. Samtidigt bytte fyra andra råa `/users`-anrop
+  (`loadUser`, `fetchAndShowProfile`, `addFriend`, den tysta
+  profiluppdateringen vid appstart) till `fetchJsonWithRetry()` för
+  konsekvens — dessa skrev aldrig till en ihållande cache så de kunde inte
+  fastna permanent, men saknade ändå samma skydd mot en enstaka krock med
+  hastighetsgränsen.
 
 ---
 

@@ -646,7 +646,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-09-20 19:47</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-09-20 20:06</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -3022,12 +3022,7 @@
     usernameStatus.textContent=t.addUserLoading;
     btnAddUser.disabled=true;
     try{
-      const r=await fetch(`${API_BASE}/users`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify([{name}])
-      });
-      if(!r.ok) throw new Error();
-      const data=await r.json();
+      const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify([{name}]));
       if(!data.length){
         usernameStatus.textContent=t.addUserNotFound(name);
         return;
@@ -3061,9 +3056,7 @@
   async function fetchAndShowProfile(){
     if(!savedUsername) return;
     try{
-      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
-      if(!r.ok) throw new Error();
-      const data=await r.json();
+      const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify([{name:savedUsername}]));
       if(data.length){ savedUserProfile=data[0]; showProfile(); }
     }catch(e){}
   }
@@ -3525,9 +3518,7 @@
     setFriendStatus(t.friendAddLoading);
     btnAddFriend.disabled=true;
     try{
-      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name}])});
-      if(!r.ok) throw new Error();
-      const data=await r.json();
+      const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify([{name}]));
       if(!data.length){
         setFriendStatus(t.friendAddNotFound(name));
         return;
@@ -5340,12 +5331,25 @@
     const unique=[...new Map(needed.map(z=>[z.currentOwner.id,{id:z.currentOwner.id}])).values()];
     unique.forEach(({id})=>{ownerCache[id]=undefined});
     try{
-      const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(unique)});
-      if(!r.ok)throw new Error();
-      const users=await r.json();
+      const users=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify(unique));
       users.forEach(u=>{ownerCache[u.id]={blocktime:u.blocktime,rank:u.rank,zones:u.zones||[]}});
+      /* A requested id genuinely missing from a successful response (e.g. a
+         deleted account) is treated as permanently unknown ("Tagen för X
+         sedan" instead of a real countdown) — but a failed request itself
+         (network error, or the rate limit surviving fetchJsonWithRetry's own
+         retry) must NOT be, see catch below. */
       unique.forEach(({id})=>{if(ownerCache[id]===undefined)ownerCache[id]=null});
-    }catch{unique.forEach(({id})=>{ownerCache[id]=null})}
+    }catch{
+      /* Leave the cache entries unset on a request-level failure instead of
+         permanently marking them null, so the next refresh cycle (auto or
+         manual) retries them automatically — same self-healing principle
+         already used for elevation/cycling/walking/obstacle data. Fixes a bug
+         where a zone that got blocked while ownerCache's lookup happened to
+         collide with another Turf API call (hitting the "one request per
+         second" limit) would get stuck showing "Tagen för X sedan" forever,
+         never updating to a real countdown even after further refreshes. */
+      unique.forEach(({id})=>{delete ownerCache[id]});
+    }
     refreshAllBlockLabels();
     if(activeZone) renderDetailLive();
     if(activeZone?.currentOwner?.id){
@@ -6141,9 +6145,7 @@
   if(savedUsername){
     (async()=>{
       try{
-        const r=await fetch(`${API_BASE}/users`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify([{name:savedUsername}])});
-        if(!r.ok)return;
-        const data=await r.json();
+        const data=await fetchJsonWithRetry(`${API_BASE}/users`,JSON.stringify([{name:savedUsername}]));
         if(data.length){ savedUserProfile=data[0]; applyUsernameUI(); }
       }catch(e){}
     })();
