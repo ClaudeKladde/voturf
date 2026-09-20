@@ -646,7 +646,7 @@
     </div><!-- end settings-section -->
 
     <!-- Always visible at the bottom of the main page, outside the collapsible settings panel -->
-    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-09-12 10:09</p>
+    <p class="update-line" style="text-align:center;margin-top:1rem;">Vibe coded with Claude by Conejo, last updated 2026-09-20 19:47</p>
   </div><!-- end list-view -->
 
   <!-- ══ DETAIL VIEW ══ -->
@@ -740,15 +740,14 @@
       <li id="pi-rank">—</li>
       <li id="pi-next-rank">—</li>
       <li id="pi-round-points">—</li>
+      <li id="pi-owns-zones">—</li>
       <li id="pi-unique">—</li>
       <li id="pi-round-unique" hidden>—</li>
       <li id="pi-round-takeovers" hidden>—</li>
       <li id="pi-round-new-unique" hidden>—</li>
       <li id="pi-points">—</li>
-      <li id="pi-pph">—</li>
       <li id="pi-taken">—</li>
       <li><button id="pi-medals" style="display:block;width:100%;text-align:left;background:none;border:none;padding:0;margin:0;font:inherit;color:var(--accent2);text-decoration:underline;cursor:pointer;">—</button></li>
-      <li id="pi-zones-count">—</li>
       <li id="pi-region">—</li>
       <li id="pi-place">—</li>
       <li id="pi-longest-hold" hidden>—</li>
@@ -846,15 +845,14 @@
       <li id="pdi-rank">—</li>
       <li id="pdi-next-rank">—</li>
       <li id="pdi-round-points">—</li>
+      <li id="pdi-owns-zones">—</li>
       <li id="pdi-unique">—</li>
       <li id="pdi-round-unique" hidden>—</li>
       <li id="pdi-round-takeovers" hidden>—</li>
       <li id="pdi-round-new-unique" hidden>—</li>
       <li id="pdi-points">—</li>
-      <li id="pdi-pph">—</li>
       <li id="pdi-taken">—</li>
       <li><button id="pdi-medals" style="display:block;width:100%;text-align:left;background:none;border:none;padding:0;margin:0;font:inherit;color:var(--accent2);text-decoration:underline;cursor:pointer;">—</button></li>
-      <li id="pdi-zones-count">—</li>
       <li id="pdi-region">—</li>
       <li id="pdi-place">—</li>
       <li id="pdi-longest-hold" hidden>—</li>
@@ -1198,7 +1196,7 @@
       piMaxRank:'Max rank uppnådd — Turfalicious',
       piPoints:(p)=>`Totala poäng: ${p.toLocaleString('sv-SE')}`,
       piRoundPoints:(p)=>`Omgångspoäng: ${p.toLocaleString('sv-SE')}`,
-      piPph:(p)=>`Poäng per timme: ${p}`,
+      piOwnsZones:(zones,pph)=>`Äger ${zones} zon${zones===1?'':'er'}. +${pph}.`,
       piUnique:(n)=>`Unika zoner tagna: ${n.toLocaleString('sv-SE')}`,
       piRoundUnique:(n)=>`Omgångsunika zoner: ${n.toLocaleString('sv-SE')}`,
       piRoundTakeovers:(n)=>`Tagningar denna omgång: ${n.toLocaleString('sv-SE')}`,
@@ -1206,7 +1204,6 @@
       piRoundNewUniqueNote:'Ungefärligt värde, räknat från appens första mätning denna omgång — kan vara för lågt.',
       piTaken:(n)=>`Totala tagningar: ${n.toLocaleString('sv-SE')}`,
       piMedals:(n)=>`Medaljer: ${n}`,
-      piZonesCount:(n)=>`Ägda zoner: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global placering: ${p}`,
       piLongestHold:(zoneName,durationSpoken)=>`Längsta innehav: ${zoneName}, ${durationSpoken}`,
@@ -1536,7 +1533,7 @@
       piMaxRank:'Maximum rank reached — Turfalicious',
       piPoints:(p)=>`Total points: ${p.toLocaleString('en-GB')}`,
       piRoundPoints:(p)=>`Round points: ${p.toLocaleString('en-GB')}`,
-      piPph:(p)=>`Points per hour: ${p}`,
+      piOwnsZones:(zones,pph)=>`Owns ${zones} zone${zones===1?'':'s'}. +${pph}.`,
       piUnique:(n)=>`Unique zones taken: ${n.toLocaleString('en-GB')}`,
       piRoundUnique:(n)=>`Round-unique zones: ${n.toLocaleString('en-GB')}`,
       piRoundTakeovers:(n)=>`Takeovers this round: ${n.toLocaleString('en-GB')}`,
@@ -1544,7 +1541,6 @@
       piRoundNewUniqueNote:"Approximate, counted from the app's first measurement this round — may be too low.",
       piTaken:(n)=>`Total takeovers: ${n.toLocaleString('en-GB')}`,
       piMedals:(n)=>`Medals: ${n}`,
-      piZonesCount:(n)=>`Owned zones: ${n}`,
       piRegion:(r)=>`Region: ${r}`,
       piPlace:(p)=>`Global place: ${p}`,
       piLongestHold:(zoneName,durationSpoken)=>`Longest hold: ${zoneName}, ${durationSpoken}`,
@@ -2628,7 +2624,7 @@
     document.title=`${player.name} — VO Turf`;
     /* Reset to loading state before fetch resolves */
     document.getElementById('player-detail-heading').textContent=player.name;
-    ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-pph','pdi-unique','pdi-taken','pdi-medals','pdi-zones-count','pdi-region','pdi-place']
+    ['pdi-rank','pdi-next-rank','pdi-points','pdi-round-points','pdi-owns-zones','pdi-unique','pdi-taken','pdi-medals','pdi-region','pdi-place']
       .forEach(id=>{document.getElementById(id).textContent='—'});
     ['pdi-round-unique','pdi-round-takeovers','pdi-round-new-unique','pdi-longest-hold','pdi-best-day','pdi-longest-session','pdi-most-taken-zone','pdi-favourite-area','pdi-rival-steals','pdi-rival-victims','pdi-peak-hour','pdi-latest-session','pdi-top-areas']
       .forEach(id=>{document.getElementById(id).hidden=true});
@@ -3103,11 +3099,10 @@
       :t.piMaxRank;
     document.getElementById('pi-points').textContent=t.piPoints(u.totalPoints);
     document.getElementById('pi-round-points').textContent=t.piRoundPoints(u.points??0);
-    document.getElementById('pi-pph').textContent=t.piPph(u.pointsPerHour??0);
+    document.getElementById('pi-owns-zones').textContent=t.piOwnsZones((u.zones||[]).length,u.pointsPerHour??0);
     document.getElementById('pi-unique').textContent=t.piUnique(u.uniqueZonesTaken??0);
     document.getElementById('pi-taken').textContent=t.piTaken(u.taken??0);
     document.getElementById('pi-medals').textContent=t.piMedals(totalMedals);
-    document.getElementById('pi-zones-count').textContent=t.piZonesCount((u.zones||[]).length);
     document.getElementById('pi-region').textContent=t.piRegion(u.region?.name??t.unknown);
     document.getElementById('pi-place').textContent=t.piPlace(u.place??'—');
   }
@@ -3701,11 +3696,10 @@
       document.getElementById('pdi-next-rank').textContent=next?t.piNextRank(next.pointsNeeded,next.name):t.piMaxRank;
       document.getElementById('pdi-points').textContent=t.piPoints(u.totalPoints);
       document.getElementById('pdi-round-points').textContent=t.piRoundPoints(u.points??0);
-      document.getElementById('pdi-pph').textContent=t.piPph(u.pointsPerHour??0);
+      document.getElementById('pdi-owns-zones').textContent=t.piOwnsZones((u.zones||[]).length,u.pointsPerHour??0);
       document.getElementById('pdi-unique').textContent=t.piUnique(u.uniqueZonesTaken??0);
       document.getElementById('pdi-taken').textContent=t.piTaken(u.taken??0);
       document.getElementById('pdi-medals').textContent=t.piMedals(totalMedals);
-      document.getElementById('pdi-zones-count').textContent=t.piZonesCount((u.zones||[]).length);
       document.getElementById('pdi-region').textContent=t.piRegion(u.region?.name??t.unknown);
       document.getElementById('pdi-place').textContent=t.piPlace(u.place??'—');
 

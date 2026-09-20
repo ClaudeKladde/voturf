@@ -1027,6 +1027,18 @@ avståndet till närmsta sparade plats, jämförs mot den redan kända
 befintliga zonlistans kod (`buildZoneItem`, filter, Visning) — bara
 denna fristående jämförelse i annonseringssteget.
 
+### Ägda zoner + poäng per timme slogs ihop på statistiksidan
+
+`pi-pph`("Poäng per timme: X")/`pi-zones-count`("Ägda zoner: X") var två
+separata rader på olika ställen i `#profile-list` (`pdi-*` motsvarande på
+spelarsidan). Slogs ihop till en enda rad, `pi-owns-zones`/`pdi-owns-zones`,
+flyttad till att ligga direkt under Omgångspoäng — `t.piOwnsZones(zones,pph)`
+ger `"Äger 9 zoner. +58."`, samma formulering/pluralisering som redan
+används för spelare i närheten/vänner (`friendStatsText`) och för hur den
+riktiga Turf-appen visar det. De två gamla nycklarna/raderna (`piPph`/
+`piZonesCount`) togs bort helt istället för att bara döljas, eftersom
+informationen annars hade visats dubbelt.
+
 ---
 
 ## 10. Snabbreferens vid start av ny konversation
